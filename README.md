@@ -36,3 +36,13 @@ Esta arquitectura permite:
 - Fácil testing (podemos mockear las interfaces)
 - Cambiar implementaciones sin afectar otras capas
 - Mantenimiento más sencillo del código
+
+INSTRUCCIONES PARA CONFIGURAR EL CORREO ELECTRÓNICO:
+  
+ * 1. Ve a tu cuenta de Gmail
+ * 2. Activa la verificación en dos pasos
+ * 3. Ve a "Contraseñas de aplicaciones" en tu cuenta de Google
+ * 4. Genera una nueva contraseña de aplicación para "Correo"
+ * 5. Copia esa contraseña (de 16 caracteres) y úsala en SmtpPassword
+ * 6. Reemplaza "tu-correo@gmail.com" con tu correo real
+
