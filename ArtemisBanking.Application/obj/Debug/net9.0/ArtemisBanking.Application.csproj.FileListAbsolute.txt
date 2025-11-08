@@ -1,0 +1,15 @@
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.csproj.AssemblyReference.cache
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.AssemblyInfoInputs.cache
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.AssemblyInfo.cs
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.csproj.CoreCompileInputs.cache
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\bin\Debug\net9.0\ArtemisBanking.Application.deps.json
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\bin\Debug\net9.0\ArtemisBanking.Application.dll
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\bin\Debug\net9.0\ArtemisBanking.Application.pdb
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\bin\Debug\net9.0\ArtemisBanking.Domain.dll
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\bin\Debug\net9.0\ArtemisBanking.Domain.pdb
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisB.B8AD944F.Up2Date
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.dll
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\refint\ArtemisBanking.Application.dll
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ArtemisBanking.Application.pdb
+C:\Users\arian\OneDrive\Escritorio\InGroup\ArtemisBanking.Application\obj\Debug\net9.0\ref\ArtemisBanking.Application.dll
