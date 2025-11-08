@@ -1,36 +1,94 @@
-namespace ArtemisBanking
+using ArtemisBanking.Infrastructure;
+using ArtemisBanking.Infrastructure.Data;
+using Hangfire;
+using Hangfire.Dashboard;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Agregar servicios al contenedor
+builder.Services.AddControllersWithViews();
+
+// Agregar servicios de la capa de infraestructura (DbContext, Identity, Repositorios, Servicios)
+builder.Services.AgregarInfraestructura(builder.Configuration);
+
+// Configurar políticas de autorización por roles
+builder.Services.AddAuthorization(options =>
 {
-    public class Program
+    // Política para administradores
+    options.AddPolicy("SoloAdministrador", policy =>
+        policy.RequireRole("Administrador"));
+
+    // Política para cajeros
+    options.AddPolicy("SoloCajero", policy =>
+        policy.RequireRole("Cajero"));
+
+    // Política para clientes
+    options.AddPolicy("SoloCliente", policy =>
+        policy.RequireRole("Cliente"));
+});
+
+var app = builder.Build();
+
+// Inicializar la base de datos con datos por defecto (roles y usuarios)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        await DbInitializer.InicializarAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al inicializar la base de datos");
+    }
+}
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+// Configurar el pipeline de solicitudes HTTP
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
-            var app = builder.Build();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+app.UseRouting();
 
-            app.UseHttpsRedirection();
-            app.UseRouting();
+// Activar autenticación y autorización
+app.UseAuthentication();
+app.UseAuthorization();
 
-            app.UseAuthorization();
+// Configurar Hangfire Dashboard (solo accesible para administradores en producción)
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
 
-            app.MapStaticAssets();
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+// Configurar los jobs recurrentes de Hangfire
+DependencyInjection.ConfigurarJobsRecurrentes();
 
-            app.Run();
-        }
+// Configurar las rutas de los controladores
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Login}/{id?}");
+
+app.Run();
+
+// Filtro de autorización para el dashboard de Hangfire
+public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context)
+    {
+        var httpContext = context.GetHttpContext();
+        
+        // Permitir acceso solo si el usuario está autenticado y es administrador
+        return httpContext.User.Identity?.IsAuthenticated == true &&
+               httpContext.User.IsInRole("Administrador");
     }
 }
