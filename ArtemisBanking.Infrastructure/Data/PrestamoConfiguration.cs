@@ -1,14 +1,12 @@
 ﻿using ArtemisBanking.Domain.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
+    /// <summary>
+    /// Configuración de la entidad Prestamo
+    /// </summary>
     public class PrestamoConfiguration : IEntityTypeConfiguration<Prestamo>
     {
         public void Configure(EntityTypeBuilder<Prestamo> builder)

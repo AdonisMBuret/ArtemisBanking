@@ -1,0 +1,240 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\Document.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Document.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 57,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsuarioConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\UsuarioConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T04:05:14.288Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CuentaAhorroConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\CuentaAhorroConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:41:23.331Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ConsumoTarjetaConfiguration .cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\ConsumoTarjetaConfiguration .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:43:52.543Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CuotaPrestamoConfiguration .cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\CuotaPrestamoConfiguration .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:31:58.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DbInitializer.cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\DbInitializer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:46:23.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PrestamoConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\PrestamoConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:49:17.1Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TarjetaCreditoConfiguration .cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\TarjetaCreditoConfiguration .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:43:11.666Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TransaccionConfiguration .cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\TransaccionConfiguration .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:44:18.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "BeneficiarioConfiguration .cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\BeneficiarioConfiguration .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:44:44.492Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ArtemisBankingDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
+              "RelativeDocumentMoniker": "ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
+              "RelativeToolTip": "ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-09T03:49:30.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Document.md",
+              "DocumentMoniker": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\Document.md",
+              "RelativeDocumentMoniker": "Document.md",
+              "ToolTip": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\Document.md",
+              "RelativeToolTip": "Document.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-11-09T03:23:06.174Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 233,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

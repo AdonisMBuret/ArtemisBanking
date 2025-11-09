@@ -16,3 +16,12 @@ C:\Users\A_M_B\Desktop\Programacion 3\p5\ArtemisBanking\ArtemisBanking\obj\Debug
 C:\Users\A_M_B\Desktop\Programacion 3\p5\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.RazorAssemblyInfo.cache
 C:\Users\A_M_B\Desktop\Programacion 3\p5\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.RazorAssemblyInfo.cs
 C:\Users\A_M_B\Desktop\Programacion 3\p5\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.sourcelink.json
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.csproj.AssemblyReference.cache
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.AssemblyInfoInputs.cache
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.AssemblyInfo.cs
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.csproj.CoreCompileInputs.cache
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.RazorAssemblyInfo.cache
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.RazorAssemblyInfo.cs
+C:\Users\arian\OneDrive\Escritorio\leonardo\ArtemisBanking\ArtemisBanking\obj\Debug\net9.0\ArtemisBanking.sourcelink.json

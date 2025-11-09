@@ -1,11 +1,7 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\A_M_B\\Desktop\\Programacion 3\\p5\\ArtemisBanking\\ArtemisBanking\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{57B699BB-8F0F-4B51-984E-C44E0D16E549}|..\\ArtemisBanking.Infrastructure\\ArtemisBanking.Infrastructure.csproj|c:\\users\\a_m_b\\desktop\\programacion 3\\p5\\artemisbanking\\artemisbanking.infrastructure\\data\\artemisbankingdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "WorkspaceRootPath": "C:\\Users\\arian\\OneDrive\\Escritorio\\leonardo\\ArtemisBanking\\ArtemisBanking\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -13,20 +9,41 @@
       "DocumentGroups": [
         {
           "DockedWidth": 57,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": -1,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ArtemisBankingDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\A_M_B\\Desktop\\Programacion 3\\p5\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
-              "RelativeDocumentMoniker": "..\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
-              "ToolTip": "C:\\Users\\A_M_B\\Desktop\\Programacion 3\\p5\\ArtemisBanking\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
-              "RelativeToolTip": "..\\ArtemisBanking.Infrastructure\\Data\\ArtemisBankingDbContext.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAuwC4AAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-09T02:52:14.669Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 233,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }
