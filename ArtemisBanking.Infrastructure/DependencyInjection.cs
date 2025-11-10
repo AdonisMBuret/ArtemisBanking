@@ -2,6 +2,7 @@
 using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Infrastructure.Data;
 using ArtemisBanking.Infrastructure.Jobs;
+using ArtemisBanking.Infrastructure.Mappings;
 using ArtemisBanking.Infrastructure.Repositories;
 using ArtemisBanking.Infrastructure.Services;
 using Hangfire;
@@ -109,7 +110,7 @@ namespace ArtemisBanking.Infrastructure
             services.AddScoped<ActualizadorCuotasAtrasadasJob>();
 
             // Configurar AutoMapper (lo configuraremos después)
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
             return services;
         }

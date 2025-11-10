@@ -5,14 +5,16 @@ using AutoMapper;
 namespace ArtemisBanking.Infrastructure.Mappings
 {
     /// <summary>
-    /// Perfil de AutoMapper para mapeo entre entidades y DTOs
-    /// Define cómo se convierten los objetos de un tipo a otro
+    /// Perfil de AutoMapper para mapear entre entidades y DTOs
+    /// AutoMapper nos ayuda a convertir objetos de un tipo a otro automáticamente
+    /// Por ejemplo: convertir Usuario (entidad) a UsuarioDTO (para enviar a la vista)
     /// </summary>
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
         {
-            // Mapeo de Usuario a UsuarioDTO
+            // ==================== MAPEO DE USUARIO ====================
+            // Convertir de Usuario (entidad) a UsuarioDTO
             CreateMap<Usuario, UsuarioDTO>()
                 .ForMember(dest => dest.NombreCompleto,
                           opt => opt.MapFrom(src => $"{src.Nombre} {src.Apellido}"))
@@ -21,7 +23,7 @@ namespace ArtemisBanking.Infrastructure.Mappings
                 .ForMember(dest => dest.NombreUsuario,
                           opt => opt.MapFrom(src => src.UserName));
 
-            // Mapeo de CuentaAhorro a CuentaAhorroDTO
+            // ==================== MAPEO DE CUENTA DE AHORRO ====================
             CreateMap<CuentaAhorro, CuentaAhorroDTO>()
                 .ForMember(dest => dest.NombreCliente,
                           opt => opt.MapFrom(src => src.Usuario.Nombre))
@@ -30,7 +32,7 @@ namespace ArtemisBanking.Infrastructure.Mappings
                 .ForMember(dest => dest.CedulaCliente,
                           opt => opt.MapFrom(src => src.Usuario.Cedula));
 
-            // Mapeo de Prestamo a PrestamoDTO
+            // ==================== MAPEO DE PRÉSTAMO ====================
             CreateMap<Prestamo, PrestamoDTO>()
                 .ForMember(dest => dest.NombreCliente,
                           opt => opt.MapFrom(src => src.Cliente.Nombre))
@@ -44,7 +46,7 @@ namespace ArtemisBanking.Infrastructure.Mappings
                           opt => opt.MapFrom(src =>
                               src.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota)));
 
-            // Mapeo de TarjetaCredito a TarjetaCreditoDTO
+            // ==================== MAPEO DE TARJETA DE CRÉDITO ====================
             CreateMap<TarjetaCredito, TarjetaCreditoDTO>()
                 .ForMember(dest => dest.NombreCliente,
                           opt => opt.MapFrom(src => src.Cliente.Nombre))
@@ -53,20 +55,20 @@ namespace ArtemisBanking.Infrastructure.Mappings
                 .ForMember(dest => dest.CedulaCliente,
                           opt => opt.MapFrom(src => src.Cliente.Cedula));
 
-            // Mapeo de Transaccion a TransaccionDTO
+            // ==================== MAPEO DE TRANSACCIÓN ====================
             CreateMap<Transaccion, TransaccionDTO>()
                 .ForMember(dest => dest.NumeroCuenta,
                           opt => opt.MapFrom(src => src.CuentaAhorro.NumeroCuenta));
 
-            // Mapeo de ConsumoTarjeta a ConsumoTarjetaDTO
+            // ==================== MAPEO DE CONSUMO DE TARJETA ====================
             CreateMap<ConsumoTarjeta, ConsumoTarjetaDTO>()
                 .ForMember(dest => dest.NumeroTarjeta,
                           opt => opt.MapFrom(src => src.Tarjeta.NumeroTarjeta));
 
-            // Mapeo de CuotaPrestamo a CuotaPrestamoDTO
+            // ==================== MAPEO DE CUOTA DE PRÉSTAMO ====================
             CreateMap<CuotaPrestamo, CuotaPrestamoDTO>();
 
-            // Mapeo de Beneficiario a BeneficiarioDTO
+            // ==================== MAPEO DE BENEFICIARIO ====================
             CreateMap<Beneficiario, BeneficiarioDTO>()
                 .ForMember(dest => dest.NombreBeneficiario,
                           opt => opt.MapFrom(src => src.CuentaAhorro.Usuario.Nombre))
