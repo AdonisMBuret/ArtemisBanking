@@ -1,4 +1,4 @@
-﻿using ArtemisBanking.Application.Interfaces.Services;
+﻿using ArtemisBanking.Domain.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 

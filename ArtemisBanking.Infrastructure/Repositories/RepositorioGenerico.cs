@@ -1,4 +1,4 @@
-﻿using ArtemisBanking.Application.Interfaces.Repositories;
+﻿using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;

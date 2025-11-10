@@ -1,4 +1,4 @@
-﻿using ArtemisBanking.Application.Interfaces.Services;
+﻿using ArtemisBanking.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net;

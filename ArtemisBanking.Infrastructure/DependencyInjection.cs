@@ -1,6 +1,5 @@
-﻿using ArtemisBanking.Application.Interfaces.Repositories;
-using ArtemisBanking.Application.Interfaces.Services;
-using ArtemisBanking.Domain.Entities;
+﻿using ArtemisBanking.Domain.Entities;
+using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Infrastructure.Data;
 using ArtemisBanking.Infrastructure.Jobs;
 using ArtemisBanking.Infrastructure.Repositories;
