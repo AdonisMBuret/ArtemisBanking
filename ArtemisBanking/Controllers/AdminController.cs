@@ -19,17 +19,30 @@ namespace ArtemisBanking.Web.Controllers
     [Authorize(Policy = "SoloAdministrador")]
     public class AdminController : Controller
     {
+        // ==================== REPOSITORIOS ====================
         private readonly UserManager<Usuario> _userManager;
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IRepositorioCuentaAhorro _repositorioCuenta;
         private readonly IRepositorioPrestamo _repositorioPrestamo;
         private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
         private readonly IRepositorioTransaccion _repositorioTransaccion;
+
+        // ⭐ ESTOS FALTABAN - Los agregamos
+        private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
+        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
+
+        // ==================== SERVICIOS ====================
         private readonly IServicioCorreo _servicioCorreo;
-        private readonly ILogger<AdminController> _logger;
         private readonly IServicioCifrado _servicioCifrado;
 
+        // ⭐ ESTE FALTABA - Lo agregamos
+        private readonly IServicioCalculoPrestamo _servicioCalculoPrestamo;
 
+        private readonly ILogger<AdminController> _logger;
+
+        /// <summary>
+        /// Constructor del controlador - Aquí inyectamos todas las dependencias que necesitamos
+        /// </summary>
         public AdminController(
             UserManager<Usuario> userManager,
             IRepositorioUsuario repositorioUsuario,
@@ -37,10 +50,10 @@ namespace ArtemisBanking.Web.Controllers
             IRepositorioPrestamo repositorioPrestamo,
             IRepositorioTarjetaCredito repositorioTarjeta,
             IRepositorioTransaccion repositorioTransaccion,
-            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
-            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
+            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,      // ⭐ AGREGADO
+            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,    // ⭐ AGREGADO
             IServicioCorreo servicioCorreo,
-            IServicioCalculoPrestamo servicioCalculoPrestamo,
+            IServicioCalculoPrestamo servicioCalculoPrestamo,         // ⭐ AGREGADO
             IServicioCifrado servicioCifrado,
             ILogger<AdminController> logger)
         {
@@ -50,13 +63,13 @@ namespace ArtemisBanking.Web.Controllers
             _repositorioPrestamo = repositorioPrestamo;
             _repositorioTarjeta = repositorioTarjeta;
             _repositorioTransaccion = repositorioTransaccion;
+            _repositorioCuotaPrestamo = repositorioCuotaPrestamo;    // ⭐ ASIGNACIÓN
+            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;  // ⭐ ASIGNACIÓN
             _servicioCorreo = servicioCorreo;
-            _logger = logger;
+            _servicioCalculoPrestamo = servicioCalculoPrestamo;       // ⭐ ASIGNACIÓN
             _servicioCifrado = servicioCifrado;
+            _logger = logger;
         }
-
-
-
 
         /// <summary>
         /// Dashboard principal del administrador
@@ -88,9 +101,9 @@ namespace ArtemisBanking.Web.Controllers
             };
 
             // Calcular total de productos financieros
-            viewModel.TotalProductosFinancieros = 
-                viewModel.PrestamosVigentes + 
-                viewModel.TarjetasActivas + 
+            viewModel.TotalProductosFinancieros =
+                viewModel.PrestamosVigentes +
+                viewModel.TarjetasActivas +
                 viewModel.CuentasAhorro;
 
             return View(viewModel);
@@ -106,8 +119,8 @@ namespace ArtemisBanking.Web.Controllers
         {
             // Obtener usuarios paginados
             var (usuarios, total) = await _repositorioUsuario.ObtenerUsuariosPaginadosAsync(
-                pagina, 
-                Constantes.TamanoPaginaPorDefecto, 
+                pagina,
+                Constantes.TamanoPaginaPorDefecto,
                 rol);
 
             // Obtener el ID del usuario actual
@@ -327,8 +340,8 @@ namespace ArtemisBanking.Web.Controllers
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
                 var resultadoContrasena = await _userManager.ResetPasswordAsync(
-                    usuario, 
-                    token, 
+                    usuario,
+                    token,
                     model.NuevaContrasena);
 
                 if (!resultadoContrasena.Succeeded)
@@ -378,9 +391,10 @@ namespace ArtemisBanking.Web.Controllers
             var usuarioActualId = _userManager.GetUserId(User);
             if (usuario.Id == usuarioActualId)
             {
-                return Json(new { 
-                    exito = false, 
-                    mensaje = "No puede modificar el estado de su propia cuenta." 
+                return Json(new
+                {
+                    exito = false,
+                    mensaje = "No puede modificar el estado de su propia cuenta."
                 });
             }
 
@@ -390,8 +404,9 @@ namespace ArtemisBanking.Web.Controllers
 
             _logger.LogInformation($"Estado del usuario {usuario.UserName} cambiado a {usuario.EstaActivo}");
 
-            return Json(new { 
-                exito = true, 
+            return Json(new
+            {
+                exito = true,
                 mensaje = $"Usuario {(usuario.EstaActivo ? "activado" : "desactivado")} exitosamente.",
                 nuevoEstado = usuario.EstaActivo
             });
@@ -1493,7 +1508,5 @@ namespace ArtemisBanking.Web.Controllers
         }
 
         #endregion
-        // gola
-        
     }
 }

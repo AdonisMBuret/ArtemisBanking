@@ -1,31 +1,378 @@
-html {
-  font-size: 14px;
+/* ============================================================
+   ARTEMIS BANKING - ESTILOS PERSONALIZADOS
+   Paleta: Marrones, Crema, Blanco y Negro
+   ============================================================ */
+
+/* ==================== VARIABLES DE COLORES ==================== */
+:root {
+    /* Colores principales */
+    --color-primary: #6B4423; /* Marrón oscuro */
+    --color-secondary: #8B5A3C; /* Marrón medio */
+    --color-accent: #A0826D; /* Marrón claro */
+    --color-light: #F5F5DC; /* Crema/Beige */
+    --color-lighter: #FEFEFE; /* Blanco roto */
+    --color-dark: #2C2416; /* Negro marrón */
+    --color-gray: #D4C5B9; /* Gris crema */
+    /* Colores de estado */
+    --color-success: #5C7C5D; /* Verde oliva */
+    --color-danger: #8B4513; /* Marrón rojizo */
+    --color-warning: #CD853F; /* Marrón dorado */
+    --color-info: #6B8E23; /* Verde oliva oscuro */
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(107, 68, 35, 0.1);
+    --shadow-md: 0 4px 8px rgba(107, 68, 35, 0.15);
+    --shadow-lg: 0 8px 16px rgba(107, 68, 35, 0.2);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* ==================== ESTILOS GENERALES ==================== */
 body {
-  margin-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-light);
+    color: var(--color-dark);
+    line-height: 1.6;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Contenedor principal */
+.container {
+    background-color: var(--color-lighter);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    margin-top: 2rem;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* ==================== NAVBAR ==================== */
+.navbar-artemis {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    box-shadow: var(--shadow-md);
+    padding: 1rem 0;
+}
+
+    .navbar-artemis .navbar-brand {
+        color: var(--color-lighter) !important;
+        font-weight: 700;
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .navbar-artemis .nav-link {
+        color: var(--color-light) !important;
+        font-weight: 500;
+        margin: 0 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+        .navbar-artemis .nav-link:hover {
+            color: var(--color-lighter) !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-artemis .nav-link.active {
+            color: var(--color-lighter) !important;
+            border-bottom: 2px solid var(--color-lighter);
+        }
+
+/* ==================== BOTONES ==================== */
+.btn-primary-artemis {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border: none;
+    color: var(--color-lighter);
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+    .btn-primary-artemis:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    }
+
+.btn-secondary-artemis {
+    background-color: var(--color-accent);
+    border: none;
+    color: var(--color-lighter);
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+    .btn-secondary-artemis:hover {
+        background-color: var(--color-secondary);
+        transform: translateY(-2px);
+    }
+
+.btn-outline-artemis {
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+    .btn-outline-artemis:hover {
+        background-color: var(--color-primary);
+        color: var(--color-lighter);
+        transform: translateY(-2px);
+    }
+
+/* ==================== CARDS/TARJETAS ==================== */
+.card-artemis {
+    background-color: var(--color-lighter);
+    border: 1px solid var(--color-gray);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+    .card-artemis:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-4px);
+    }
+
+.card-artemis-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: var(--color-lighter);
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+}
+
+.card-artemis-body {
+    padding: 1.5rem;
+}
+
+/* ==================== FORMULARIOS ==================== */
+.form-control-artemis {
+    border: 2px solid var(--color-gray);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-lighter);
+    color: var(--color-dark);
+    transition: all 0.3s ease;
+}
+
+    .form-control-artemis:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(107, 68, 35, 0.25);
+        outline: none;
+    }
+
+.form-label-artemis {
+    color: var(--color-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* ==================== TABLAS ==================== */
+.table-artemis {
+    background-color: var(--color-lighter);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+    .table-artemis thead {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+        color: var(--color-lighter);
+    }
+
+        .table-artemis thead th {
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+
+    .table-artemis tbody tr {
+        border-bottom: 1px solid var(--color-gray);
+        transition: background-color 0.2s ease;
+    }
+
+        .table-artemis tbody tr:hover {
+            background-color: var(--color-light);
+        }
+
+    .table-artemis tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+/* ==================== BADGES/ETIQUETAS ==================== */
+.badge-success-artemis {
+    background-color: var(--color-success);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge-danger-artemis {
+    background-color: var(--color-danger);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge-warning-artemis {
+    background-color: var(--color-warning);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* ==================== ALERTAS ==================== */
+.alert-artemis {
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+}
+
+.alert-success-artemis {
+    background-color: rgba(92, 124, 93, 0.1);
+    border-left-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.alert-danger-artemis {
+    background-color: rgba(139, 69, 19, 0.1);
+    border-left-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.alert-warning-artemis {
+    background-color: rgba(205, 133, 63, 0.1);
+    border-left-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+/* ==================== DASHBOARD CARDS ==================== */
+.dashboard-card {
+    background: linear-gradient(135deg, var(--color-lighter) 0%, var(--color-light) 100%);
+    border: 1px solid var(--color-gray);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+.dashboard-card-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-lighter);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0.5rem 0;
+}
+
+.dashboard-card-label {
+    color: var(--color-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ==================== PAGINACIÓN ==================== */
+.pagination-artemis .page-link {
+    color: var(--color-primary);
+    border: 1px solid var(--color-gray);
+    margin: 0 0.2rem;
+    border-radius: 6px;
+}
+
+    .pagination-artemis .page-link:hover {
+        background-color: var(--color-light);
+        border-color: var(--color-primary);
+    }
+
+.pagination-artemis .page-item.active .page-link {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-lighter);
+}
+
+/* ==================== FOOTER ==================== */
+.footer-artemis {
+    background-color: var(--color-dark);
+    color: var(--color-light);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+    .footer-artemis a {
+        color: var(--color-accent);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .footer-artemis a:hover {
+            color: var(--color-lighter);
+        }
+
+/* ==================== UTILIDADES ==================== */
+.text-primary-artemis {
+    color: var(--color-primary) !important;
+}
+
+.text-secondary-artemis {
+    color: var(--color-secondary) !important;
+}
+
+.bg-light-artemis {
+    background-color: var(--color-light) !important;
+}
+
+.border-artemis {
+    border: 1px solid var(--color-gray) !important;
+}
+
+/* Espaciado */
+.section-spacing {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .dashboard-card {
+        margin-bottom: 1rem;
+    }
+
+    .navbar-artemis .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .btn-primary-artemis,
+    .btn-secondary-artemis,
+    .btn-outline-artemis {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.9rem;
+    }
 }

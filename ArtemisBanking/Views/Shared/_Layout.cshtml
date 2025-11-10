@@ -1,50 +1,133 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ArtemisBanking</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Artemis Banking</title>
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ArtemisBanking.styles.css" asp-append-version="true" />
+
+    <!-- Estilos personalizados de Artemis Banking -->
+    <link rel="stylesheet" href="~/css/artemis-banking.css" asp-append-version="true" />
+
+    <!-- Font Awesome para iconos (opcional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
+    <!-- ==================== NAVBAR ==================== -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ArtemisBanking</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-artemis">
+            <div class="container-fluid px-4">
+                <!-- Logo/Marca -->
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-university me-2"></i>
+                    Artemis Banking
+                </a>
+
+                <!-- Botón hamburguesa para móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <!-- Links del navbar (se llenan según el rol del usuario) -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- Mostrar nombre del usuario logueado -->
+                            <li class="nav-item">
+                                <span class="nav-link">
+                                    <i class="fas fa-user-circle me-1"></i>
+                                    Bienvenido, @User.Identity.Name
+                                </span>
+                            </li>
+
+                            <!-- Botón de cerrar sesión -->
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-light btn-sm ms-2">
+                                        <i class="fas fa-sign-out-alt me-1"></i>
+                                        Cerrar Sesión
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Si no está logueado, mostrar link de login -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>
+                                    Iniciar Sesión
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+    <div class="container my-4">
+        <!-- Mensajes de éxito/error usando TempData -->
+        @if (TempData["MensajeExito"] != null)
+        {
+            <div class="alert alert-success-artemis alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @TempData["MensajeExito"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["MensajeError"] != null)
+        {
+            <div class="alert alert-danger-artemis alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @TempData["MensajeError"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["MensajeAdvertencia"] != null)
+        {
+            <div class="alert alert-warning-artemis alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @TempData["MensajeAdvertencia"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Aquí se renderiza el contenido de cada vista -->
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer-artemis text-center">
         <div class="container">
-            &copy; 2025 - ArtemisBanking - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <p class="mb-0">
+                &copy; 2025 - Artemis Banking | Sistema de Banca en Línea
+            </p>
+            <small class="text-muted">
+                Proyecto desarrollado para fines educativos - ITLA
+            </small>
         </div>
     </footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <!-- jQuery (necesario para Bootstrap) -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap JS -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts personalizados -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Sección para scripts adicionales de cada vista -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

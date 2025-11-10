@@ -1,0 +1,104 @@
+﻿@model ArtemisBanking.Web.ViewModels.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ==================== PÁGINA DE LOGIN ==================== -->
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5 col-lg-4">
+        <!-- Tarjeta de login -->
+        <div class="card-artemis">
+            <!-- Encabezado con logo -->
+            <div class="card-artemis-header text-center py-4">
+                <i class="fas fa-university fa-3x mb-3"></i>
+                <h3 class="mb-0">Artemis Banking</h3>
+                <p class="mb-0 mt-2" style="font-size: 0.9rem; opacity: 0.9;">Sistema de Banca en Línea</p>
+            </div>
+
+            <!-- Cuerpo del formulario -->
+            <div class="card-artemis-body p-4">
+                <h5 class="text-center mb-4 text-primary-artemis">Iniciar Sesión</h5>
+
+                <!-- Formulario de login -->
+                <form asp-action="Login" method="post">
+                    <!-- Validación general de errores -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger-artemis" role="alert"></div>
+
+                    <!-- Campo: Nombre de Usuario -->
+                    <div class="mb-3">
+                        <label asp-for="NombreUsuario" class="form-label-artemis">
+                            <i class="fas fa-user me-2"></i>Nombre de Usuario
+                        </label>
+                        <input asp-for="NombreUsuario"
+                               class="form-control form-control-artemis"
+                               placeholder="Ingrese su usuario"
+                               autocomplete="username" />
+                        <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                    </div>
+
+                    <!-- Campo: Contraseña -->
+                    <div class="mb-3">
+                        <label asp-for="Contrasena" class="form-label-artemis">
+                            <i class="fas fa-lock me-2"></i>Contraseña
+                        </label>
+                        <input asp-for="Contrasena"
+                               class="form-control form-control-artemis"
+                               type="password"
+                               placeholder="Ingrese su contraseña"
+                               autocomplete="current-password" />
+                        <span asp-validation-for="Contrasena" class="text-danger"></span>
+                    </div>
+
+                    <!-- Checkbox: Recordarme -->
+                    <div class="mb-3 form-check">
+                        <input asp-for="Recordarme"
+                               class="form-check-input"
+                               type="checkbox" />
+                        <label asp-for="Recordarme" class="form-check-label">
+                            Recordarme en este dispositivo
+                        </label>
+                    </div>
+
+                    <!-- Botón de login -->
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary-artemis">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Iniciar Sesión
+                        </button>
+                    </div>
+
+                    <!-- Link para olvido de contraseña -->
+                    <div class="text-center">
+                        <a asp-action="OlvideContrasena" class="text-secondary-artemis text-decoration-none">
+                            <i class="fas fa-question-circle me-1"></i>
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer de la tarjeta -->
+            <div class="card-footer text-center py-3" style="background-color: var(--color-light); border-top: 1px solid var(--color-gray);">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Conexión segura y cifrada
+                </small>
+            </div>
+        </div>
+
+        <!-- Mensaje informativo debajo del login -->
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Usuarios de prueba creados por defecto en el sistema
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCRIPTS DE VALIDACIÓN ==================== -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
