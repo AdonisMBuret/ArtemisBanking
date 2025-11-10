@@ -1,8 +1,6 @@
-﻿// ArtemisBanking.Web/Controllers/ClienteController.cs
-using ArtemisBanking.Application.Interfaces.Repositories;
-using ArtemisBanking.Application.Interfaces.Services;
-using ArtemisBanking.Domain.Common;
+﻿using ArtemisBanking.Domain.Common;
 using ArtemisBanking.Domain.Entities;
+using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Web.ViewModels.Cliente;
 using ArtemisBanking.Web.ViewModels.CuentaAhorro;
 using ArtemisBanking.Web.ViewModels.Prestamo;

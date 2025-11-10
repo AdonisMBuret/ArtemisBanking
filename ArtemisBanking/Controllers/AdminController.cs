@@ -1,4 +1,3 @@
-using ArtemisBanking.Application.Interfaces.Services;
 using ArtemisBanking.Domain.Common;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces;

@@ -1,7 +1,6 @@
-﻿using ArtemisBanking.Application.Interfaces.Repositories;
-using ArtemisBanking.Application.Interfaces.Services;
-using ArtemisBanking.Domain.Common;
+﻿using ArtemisBanking.Domain.Common;
 using ArtemisBanking.Domain.Entities;
+using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Web.ViewModels;
 using ArtemisBanking.Web.ViewModels.Cajero;
 using Microsoft.AspNetCore.Authorization;
