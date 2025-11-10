@@ -3,7 +3,6 @@ using ArtemisBanking.Application.Interfaces.Repositories;
 using ArtemisBanking.Application.Interfaces.Services;
 using ArtemisBanking.Domain.Common;
 using ArtemisBanking.Domain.Entities;
-using ArtemisBanking.Domain.Interfaces;
 using ArtemisBanking.Web.ViewModels.Cliente;
 using ArtemisBanking.Web.ViewModels.CuentaAhorro;
 using ArtemisBanking.Web.ViewModels.Prestamo;
@@ -234,7 +233,7 @@ namespace ArtemisBanking.Web.Controllers
 
         #endregion
 
-        #region Gestión de Beneficiarios
+       #region Gestión de Beneficiarios
 
         /// <summary>
         /// Muestra la lista de beneficiarios del cliente
@@ -337,7 +336,7 @@ namespace ArtemisBanking.Web.Controllers
 
         #endregion
 
-        #region Transacciones
+        #region Transacción Express
 
         /// <summary>
         /// Muestra el formulario de transacción express (a cualquier cuenta)
@@ -385,7 +384,7 @@ namespace ArtemisBanking.Web.Controllers
             if (cuentaDestino == null || !cuentaDestino.EstaActiva)
             {
                 ModelState.AddModelError("NumeroCuentaDestino", "El número de cuenta ingresado no es válido.");
-                return await CargarCuentasYMostrarVistaAsync<TransaccionExpressViewModel>(model, nameof(TransaccionExpress));
+                return await CargarCuentasYMostrarVistaAsync(model, nameof(TransaccionExpress));
             }
 
             // Verificar que la cuenta origen tiene fondos suficientes
@@ -394,7 +393,7 @@ namespace ArtemisBanking.Web.Controllers
             if (cuentaOrigen.Balance < model.Monto)
             {
                 ModelState.AddModelError("Monto", "El monto excede el saldo disponible.");
-                return await CargarCuentasYMostrarVistaAsync<TransaccionExpressViewModel>(model, nameof(TransaccionExpress));
+                return await CargarCuentasYMostrarVistaAsync(model, nameof(TransaccionExpress));
             }
 
             // Redirigir a confirmación
@@ -485,25 +484,22 @@ namespace ArtemisBanking.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        #endregion
-
         // Método auxiliar para cargar cuentas en caso de error
-        private async Task<IActionResult> CargarCuentasYMostrarVistaAsync<T>(T model, string vistaName) where T : class
+        private async Task<IActionResult> CargarCuentasYMostrarVistaAsync(TransaccionExpressViewModel model, string vistaName)
         {
             var clienteId = _userManager.GetUserId(User);
             var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
 
-            if (model is TransaccionExpressViewModel transaccionModel)
+            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
             {
-                transaccionModel.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                });
-            }
+                Value = c.Id.ToString(),
+                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+            });
 
             return View(vistaName, model);
         }
+
+        #endregion
 
         #region Pago a Tarjeta de Crédito
 
@@ -707,7 +703,7 @@ namespace ArtemisBanking.Web.Controllers
             // Descontar de la cuenta (solo lo que realmente se usó)
             decimal montoUsado = model.Monto - montoRestante;
             cuentaOrigen.Balance -= montoUsado;
-
+            
             // Si sobró dinero, devolverlo
             if (montoRestante > 0)
             {
@@ -896,6 +892,277 @@ namespace ArtemisBanking.Web.Controllers
             await _repositorioTransaccion.AgregarAsync(transaccionDestino);
             await _repositorioTransaccion.GuardarCambiosAsync();
 
+            // Enviar correos
+            var clienteOrigen = await _userManager.FindByIdAsync(cuentaOrigen.UsuarioId);
+            var clienteDestino = await _userManager.FindByIdAsync(cuentaDestino.UsuarioId);
+
+            var ultimos4Destino = cuentaDestino.NumeroCuenta.Substring(cuentaDestino.NumeroCuenta.Length - 4);
+            var ultimos4Origen = cuentaOrigen.NumeroCuenta.Substring(cuentaOrigen.NumeroCuenta.Length - 4);
+
+            await _servicioCorreo.EnviarNotificacionTransaccionRealizadaAsync(
+                clienteOrigen.Email,
+                clienteOrigen.NombreCompleto,
+                model.Monto,
+                ultimos4Destino,
+                DateTime.Now);
+
+            await _servicioCorreo.EnviarNotificacionTransaccionRecibidaAsync(
+                clienteDestino.Email,
+                clienteDestino.NombreCompleto,
+                model.Monto,
+                ultimos4Origen,
+                DateTime.Now);
+
+            TempData["MensajeExito"] = "Pago realizado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<IActionResult> CargarDatosYMostrarVistaPagoBeneficiarioAsync(PagoBeneficiarioViewModel model)
+        {
+            var clienteId = _userManager.GetUserId(User);
+            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
+            var beneficiarios = await _repositorioBeneficiario.ObtenerBeneficiariosDeUsuarioAsync(clienteId);
+
+            model.BeneficiariosDisponibles = beneficiarios.Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = $"{b.NumeroCuentaBeneficiario} - {b.CuentaAhorro.Usuario.NombreCompleto}"
+            });
+            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+            });
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Avance de Efectivo
+
+        /// <summary>
+        /// Muestra el formulario de avance de efectivo
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> AvanceEfectivo()
+        {
+            var clienteId = _userManager.GetUserId(User);
+            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
+            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
+
+            var viewModel = new AvanceEfectivoViewModel
+            {
+                TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = $"**** {t.UltimosCuatroDigitos} - Disponible: RD${t.CreditoDisponible:N2}"
+                }),
+                CuentasDisponibles = cuentas.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+                })
+            };
+
+            return View(viewModel);
+        }
+
+        /// <summary>
+        /// Procesa el avance de efectivo
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AvanceEfectivo(AvanceEfectivoViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await CargarDatosYMostrarVistaAvanceEfectivoAsync(model);
+            }
+
+            var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(model.TarjetaId);
+            var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaDestinoId);
+
+            // Validar que el monto no exceda el crédito disponible
+            if (model.Monto > tarjeta.CreditoDisponible)
+            {
+                ModelState.AddModelError("Monto", $"El monto no puede exceder el crédito disponible (RD${tarjeta.CreditoDisponible:N2}).");
+                return await CargarDatosYMostrarVistaAvanceEfectivoAsync(model);
+            }
+
+            // Calcular interés del 6.25%
+            decimal interes = model.Monto * (Constantes.InteresAvanceEfectivo / 100);
+            decimal deudaTotal = model.Monto + interes;
+
+            // Acreditar a la cuenta
+            cuentaDestino.Balance += model.Monto;
+            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
+
+            // Aumentar deuda de la tarjeta (monto + interés)
+            tarjeta.DeudaActual += deudaTotal;
+            await _repositorioTarjeta.ActualizarAsync(tarjeta);
+
+            await _repositorioTarjeta.GuardarCambiosAsync();
+
+            // Registrar transacción en cuenta
+            var transaccion = new Transaccion
+            {
+                FechaTransaccion = DateTime.Now,
+                Monto = model.Monto,
+                TipoTransaccion = Constantes.TipoCredito,
+                Beneficiario = cuentaDestino.NumeroCuenta,
+                Origen = tarjeta.UltimosCuatroDigitos,
+                EstadoTransaccion = Constantes.EstadoAprobada,
+                CuentaAhorroId = cuentaDestino.Id,
+                FechaCreacion = DateTime.Now
+            };
+
+            await _repositorioTransaccion.AgregarAsync(transaccion);
+
+            // Registrar consumo en tarjeta
+            var consumo = new ConsumoTarjeta
+            {
+                FechaConsumo = DateTime.Now,
+                Monto = deudaTotal,
+                NombreComercio = Constantes.TextoAvance,
+                EstadoConsumo = Constantes.ConsumoAprobado,
+                TarjetaId = tarjeta.Id,
+                FechaCreacion = DateTime.Now
+            };
+
+            await _repositorioConsumoTarjeta.AgregarAsync(consumo);
+            await _repositorioConsumoTarjeta.GuardarCambiosAsync();
+
+            // Enviar correo
+            var cliente = await _userManager.GetUserAsync(User);
+            var ultimos4Tarjeta = tarjeta.UltimosCuatroDigitos;
+            var ultimos4Cuenta = cuentaDestino.NumeroCuenta.Substring(cuentaDestino.NumeroCuenta.Length - 4);
+
+            await _servicioCorreo.EnviarNotificacionAvanceEfectivoAsync(
+                cliente.Email,
+                cliente.NombreCompleto,
+                model.Monto,
+                ultimos4Tarjeta,
+                ultimos4Cuenta,
+                DateTime.Now);
+
+            TempData["MensajeExito"] = $"Avance de efectivo realizado exitosamente. Interés aplicado: RD${interes:N2}";
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<IActionResult> CargarDatosYMostrarVistaAvanceEfectivoAsync(AvanceEfectivoViewModel model)
+        {
+            var clienteId = _userManager.GetUserId(User);
+            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
+            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
+
+            model.TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
+            {
+                Value = t.Id.ToString(),
+                Text = $"**** {t.UltimosCuatroDigitos} - Disponible: RD${t.CreditoDisponible:N2}"
+            });
+            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+            });
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Transferencia entre Cuentas
+
+        /// <summary>
+        /// Muestra el formulario de transferencia entre cuentas propias
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> TransferenciaEntreCuentas()
+        {
+            var clienteId = _userManager.GetUserId(User);
+            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
+
+            var viewModel = new TransferenciaEntreCuentasViewModel
+            {
+                CuentasDisponibles = cuentas.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+                })
+            };
+
+            return View(viewModel);
+        }
+
+        /// <summary>
+        /// Procesa la transferencia entre cuentas propias
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TransferenciaEntreCuentas(TransferenciaEntreCuentasViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
+            }
+
+            // Validar que no sean la misma cuenta
+            if (model.CuentaOrigenId == model.CuentaDestinoId)
+            {
+                ModelState.AddModelError("", "No puede transferir a la misma cuenta.");
+                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
+            }
+
+            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
+            var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaDestinoId);
+
+            // Validar fondos suficientes
+            if (cuentaOrigen.Balance < model.Monto)
+            {
+                ModelState.AddModelError("Monto", "No cuenta con saldo suficiente.");
+                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
+            }
+
+            // Descontar de origen
+            cuentaOrigen.Balance -= model.Monto;
+            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
+
+            // Acreditar a destino
+            cuentaDestino.Balance += model.Monto;
+            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
+
+            await _repositorioCuenta.GuardarCambiosAsync();
+
+            // Registrar transacciones
+            var transaccionOrigen = new Transaccion
+            {
+                FechaTransaccion = DateTime.Now,
+                Monto = model.Monto,
+                TipoTransaccion = Constantes.TipoDebito,
+                Beneficiario = cuentaDestino.NumeroCuenta,
+                Origen = cuentaOrigen.NumeroCuenta,
+                EstadoTransaccion = Constantes.EstadoAprobada,
+                CuentaAhorroId = cuentaOrigen.Id,
+                FechaCreacion = DateTime.Now
+            };
+
+            var transaccionDestino = new Transaccion
+            {
+                FechaTransaccion = DateTime.Now,
+                Monto = model.Monto,
+                TipoTransaccion = Constantes.TipoCredito,
+                Beneficiario = cuentaDestino.NumeroCuenta,
+                Origen = cuentaOrigen.NumeroCuenta,
+                EstadoTransaccion = Constantes.EstadoAprobada,
+                CuentaAhorroId = cuentaDestino.Id,
+                FechaCreacion = DateTime.Now
+            };
+
+            await _repositorioTransaccion.AgregarAsync(transaccionOrigen);
+            await _repositorioTransaccion.AgregarAsync(transaccionDestino);
+            await _repositorioTransaccion.GuardarCambiosAsync();
+
             TempData["MensajeExito"] = "Transferencia realizada exitosamente.";
             return RedirectToAction(nameof(Index));
         }
@@ -915,10 +1182,5 @@ namespace ArtemisBanking.Web.Controllers
         }
 
         #endregion
-
-
-
-
-
     }
 }
