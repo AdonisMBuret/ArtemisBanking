@@ -12,47 +12,65 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
-    /// Controlador principal del cliente
-    /// Maneja el listado de productos, beneficiarios, transacciones y avances de efectivo
-    /// </summary>
-    [Authorize(Policy = "SoloCliente")]
-    public class ClienteController : Controller
-    {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly IRepositorioCuentaAhorro _repositorioCuenta;
-        private readonly IRepositorioPrestamo _repositorioPrestamo;
-        private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
-        private readonly IRepositorioTransaccion _repositorioTransaccion;
-        private readonly IRepositorioBeneficiario _repositorioBeneficiario;
-        private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
-        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
-        private readonly IServicioCorreo _servicioCorreo;
-        private readonly ILogger<ClienteController> _logger;
+    
+/// <summary>
+/// Controlador principal del administrador
+/// Maneja el dashboard, gestión de usuarios y productos financieros
+/// </summary>
+[Authorize(Policy = "SoloAdministrador")]
+public class AdminController : Controller
+{
+    // ==================== REPOSITORIOS ====================
+    private readonly UserManager<Usuario> _userManager;
+    private readonly IRepositorioUsuario _repositorioUsuario;
+    private readonly IRepositorioCuentaAhorro _repositorioCuenta;
+    private readonly IRepositorioPrestamo _repositorioPrestamo;
+    private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
+    private readonly IRepositorioTransaccion _repositorioTransaccion;
+    
+    // ⭐ ESTOS FALTABAN - Los agregamos
+    private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
+    private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
+    
+    // ==================== SERVICIOS ====================
+    private readonly IServicioCorreo _servicioCorreo;
+    private readonly IServicioCifrado _servicioCifrado;
+    
+    // ⭐ ESTE FALTABA - Lo agregamos
+    private readonly IServicioCalculoPrestamo _servicioCalculoPrestamo;
+    
+    private readonly ILogger<AdminController> _logger;
 
-        public ClienteController(
-            UserManager<Usuario> userManager,
-            IRepositorioCuentaAhorro repositorioCuenta,
-            IRepositorioPrestamo repositorioPrestamo,
-            IRepositorioTarjetaCredito repositorioTarjeta,
-            IRepositorioTransaccion repositorioTransaccion,
-            IRepositorioBeneficiario repositorioBeneficiario,
-            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
-            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
-            IServicioCorreo servicioCorreo,
-            ILogger<ClienteController> logger)
-        {
-            _userManager = userManager;
-            _repositorioCuenta = repositorioCuenta;
-            _repositorioPrestamo = repositorioPrestamo;
-            _repositorioTarjeta = repositorioTarjeta;
-            _repositorioTransaccion = repositorioTransaccion;
-            _repositorioBeneficiario = repositorioBeneficiario;
-            _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
-            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
-            _servicioCorreo = servicioCorreo;
-            _logger = logger;
-        }
+    /// <summary>
+    /// Constructor del controlador - Aquí inyectamos todas las dependencias que necesitamos
+    /// </summary>
+    public AdminController(
+        UserManager<Usuario> userManager,
+        IRepositorioUsuario repositorioUsuario,
+        IRepositorioCuentaAhorro repositorioCuenta,
+        IRepositorioPrestamo repositorioPrestamo,
+        IRepositorioTarjetaCredito repositorioTarjeta,
+        IRepositorioTransaccion repositorioTransaccion,
+        IRepositorioCuotaPrestamo repositorioCuotaPrestamo,      // ⭐ AGREGADO
+        IRepositorioConsumoTarjeta repositorioConsumoTarjeta,    // ⭐ AGREGADO
+        IServicioCorreo servicioCorreo,
+        IServicioCalculoPrestamo servicioCalculoPrestamo,         // ⭐ AGREGADO
+        IServicioCifrado servicioCifrado,
+        ILogger<AdminController> logger)
+    {
+        _userManager = userManager;
+        _repositorioUsuario = repositorioUsuario;
+        _repositorioCuenta = repositorioCuenta;
+        _repositorioPrestamo = repositorioPrestamo;
+        _repositorioTarjeta = repositorioTarjeta;
+        _repositorioTransaccion = repositorioTransaccion;
+        _repositorioCuotaPrestamo = repositorioCuotaPrestamo;    // ⭐ ASIGNACIÓN
+        _repositorioConsumoTarjeta = repositorioConsumoTarjeta;  // ⭐ ASIGNACIÓN
+        _servicioCorreo = servicioCorreo;
+        _servicioCalculoPrestamo = servicioCalculoPrestamo;       // ⭐ ASIGNACIÓN
+        _servicioCifrado = servicioCifrado;
+        _logger = logger;
+    }
 
         #region Home - Listado de Productos
 
