@@ -1,8 +1,8 @@
-﻿using ArtemisBanking.Application.DTOs;
-using ArtemisBanking.Domain.Entities;
+﻿using ArtemisBanking.Domain.Entities;
+using ArtemisBanking.Application.DTOs;
 using AutoMapper;
 
-namespace ArtemisBanking.Infrastructure.Mappings
+namespace ArtemisBanking.Application.Mappings
 {
     /// <summary>
     /// Perfil de AutoMapper para mapear entre entidades y DTOs

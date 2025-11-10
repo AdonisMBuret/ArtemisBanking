@@ -1,8 +1,8 @@
 ﻿using ArtemisBanking.Domain.Entities;
-using ArtemisBanking.Domain.Interfaces;
+using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.Infrastructure.Data;
 using ArtemisBanking.Infrastructure.Jobs;
-using ArtemisBanking.Infrastructure.Mappings;
+using ArtemisBanking.Application.Mappings;
 using ArtemisBanking.Infrastructure.Repositories;
 using ArtemisBanking.Infrastructure.Services;
 using Hangfire;
@@ -11,7 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using ArtemisBanking.Application.Interfaces;
+using ArtemisBanking.Application.Services;
 
 namespace ArtemisBanking.Infrastructure
 {

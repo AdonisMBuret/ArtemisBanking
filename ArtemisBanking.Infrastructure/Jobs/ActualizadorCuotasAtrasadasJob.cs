@@ -1,4 +1,4 @@
-﻿using ArtemisBanking.Domain.Interfaces;
+﻿using ArtemisBanking.Domain.Interfaces.Repositories;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using System;

@@ -1,4 +1,5 @@
-﻿namespace ArtemisBanking.Domain.Common
+﻿
+namespace ArtemisBanking.Application.Common
 {
     /// <summary>
     /// Clase que contiene todas las constantes usadas en el sistema

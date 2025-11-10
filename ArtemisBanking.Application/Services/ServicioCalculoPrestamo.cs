@@ -1,8 +1,8 @@
-﻿using ArtemisBanking.Domain.Interfaces;
+﻿using ArtemisBanking.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace ArtemisBanking.Infrastructure.Services
+namespace ArtemisBanking.Application.Services
 {
     /// <summary>
     /// Servicio para cálculos del sistema francés de amortización

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArtemisBanking.Domain.Interfaces
+namespace ArtemisBanking.Domain.Interfaces.Repositories
 {
     public interface IRepositorioGenerico<T> where T : class
     {

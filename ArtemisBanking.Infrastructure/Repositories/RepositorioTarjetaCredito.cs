@@ -1,5 +1,4 @@
-﻿using ArtemisBanking.Domain.Interfaces;
-using ArtemisBanking.Domain.Entities;
+﻿using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArtemisBanking.Domain.Interfaces.Repositories;
 
 namespace ArtemisBanking.Infrastructure.Repositories
 {

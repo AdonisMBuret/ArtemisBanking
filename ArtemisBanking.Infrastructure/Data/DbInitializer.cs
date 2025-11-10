@@ -1,4 +1,4 @@
-﻿using ArtemisBanking.Domain.Common;
+﻿using ArtemisBanking.Application.Common;
 using ArtemisBanking.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-namespace ArtemisBanking.Domain.Interfaces
+namespace ArtemisBanking.Application.Interfaces
 {
     /// <summary>
     /// Interfaz para el servicio de cifrado

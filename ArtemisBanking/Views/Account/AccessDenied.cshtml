@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Acceso Denegado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ==================== PÁGINA DE ACCESO DENEGADO ==================== -->
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-6 col-lg-5">
+        <!-- Tarjeta de error -->
+        <div class="card-artemis text-center">
+            <div class="card-artemis-body p-5">
+                <!-- Icono de prohibido -->
+                <div class="mb-4">
+                    <i class="fas fa-ban"
+                       style="font-size: 5rem; color: var(--color-danger);"></i>
+                </div>
+
+                <!-- Título -->
+                <h2 class="mb-3" style="color: var(--color-danger);">
+                    Acceso Denegado
+                </h2>
+
+                <!-- Mensaje principal -->
+                <div class="alert alert-danger-artemis mb-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <p class="mb-0" style="font-size: 1.1rem;">
+                        No tiene permisos para acceder a esta sección del sistema.
+                    </p>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="mb-4">
+                    <p class="text-muted">
+                        Esto puede ocurrir porque:
+                    </p>
+                    <ul class="list-unstyled text-start mx-auto" style="max-width: 400px;">
+                        <li class="mb-2">
+                            <i class="fas fa-circle me-2" style="font-size: 0.5rem; color: var(--color-secondary);"></i>
+                            Está intentando acceder a un área restringida
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-circle me-2" style="font-size: 0.5rem; color: var(--color-secondary);"></i>
+                            Su rol no tiene los permisos necesarios
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-circle me-2" style="font-size: 0.5rem; color: var(--color-secondary);"></i>
+                            Su sesión puede haber expirado
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-grid gap-2 col-md-8 mx-auto">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <!-- Si está autenticado, botón para volver a su home -->
+                        <a asp-controller="Account" asp-action="RedirigirSegunRol"
+                           class="btn btn-primary-artemis">
+                            <i class="fas fa-home me-2"></i>
+                            Ir a Mi Panel Principal
+                        </a>
+
+                        <!-- Botón de cerrar sesión -->
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-artemis w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Cerrar Sesión
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- Si no está autenticado, botón para login -->
+                        <a asp-controller="Account" asp-action="Login"
+                           class="btn btn-primary-artemis">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Iniciar Sesión
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer text-center py-3"
+                 style="background-color: var(--color-light); border-top: 1px solid var(--color-gray);">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Si cree que esto es un error, contacte al administrador
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

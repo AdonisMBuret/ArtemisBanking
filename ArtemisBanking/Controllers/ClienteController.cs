@@ -1,6 +1,7 @@
-﻿using ArtemisBanking.Domain.Common;
+﻿using ArtemisBanking.Application.Common;
+using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
-using ArtemisBanking.Domain.Interfaces;
+using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.Web.ViewModels.Cliente;
 using ArtemisBanking.Web.ViewModels.CuentaAhorro;
 using ArtemisBanking.Web.ViewModels.Prestamo;

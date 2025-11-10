@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArtemisBanking.Domain.Interfaces
+namespace ArtemisBanking.Domain.Interfaces.Repositories
 {
     public interface IRepositorioCuotaPrestamo : IRepositorioGenerico<CuotaPrestamo>
     {
