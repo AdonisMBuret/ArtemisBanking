@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArtemisBanking.Application.Interfaces.Services
+namespace ArtemisBanking.Domain.Interfaces
 {
+    /// <summary>
+    /// Interfaz para el servicio de cifrado
+    /// Define los métodos para cifrar y verificar datos sensibles (como el CVC de las tarjetas)
+    /// </summary>
     public interface IServicioCifrado
     {
         // Cifrar el CVC de la tarjeta con SHA-256

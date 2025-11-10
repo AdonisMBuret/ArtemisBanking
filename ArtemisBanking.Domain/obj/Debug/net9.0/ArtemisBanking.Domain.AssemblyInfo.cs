@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArtemisBanking.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b93a7d87fdd891f435144dd366f92a0f8d142a3e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+691b12ba20dfc30c2835e563b4c18cf055281c50")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArtemisBanking.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArtemisBanking.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

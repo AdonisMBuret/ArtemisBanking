@@ -1,47 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArtemisBanking.Domain.Common
+﻿namespace ArtemisBanking.Domain.Common
 {
+    /// <summary>
+    /// Clase que contiene todas las constantes usadas en el sistema
+    /// Esto nos ayuda a no repetir valores en todo el código
+    /// </summary>
     public static class Constantes
     {
-        // Roles del sistema
+        // ==================== ROLES DEL SISTEMA ====================
+        // Estos son los 3 tipos de usuarios que puede haber
         public const string RolAdministrador = "Administrador";
         public const string RolCajero = "Cajero";
         public const string RolCliente = "Cliente";
 
-        // Plazos de préstamo permitidos (en meses)
-        public static readonly int[] PlazosPermitidos = { 6, 12, 18, 24, 30, 36, 42, 48, 54, 60 };
+        // ==================== TIPOS DE TRANSACCIÓN ====================
+        // Cuando el dinero SALE de una cuenta
+        public const string TipoDebito = "DEBITO";
+        // Cuando el dinero ENTRA a una cuenta
+        public const string TipoCredito = "CREDITO";
 
-        // Interés de avance de efectivo
-        public const decimal InteresAvanceEfectivo = 6.25m;
-
-        // Paginación
-        public const int TamanoPaginaPorDefecto = 20;
-
-        // Tipos de transacción
-        public const string TipoDebito = "DÉBITO";
-        public const string TipoCredito = "CRÉDITO";
-
-        // Estados de transacción
+        // ==================== ESTADOS DE TRANSACCIÓN ====================
+        // Cuando la transacción se hizo correctamente
         public const string EstadoAprobada = "APROBADA";
+        // Cuando la transacción fue rechazada (sin fondos, etc.)
         public const string EstadoRechazada = "RECHAZADA";
 
-        // Estados de consumo
+        // ==================== ESTADOS DE CONSUMO ====================
+        // Cuando el consumo en tarjeta fue exitoso
         public const string ConsumoAprobado = "APROBADO";
+        // Cuando el consumo fue rechazado (sin crédito disponible)
         public const string ConsumoRechazado = "RECHAZADO";
 
-        // Texto para avances de efectivo
-        public const string TextoAvance = "AVANCE";
-        public const string TextoDeposito = "DEPÓSITO";
+        // ==================== TEXTOS ESPECIALES ====================
+        // Cuando se hace un depósito por cajero
+        public const string TextoDeposito = "DEPOSITO";
+        // Cuando se hace un retiro por cajero
         public const string TextoRetiro = "RETIRO";
+        // Cuando se hace un avance de efectivo desde tarjeta
+        public const string TextoAvance = "AVANCE";
 
-        // Longitud de números
-        public const int LongitudNumeroCuenta = 9;
-        public const int LongitudNumeroTarjeta = 16;
-        public const int LongitudCVC = 3;
+        // ==================== CONFIGURACIONES ====================
+        // Cuántos registros se muestran por página en los listados
+        public const int TamanoPaginaPorDefecto = 20;
+        
+        // Interés que se cobra en avances de efectivo (6.25%)
+        public const decimal InteresAvanceEfectivo = 6.25m;
     }
 }
