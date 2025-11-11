@@ -12,7 +12,7 @@ namespace ArtemisBanking.Infrastructure.Data
     public class ArtemisBankingDbContext : IdentityDbContext<Usuario>
     {
         // Constructor que recibe las opciones de configuración
-        public ArtemisBankingDbContext(DbContextOptions<ArtemisBankingDbContext> options)
+        public ArtemisBankingDbContext(DbContextOptions<ArtemisBankingDbContext> options)// ando my family esta ahí hablando jajja 
             : base(options)
         {
         }
