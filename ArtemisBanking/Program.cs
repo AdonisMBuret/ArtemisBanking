@@ -1,14 +1,19 @@
+using ArtemisBanking.Application;  // ← NUEVO
 using ArtemisBanking.Infrastructure;
 using ArtemisBanking.Infrastructure.Data;
 using Hangfire;
 using Hangfire.Dashboard;
+using DependencyInjection = ArtemisBanking.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Agregar servicios al contenedor
 builder.Services.AddControllersWithViews();
 
-// Agregar servicios de la capa de infraestructura (DbContext, Identity, Repositorios, Servicios)
+// ⭐ NUEVO: Agregar servicios de la capa de aplicación (lógica de negocio)
+builder.Services.AgregarAplicacion();
+
+// Agregar servicios de la capa de infraestructura (DbContext, Identity, Repositorios)
 builder.Services.AgregarInfraestructura(builder.Configuration);
 
 // Configurar políticas de autorización por roles
@@ -86,7 +91,7 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
     public bool Authorize(DashboardContext context)
     {
         var httpContext = context.GetHttpContext();
-        
+
         // Permitir acceso solo si el usuario está autenticado y es administrador
         return httpContext.User.Identity?.IsAuthenticated == true &&
                httpContext.User.IsInRole("Administrador");

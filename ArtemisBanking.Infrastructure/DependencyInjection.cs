@@ -2,23 +2,24 @@
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.Infrastructure.Data;
 using ArtemisBanking.Infrastructure.Jobs;
-using ArtemisBanking.Application.Mappings;
 using ArtemisBanking.Infrastructure.Repositories;
 using ArtemisBanking.Infrastructure.Services;
+using ArtemisBanking.Application.Interfaces;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ArtemisBanking.Application.Interfaces;
-using ArtemisBanking.Application.Services;
 
 namespace ArtemisBanking.Infrastructure
 {
     /// <summary>
-    /// Clase de extensión para configurar todos los servicios de la capa de infraestructura
-    /// Esto permite una configuración limpia desde Program.cs
+    /// Clase de extensión para configurar todos los servicios de infraestructura
+    /// Aquí solo van servicios que interactúan con recursos externos:
+    /// - Base de datos (DbContext, Repositorios)
+    /// - Servicios externos (Correo, SMS, etc.)
+    /// - Servicios de cifrado y seguridad
     /// </summary>
     public static class DependencyInjection
     {
@@ -29,7 +30,7 @@ namespace ArtemisBanking.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Configurar DbContext con SQL Server
+            // ==================== BASE DE DATOS ====================
             services.AddDbContext<ArtemisBankingDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
@@ -37,7 +38,7 @@ namespace ArtemisBanking.Infrastructure
                 )
             );
 
-            // Configurar Identity con nuestro Usuario personalizado
+            // ==================== IDENTITY ====================
             services.AddIdentity<Usuario, IdentityRole>(options =>
             {
                 // Configuración de contraseñas
@@ -61,7 +62,7 @@ namespace ArtemisBanking.Infrastructure
             .AddEntityFrameworkStores<ArtemisBankingDbContext>()
             .AddDefaultTokenProviders();
 
-            // Configurar cookies de autenticación
+            // ==================== COOKIES DE AUTENTICACIÓN ====================
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/Login";
@@ -71,7 +72,7 @@ namespace ArtemisBanking.Infrastructure
                 options.SlidingExpiration = true;
             });
 
-            // Configurar Hangfire para jobs programados
+            // ==================== HANGFIRE ====================
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
@@ -89,10 +90,10 @@ namespace ArtemisBanking.Infrastructure
                 )
             );
 
-            // Agregar el servidor de Hangfire
             services.AddHangfireServer();
 
-            // Registrar repositorios
+            // ==================== REPOSITORIOS ====================
+            // Los repositorios solo interactúan con la base de datos
             services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
             services.AddScoped<IRepositorioCuentaAhorro, RepositorioCuentaAhorro>();
             services.AddScoped<IRepositorioPrestamo, RepositorioPrestamo>();
@@ -102,24 +103,17 @@ namespace ArtemisBanking.Infrastructure
             services.AddScoped<IRepositorioTransaccion, RepositorioTransaccion>();
             services.AddScoped<IRepositorioBeneficiario, RepositorioBeneficiario>();
 
+            // ==================== SERVICIOS DE INFRAESTRUCTURA ====================
+            // Solo servicios que interactúan con recursos externos
+
+            // Servicio para envío de correos (SMTP)
             services.AddScoped<IServicioCorreo, ServicioCorreo>();
+
+            // Servicio para cifrado de datos (SHA-256)
             services.AddScoped<IServicioCifrado, ServicioCifrado>();
 
-            // Registrar servicios de aplicación
-            services.AddScoped<IServicioCalculoPrestamo, ServicioCalculoPrestamo>();
-            services.AddScoped<IServicioUsuario, ServicioUsuario>();
-            services.AddScoped<IServicioPrestamo, ServicioPrestamo>();
-            services.AddScoped<IServicioTarjetaCredito, ServicioTarjetaCredito>();
-            services.AddScoped<IServicioCuentaAhorro, ServicioCuentaAhorro>();
-            services.AddScoped<IServicioTransaccion, ServicioTransaccion>();
-            services.AddScoped<IServicioBeneficiario, ServicioBeneficiario>();
-            services.AddScoped<IServicioCajero, ServicioCajero>();
-
-            // Registrar el job de Hangfire
+            // ==================== JOBS DE HANGFIRE ====================
             services.AddScoped<ActualizadorCuotasAtrasadasJob>();
-
-            // Configurar AutoMapper (lo configuraremos después)
-            services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
             return services;
         }
