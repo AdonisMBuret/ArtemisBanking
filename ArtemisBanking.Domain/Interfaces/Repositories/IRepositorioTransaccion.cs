@@ -23,5 +23,9 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
 
         // Contar pagos del día
         Task<int> ContarPagosDelDiaAsync();
+        Task<int> ContarDepositosDelDiaAsync();
+
+        Task<int> ContarRetirosDelDiaAsync();
+
     }
 }

@@ -102,10 +102,18 @@ namespace ArtemisBanking.Infrastructure
             services.AddScoped<IRepositorioTransaccion, RepositorioTransaccion>();
             services.AddScoped<IRepositorioBeneficiario, RepositorioBeneficiario>();
 
-            // Registrar servicios
             services.AddScoped<IServicioCorreo, ServicioCorreo>();
             services.AddScoped<IServicioCifrado, ServicioCifrado>();
+
+            // Registrar servicios de aplicación
             services.AddScoped<IServicioCalculoPrestamo, ServicioCalculoPrestamo>();
+            services.AddScoped<IServicioUsuario, ServicioUsuario>();
+            services.AddScoped<IServicioPrestamo, ServicioPrestamo>();
+            services.AddScoped<IServicioTarjetaCredito, ServicioTarjetaCredito>();
+            services.AddScoped<IServicioCuentaAhorro, ServicioCuentaAhorro>();
+            services.AddScoped<IServicioTransaccion, ServicioTransaccion>();
+            services.AddScoped<IServicioBeneficiario, ServicioBeneficiario>();
+            services.AddScoped<IServicioCajero, ServicioCajero>();
 
             // Registrar el job de Hangfire
             services.AddScoped<ActualizadorCuotasAtrasadasJob>();

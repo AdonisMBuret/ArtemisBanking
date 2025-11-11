@@ -37,6 +37,5 @@ namespace ArtemisBanking.Application.Interfaces
         /// Obtiene los datos del dashboard del cajero
         /// Incluye indicadores del día actual
         /// </summary>
-        Task<ResultadoOperacion<DashboardCajeroDTO>> ObtenerDashboardCajeroAsync(string cajeroId);
     }
 }

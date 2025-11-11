@@ -76,6 +76,36 @@ namespace ArtemisBanking.Infrastructure.Repositories
                            (t.Beneficiario.Length == 16 || t.Beneficiario.Length == 9))
                 .CountAsync();
         }
+
+
+
+        public async Task<int> ContarDepositosDelDiaAsync()
+        {
+            var hoy = DateTime.Now.Date;
+            return await _context.Transacciones
+                .Where(t => t.FechaTransaccion.Date == hoy &&
+                           t.EstadoTransaccion == Constantes.EstadoAprobada &&
+                           t.TipoTransaccion == Constantes.TipoCredito &&
+                           t.Origen == Constantes.TextoDeposito)
+                .CountAsync();
+        }
+
+        /// <summary>
+        /// Cuenta los retiros realizados hoy por cajero
+        /// </summary>
+        public async Task<int> ContarRetirosDelDiaAsync()
+        {
+            var hoy = DateTime.Now.Date;
+            return await _context.Transacciones
+                .Where(t => t.FechaTransaccion.Date == hoy &&
+                           t.EstadoTransaccion == Constantes.EstadoAprobada &&
+                           t.TipoTransaccion == Constantes.TipoDebito &&
+                           t.Beneficiario == Constantes.TextoRetiro)
+                .CountAsync();
+        }
+
+
+
     }
 }
 
