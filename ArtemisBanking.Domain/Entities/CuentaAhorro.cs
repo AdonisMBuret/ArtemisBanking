@@ -33,5 +33,5 @@ namespace ArtemisBanking.Domain.Entities
             Transacciones = new List<Transaccion>();
         }
     
-}
+    }
 }
