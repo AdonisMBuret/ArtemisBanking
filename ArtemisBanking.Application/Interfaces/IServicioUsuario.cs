@@ -89,5 +89,6 @@ namespace ArtemisBanking.Application.Interfaces
         /// Usado en listados de selección
         /// </summary>
         Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesActivosAsync();
+
     }
 }

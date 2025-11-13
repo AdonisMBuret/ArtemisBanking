@@ -31,8 +31,10 @@ namespace ArtemisBanking.Application.Services
             IRepositorioUsuario repositorioUsuario,
             IRepositorioCuentaAhorro repositorioCuenta,
             IRepositorioTransaccion repositorioTransaccion,
+
             IRepositorioPrestamo repositorioPrestamo,
             IRepositorioTarjetaCredito repositorioTarjeta,
+
             IServicioCorreo servicioCorreo,
             IMapper mapper,
             ILogger<ServicioUsuario> logger)
@@ -312,5 +314,291 @@ namespace ArtemisBanking.Application.Services
                 return ResultadoOperacion<DashboardAdminDTO>.Fallo("Error al cargar el dashboard");
             }
         }
+
+
+        /// <summary>
+        /// Obtiene el dashboard del cajero con las estadísticas del día
+        /// Este método se usa en el Home del cajero
+        /// </summary>
+        public async Task<ResultadoOperacion<DashboardCajeroDTO>> ObtenerDashboardCajeroAsync(string cajeroId)
+        {
+            try
+            {
+                var dashboard = new DashboardCajeroDTO
+                {
+                    // Transacciones realizadas HOY por este cajero
+                    TransaccionesDelDia = await _repositorioTransaccion.ContarTransaccionesDelDiaAsync(),
+
+                    // Pagos (a TC y préstamos) realizados HOY
+                    PagosDelDia = await _repositorioTransaccion.ContarPagosDelDiaAsync(),
+
+                    // Depósitos realizados HOY
+                    DepositosDelDia = await _repositorioTransaccion.ContarDepositosDelDiaAsync(),
+
+                    // Retiros realizados HOY
+                    RetirosDelDia = await _repositorioTransaccion.ContarRetirosDelDiaAsync()
+                };
+
+                return ResultadoOperacion<DashboardCajeroDTO>.Ok(dashboard);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener dashboard del cajero");
+                return ResultadoOperacion<DashboardCajeroDTO>.Fallo("Error al cargar el dashboard");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene todos los clientes activos que NO tienen préstamo activo
+        /// Se usa al asignar nuevos préstamos (un cliente solo puede tener uno a la vez)
+        /// </summary>
+        public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesSinPrestamoActivoAsync()
+        {
+            try
+            {
+                // Obtener todos los usuarios con rol Cliente que estén activos
+                var clientes = await _userManager.GetUsersInRoleAsync(Constantes.RolCliente);
+
+                var clientesActivos = clientes.Where(c => c.EstaActivo).ToList();
+
+                // Filtrar solo los que NO tienen préstamo activo
+                var clientesSinPrestamo = new List<Usuario>();
+
+                foreach (var cliente in clientesActivos)
+                {
+                    var tienePrestamo = await _repositorioPrestamo.TienePrestamoActivoAsync(cliente.Id);
+
+                    if (!tienePrestamo)
+                    {
+                        clientesSinPrestamo.Add(cliente);
+                    }
+                }
+
+                // Convertir a DTOs
+                var clientesDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(clientesSinPrestamo);
+
+                // Para cada cliente, calcular su deuda total
+                foreach (var clienteDTO in clientesDTO)
+                {
+                    var deudaTotal = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteDTO.Id);
+                    clienteDTO.MontoInicial = deudaTotal; // Reutilizamos este campo para la deuda
+                }
+
+                return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Ok(clientesDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener clientes sin préstamo activo");
+                return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Fallo("Error al obtener los clientes");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene todos los clientes activos del sistema
+        /// Se usa para asignar tarjetas y cuentas de ahorro secundarias
+        /// </summary>
+        public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesActivosAsync()
+        {
+            try
+            {
+                // Obtener todos los usuarios con rol Cliente que estén activos
+                var clientes = await _userManager.GetUsersInRoleAsync(Constantes.RolCliente);
+
+                var clientesActivos = clientes.Where(c => c.EstaActivo).ToList();
+
+                // Convertir a DTOs
+                var clientesDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(clientesActivos);
+
+                // Para cada cliente, calcular su deuda total
+                foreach (var clienteDTO in clientesDTO)
+                {
+                    var deudaTotal = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteDTO.Id);
+                    clienteDTO.MontoInicial = deudaTotal; // Reutilizamos este campo para la deuda
+                }
+
+                return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Ok(clientesDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener clientes activos");
+                return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Fallo("Error al obtener los clientes");
+            }
+        }
+
+        /// <summary>
+        /// Verifica si un nombre de usuario ya existe
+        /// Usado en validaciones de formularios (Ajax)
+        /// </summary>
+        public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario, string usuarioIdExcluir = null)
+        {
+            try
+            {
+                var usuario = await _repositorioUsuario.ObtenerPorNombreUsuarioAsync(nombreUsuario);
+
+                if (usuario == null)
+                    return false;
+
+                // Si se proporciona un ID para excluir (modo edición), verificar que no sea el mismo
+                if (!string.IsNullOrEmpty(usuarioIdExcluir))
+                    return usuario.Id != usuarioIdExcluir;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al verificar nombre de usuario");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica si un correo ya existe
+        /// Usado en validaciones de formularios (Ajax)
+        /// </summary>
+        public async Task<bool> ExisteCorreoAsync(string correo, string usuarioIdExcluir = null)
+        {
+            try
+            {
+                var usuario = await _repositorioUsuario.ObtenerPorCorreoAsync(correo);
+
+                if (usuario == null)
+                    return false;
+
+                // Si se proporciona un ID para excluir (modo edición), verificar que no sea el mismo
+                if (!string.IsNullOrEmpty(usuarioIdExcluir))
+                    return usuario.Id != usuarioIdExcluir;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al verificar correo");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Cuenta cuántos usuarios activos hay del rol especificado
+        /// Usado para estadísticas y dashboards
+        /// </summary>
+        public async Task<int> ContarUsuariosActivosPorRolAsync(string rol)
+        {
+            try
+            {
+                var usuarios = await _userManager.GetUsersInRoleAsync(rol);
+                return usuarios.Count(u => u.EstaActivo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al contar usuarios activos del rol {rol}");
+                return 0;
+            }
+        }
+
+
+        // <summary>
+        /// Obtiene un usuario por su ID con toda su información
+        /// Se usa para ver detalles de un usuario específico
+        /// </summary>
+        public async Task<ResultadoOperacion<UsuarioDTO>> ObtenerUsuarioPorIdAsync(string usuarioId)
+        {
+            try
+            {
+                // Buscar el usuario
+                var usuario = await _repositorioUsuario.ObtenerPorIdAsync(usuarioId);
+
+                if (usuario == null)
+                {
+                    return ResultadoOperacion<UsuarioDTO>.Fallo("Usuario no encontrado");
+                }
+
+                // Obtener el rol del usuario
+                var roles = await _userManager.GetRolesAsync(usuario);
+                var rol = roles.FirstOrDefault() ?? "Cliente";
+
+                // Convertir a DTO
+                var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
+                usuarioDTO.Rol = rol;
+
+                // Si es cliente, obtener su cuenta principal para mostrar el balance inicial
+                if (rol == Constantes.RolCliente)
+                {
+                    var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(usuarioId);
+                    if (cuentaPrincipal != null)
+                    {
+                        usuarioDTO.MontoInicial = cuentaPrincipal.Balance;
+                    }
+                }
+
+                return ResultadoOperacion<UsuarioDTO>.Ok(usuarioDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuario por ID");
+                return ResultadoOperacion<UsuarioDTO>.Fallo("Error al obtener el usuario");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un listado paginado de usuarios
+        /// Permite filtrar por rol y excluir al usuario actual de la lista
+        /// </summary>
+        public async Task<ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>> ObtenerUsuariosPaginadosAsync(
+            int pagina,
+            int tamano,
+            string rol = null,
+            string usuarioActualId = null)
+        {
+            try
+            {
+                // Obtener usuarios paginados del repositorio
+                var (usuarios, total) = await _repositorioUsuario.ObtenerUsuariosPaginadosAsync(
+                    pagina,
+                    tamano,
+                    rol);
+
+                // Convertir a DTOs
+                var usuariosDTO = new List<UsuarioDTO>();
+
+                foreach (var usuario in usuarios)
+                {
+                    // Obtener el rol del usuario
+                    var roles = await _userManager.GetRolesAsync(usuario);
+                    var rolUsuario = roles.FirstOrDefault() ?? "Cliente";
+
+                    // Convertir a DTO
+                    var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
+                    usuarioDTO.Rol = rolUsuario;
+
+                    // Determinar si se puede editar (no se puede editar a uno mismo)
+                    if (!string.IsNullOrEmpty(usuarioActualId))
+                    {
+                        // El campo MontoInicial lo usamos para indicar si se puede editar
+                        // (No es lo ideal, pero reutilizamos el campo para no crear otro DTO)
+                        usuarioDTO.MontoInicial = usuario.Id == usuarioActualId ? 0 : 1;
+                    }
+
+                    usuariosDTO.Add(usuarioDTO);
+                }
+
+                // Crear el resultado paginado
+                var resultado = new ResultadoPaginadoDTO<UsuarioDTO>
+                {
+                    Datos = usuariosDTO,
+                    TotalRegistros = total,
+                    PaginaActual = pagina,
+                    TamañoPagina = tamano
+                };
+
+                return ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>.Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuarios paginados");
+                return ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>.Fallo("Error al obtener los usuarios");
+            }
+        }
+
+
     }
 }

@@ -18,31 +18,32 @@ namespace ArtemisBanking.Application
         public static IServiceCollection AgregarAplicacion(this IServiceCollection services)
         {
             // ==================== AUTOMAPPER ====================
-            // Configurar AutoMapper con nuestro perfil de mapeos
             services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
             // ==================== SERVICIOS DE NEGOCIO ====================
-            // Estos servicios contienen toda la lógica de negocio de la aplicación
 
-            // Servicio para cálculos de préstamos (sistema francés)
+            // ⭐ NUEVO - Servicio de autenticación
+            services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
+
+            // Servicio para cálculos de préstamos
             services.AddScoped<IServicioCalculoPrestamo, ServicioCalculoPrestamo>();
 
-            // Servicio para gestión de usuarios (crear, editar, dashboard)
+            // Servicio para gestión de usuarios
             services.AddScoped<IServicioUsuario, ServicioUsuario>();
 
-            // Servicio para gestión de préstamos (asignar, actualizar tasa, etc.)
+            // Servicio para gestión de préstamos
             services.AddScoped<IServicioPrestamo, ServicioPrestamo>();
 
-            // Servicio para gestión de tarjetas de crédito
+            // Servicio para gestión de tarjetas
             services.AddScoped<IServicioTarjetaCredito, ServicioTarjetaCredito>();
 
-            // Servicio para gestión de cuentas de ahorro
+            // Servicio para gestión de cuentas
             services.AddScoped<IServicioCuentaAhorro, ServicioCuentaAhorro>();
 
-            // Servicio para transacciones (transferencias, pagos, avances)
+            // Servicio para transacciones
             services.AddScoped<IServicioTransaccion, ServicioTransaccion>();
 
-            // Servicio para gestión de beneficiarios
+            // Servicio para beneficiarios
             services.AddScoped<IServicioBeneficiario, ServicioBeneficiario>();
 
             // Servicio para operaciones de cajero
@@ -50,5 +51,6 @@ namespace ArtemisBanking.Application
 
             return services;
         }
+
     }
 }

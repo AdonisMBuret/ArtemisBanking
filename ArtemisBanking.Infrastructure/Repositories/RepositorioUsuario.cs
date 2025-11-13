@@ -1,16 +1,17 @@
 ﻿using ArtemisBanking.Domain.Entities;
+using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;          // ← NUEVO (para Expression<Func<>>)
-using System.Threading.Tasks;
-using ArtemisBanking.Domain.Interfaces.Repositories;
+using System.Linq.Expressions;
 
 namespace ArtemisBanking.Infrastructure.Repositories
 {
+    /// <summary>
+    /// Implementación del repositorio de usuarios
+    /// Usa UserManager de Identity para operaciones básicas
+    /// y DbContext para consultas más complejas
+    /// </summary>
     public class RepositorioUsuario : IRepositorioUsuario
     {
         private readonly UserManager<Usuario> _userManager;
@@ -21,6 +22,8 @@ namespace ArtemisBanking.Infrastructure.Repositories
             _userManager = userManager;
             _context = context;
         }
+
+        // ==================== BÚSQUEDAS BÁSICAS ====================
 
         /// <summary>
         /// Busca un usuario por su nombre de usuario
@@ -46,6 +49,16 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Cedula == cedula);
         }
+
+        /// <summary>
+        /// Busca un usuario por su ID
+        /// </summary>
+        public async Task<Usuario> ObtenerPorIdAsync(string usuarioId)
+        {
+            return await _userManager.FindByIdAsync(usuarioId);
+        }
+
+        // ==================== PAGINACIÓN ====================
 
         /// <summary>
         /// Obtiene usuarios paginados, opcionalmente filtrados por rol
@@ -79,32 +92,17 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (usuarios, total);
         }
 
-        /// <summary>
-        /// Verifica si un usuario puede ser editado
-        /// Un administrador no puede editar su propia cuenta
-        /// </summary>
-        public async Task<bool> PuedeEditarUsuarioAsync(string usuarioId, string usuarioActualId)
-        {
-            // No es necesario async aquí, pero lo mantenemos por consistencia
-            return await Task.FromResult(usuarioId != usuarioActualId);
-        }
-
-        // ==============================================================
-        // ⭐ MÉTODOS NUEVOS QUE SOLUCIONAN EL ERROR CS1061 ⭐
-        // ==============================================================
+        // ==================== CONTADORES ====================
 
         /// <summary>
-        /// Cuenta usuarios según un predicado opcional.
-        /// Si no se pasa predicado, cuenta todos.
+        /// Cuenta usuarios según un predicado
+        /// Ejemplo: ContarAsync(u => u.EstaActivo) cuenta solo los activos
         /// </summary>
-        public async Task<int> ContarAsync(Expression<Func<Usuario, bool>> predicate = null)
+        public async Task<int> ContarAsync(Expression<Func<Usuario, bool>> predicate)
         {
-            IQueryable<Usuario> query = _context.Users;
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            return await query.CountAsync();
+            return await _context.Users
+                .Where(predicate)
+                .CountAsync();
         }
 
         /// <summary>
@@ -121,6 +119,18 @@ namespace ArtemisBanking.Infrastructure.Repositories
         public async Task<bool> ExisteAsync(Expression<Func<Usuario, bool>> predicate)
         {
             return await _context.Users.AnyAsync(predicate);
+        }
+
+        // ==================== VALIDACIÓN DE PERMISOS ====================
+
+        /// <summary>
+        /// Verifica si un usuario puede ser editado
+        /// Un administrador no puede editar su propia cuenta
+        /// </summary>
+        public async Task<bool> PuedeEditarUsuarioAsync(string usuarioId, string usuarioActualId)
+        {
+            // No es necesario async aquí, pero lo mantenemos por consistencia
+            return await Task.FromResult(usuarioId != usuarioActualId);
         }
     }
 }

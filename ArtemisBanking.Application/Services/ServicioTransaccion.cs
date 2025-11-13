@@ -1,5 +1,6 @@
 ﻿using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.Interfaces;
+using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ namespace ArtemisBanking.Application.Services
         private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
         private readonly IServicioCorreo _servicioCorreo;
         private readonly ILogger<ServicioTransaccion> _logger;
+        private readonly IRepositorioBeneficiario _repositorioBeneficiario;
 
         public ServicioTransaccion(
             IRepositorioCuentaAhorro repositorioCuenta,
@@ -30,6 +32,7 @@ namespace ArtemisBanking.Application.Services
             IRepositorioTransaccion repositorioTransaccion,
             IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
             IServicioCorreo servicioCorreo,
+            IRepositorioBeneficiario repositorioBeneficiario,
             ILogger<ServicioTransaccion> logger)
         {
             _repositorioCuenta = repositorioCuenta;
@@ -39,6 +42,7 @@ namespace ArtemisBanking.Application.Services
             _repositorioTransaccion = repositorioTransaccion;
             _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _servicioCorreo = servicioCorreo;
+            _repositorioBeneficiario = repositorioBeneficiario;
             _logger = logger;
         }
 
@@ -468,6 +472,169 @@ namespace ArtemisBanking.Application.Services
         {
             var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(tarjetaId);
             return tarjeta?.CreditoDisponible ?? 0;
+        }
+
+        /// <summary>
+        /// Realiza una transacción express (transferencia a cualquier cuenta)
+        /// Este método es el que los controladores llamarán
+        /// </summary>
+        public async Task<ResultadoOperacion> RealizarTransaccionExpressAsync(TransaccionExpressDTO datos)
+        {
+            try
+            {
+                // Llamar al método privado existente
+                var (exito, mensaje) = await RealizarTransferenciaAsync(
+                    datos.CuentaOrigenId,
+                    datos.NumeroCuentaDestino,
+                    datos.Monto);
+
+                if (exito)
+                    return ResultadoOperacion.Ok(mensaje);
+
+                return ResultadoOperacion.Fallo(mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al realizar transacción express");
+                return ResultadoOperacion.Fallo("Error al procesar la transacción");
+            }
+        }
+
+        /// <summary>
+        /// Realiza un pago a tarjeta desde el cliente
+        /// Este método es el que los controladores llamarán
+        /// </summary>
+        public async Task<ResultadoOperacion> PagarTarjetaCreditoClienteAsync(PagoTarjetaClienteDTO datos)
+        {
+            try
+            {
+                // Llamar al método privado existente
+                var (exito, mensaje, montoPagado) = await PagarTarjetaCreditoAsync(
+                    datos.CuentaOrigenId,
+                    datos.TarjetaId,
+                    datos.Monto);
+
+                if (exito)
+                    return ResultadoOperacion.Ok($"{mensaje} Monto pagado: RD${montoPagado:N2}");
+
+                return ResultadoOperacion.Fallo(mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al pagar tarjeta de crédito");
+                return ResultadoOperacion.Fallo("Error al procesar el pago");
+            }
+        }
+
+        /// <summary>
+        /// Realiza un pago a préstamo desde el cliente
+        /// Este método es el que los controladores llamarán
+        /// </summary>
+        public async Task<ResultadoOperacion> PagarPrestamoClienteAsync(PagoPrestamoClienteDTO datos)
+        {
+            try
+            {
+                // Llamar al método privado existente
+                var (exito, mensaje, montoAplicado) = await PagarPrestamoAsync(
+                    datos.CuentaOrigenId,
+                    datos.PrestamoId,
+                    datos.Monto);
+
+                if (exito)
+                    return ResultadoOperacion.Ok(mensaje);
+
+                return ResultadoOperacion.Fallo(mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al pagar préstamo");
+                return ResultadoOperacion.Fallo("Error al procesar el pago");
+            }
+        }
+
+        /// <summary>
+        /// Realiza un pago a un beneficiario
+        /// Primero obtiene los datos del beneficiario y luego hace la transferencia
+        /// </summary>
+        public async Task<ResultadoOperacion> PagarBeneficiarioAsync(PagoBeneficiarioDTO datos)
+        {
+            try
+            {
+                // 1. Obtener el beneficiario
+                var beneficiario = await _repositorioBeneficiario.ObtenerPorIdAsync(datos.BeneficiarioId);
+
+                if (beneficiario == null)
+                    return ResultadoOperacion.Fallo("Beneficiario no encontrado");
+
+                // 2. Validar que el beneficiario pertenezca al usuario
+                if (beneficiario.UsuarioId != datos.UsuarioId)
+                    return ResultadoOperacion.Fallo("No tiene permiso para usar este beneficiario");
+
+                // 3. Realizar la transferencia usando el método existente
+                var (exito, mensaje) = await RealizarTransferenciaAsync(
+                    datos.CuentaOrigenId,
+                    beneficiario.NumeroCuentaBeneficiario,
+                    datos.Monto);
+
+                if (exito)
+                    return ResultadoOperacion.Ok(mensaje);
+
+                return ResultadoOperacion.Fallo(mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al pagar beneficiario");
+                return ResultadoOperacion.Fallo("Error al procesar el pago");
+            }
+        }
+
+        /// <summary>
+        /// Realiza un avance de efectivo desde tarjeta
+        /// Este método es el que los controladores llamarán
+        /// </summary>
+        public async Task<ResultadoOperacion> RealizarAvanceEfectivoClienteAsync(AvanceEfectivoDTO datos)
+        {
+            try
+            {
+                // Llamar al método privado existente
+                var (exito, mensaje) = await RealizarAvanceEfectivoAsync(
+                    datos.TarjetaId,
+                    datos.CuentaDestinoId,
+                    datos.Monto);
+
+                if (exito)
+                    return ResultadoOperacion.Ok(mensaje);
+
+                return ResultadoOperacion.Fallo(mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al realizar avance de efectivo");
+                return ResultadoOperacion.Fallo("Error al procesar el avance");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene información de confirmación de una cuenta destino
+        /// Se usa para mostrar al usuario a quién le va a transferir antes de confirmar
+        /// </summary>
+        public async Task<ResultadoOperacion<(string nombre, string apellido)>> ObtenerInfoCuentaDestinoAsync(string numeroCuenta)
+        {
+            try
+            {
+                var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(numeroCuenta);
+
+                if (cuenta == null || !cuenta.EstaActiva)
+                    return ResultadoOperacion<(string, string)>.Fallo("Cuenta no válida");
+
+                return ResultadoOperacion<(string, string)>.Ok(
+                    (cuenta.Usuario.Nombre, cuenta.Usuario.Apellido));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener info de cuenta destino");
+                return ResultadoOperacion<(string, string)>.Fallo("Error al obtener información");
+            }
         }
     }
 }
