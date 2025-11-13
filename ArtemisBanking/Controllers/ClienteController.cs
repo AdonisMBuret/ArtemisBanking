@@ -1,255 +1,131 @@
 ﻿using ArtemisBanking.Application.Common;
+using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
-using ArtemisBanking.Domain.Entities;
-using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.Web.ViewModels.Cliente;
-using ArtemisBanking.Web.ViewModels.CuentaAhorro;
-using ArtemisBanking.Web.ViewModels.Prestamo;
-using ArtemisBanking.Web.ViewModels.TarjetaCredito;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Web.Controllers
 {
     /// <summary>
-    /// Controlador principal del cliente
-    /// Maneja el listado de productos, beneficiarios, transacciones y avances de efectivo
+    /// Controlador para todas las funcionalidades del Cliente
+    /// Solo accesible para usuarios con rol "Cliente"
     /// </summary>
     [Authorize(Policy = "SoloCliente")]
     public class ClienteController : Controller
     {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly IRepositorioCuentaAhorro _repositorioCuenta;
-        private readonly IRepositorioPrestamo _repositorioPrestamo;
-        private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
-        private readonly IRepositorioTransaccion _repositorioTransaccion;
-        private readonly IRepositorioBeneficiario _repositorioBeneficiario;
-        private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
-        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
-        private readonly IServicioCorreo _servicioCorreo;
+        // Servicios que usaremos
+        private readonly IServicioTransaccion _servicioTransaccion;
+        private readonly IServicioBeneficiario _servicioBeneficiario;
+        private readonly IMapper _mapper;
         private readonly ILogger<ClienteController> _logger;
 
         public ClienteController(
-            UserManager<Usuario> userManager,
-            IRepositorioCuentaAhorro repositorioCuenta,
-            IRepositorioPrestamo repositorioPrestamo,
-            IRepositorioTarjetaCredito repositorioTarjeta,
-            IRepositorioTransaccion repositorioTransaccion,
-            IRepositorioBeneficiario repositorioBeneficiario,
-            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
-            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
-            IServicioCorreo servicioCorreo,
+            IServicioTransaccion servicioTransaccion,
+            IServicioBeneficiario servicioBeneficiario,
+            IMapper mapper,
             ILogger<ClienteController> logger)
         {
-            _userManager = userManager;
-            _repositorioCuenta = repositorioCuenta;
-            _repositorioPrestamo = repositorioPrestamo;
-            _repositorioTarjeta = repositorioTarjeta;
-            _repositorioTransaccion = repositorioTransaccion;
-            _repositorioBeneficiario = repositorioBeneficiario;
-            _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
-            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
-            _servicioCorreo = servicioCorreo;
+            _servicioTransaccion = servicioTransaccion;
+            _servicioBeneficiario = servicioBeneficiario;
+            _mapper = mapper;
             _logger = logger;
         }
 
-        #region Home - Listado de Productos
+        // Método helper para obtener el ID del usuario actual
+        private string ObtenerUsuarioActualId()
+        {
+            return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        // ==================== HOME (LISTADO DE PRODUCTOS) ====================
 
         /// <summary>
-        /// Dashboard del cliente con todos sus productos financieros
+        /// Página principal del cliente - muestra todos sus productos financieros
+        /// (Cuentas de ahorro, Préstamos, Tarjetas de crédito)
         /// </summary>
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var clienteId = _userManager.GetUserId(User);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Obtener todas las cuentas de ahorro del cliente
-            var cuentas = await _repositorioCuenta.ObtenerCuentasDeUsuarioAsync(clienteId);
+            // TODO: Aquí llamaremos a servicios para obtener:
+            // - Cuentas de ahorro del cliente
+            // - Préstamos activos del cliente
+            // - Tarjetas de crédito activas del cliente
 
-            // Obtener todos los préstamos del cliente
-            var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(clienteId);
-
-            // Obtener todas las tarjetas del cliente
-            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasDeUsuarioAsync(clienteId);
-
+            // Por ahora retornamos una vista vacía
             var viewModel = new HomeClienteViewModel
             {
-                CuentasAhorro = cuentas.Where(c => c.EstaActiva).Select(c => new CuentaClienteViewModel
-                {
-                    Id = c.Id,
-                    NumeroCuenta = c.NumeroCuenta,
-                    Balance = c.Balance,
-                    EsPrincipal = c.EsPrincipal
-                }),
-                Prestamos = prestamos.Where(p => p.EstaActivo).Select(p => new PrestamoClienteViewModel
-                {
-                    Id = p.Id,
-                    NumeroPrestamo = p.NumeroPrestamo,
-                    MontoCapital = p.MontoCapital,
-                    TotalCuotas = p.PlazoMeses,
-                    CuotasPagadas = p.CuotasPagadas,
-                    MontoPendiente = p.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota),
-                    TasaInteresAnual = p.TasaInteresAnual,
-                    PlazoMeses = p.PlazoMeses,
-                    EstaAlDia = p.EstaAlDia
-                }),
-                TarjetasCredito = tarjetas.Where(t => t.EstaActiva).Select(t => new TarjetaClienteViewModel
-                {
-                    Id = t.Id,
-                    NumeroTarjeta = t.NumeroTarjeta,
-                    UltimosCuatroDigitos = t.UltimosCuatroDigitos,
-                    LimiteCredito = t.LimiteCredito,
-                    FechaExpiracion = t.FechaExpiracion,
-                    DeudaActual = t.DeudaActual
-                })
+                CuentasAhorro = new List<CuentaClienteViewModel>(),
+                Prestamos = new List<PrestamoClienteViewModel>(),
+                TarjetasCredito = new List<TarjetaClienteViewModel>()
             };
 
             return View(viewModel);
         }
 
         /// <summary>
-        /// Ver detalle de cuenta de ahorro (transacciones)
+        /// Muestra el detalle de una cuenta de ahorro (transacciones)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
-            var clienteId = _userManager.GetUserId(User);
-            var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(id);
-
-            if (cuenta == null || cuenta.UsuarioId != clienteId)
-            {
-                return NotFound();
-            }
-
-            cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuenta.NumeroCuenta);
-            var transacciones = await _repositorioTransaccion.ObtenerTransaccionesDeCuentaAsync(id);
-
-            var viewModel = new DetalleCuentaViewModel
-            {
-                Id = cuenta.Id,
-                NumeroCuenta = cuenta.NumeroCuenta,
-                NombreCliente = cuenta.Usuario.NombreCompleto,
-                Balance = cuenta.Balance,
-                EsPrincipal = cuenta.EsPrincipal,
-                EstaActiva = cuenta.EstaActiva,
-                Transacciones = transacciones.Select(t => new TransaccionViewModel
-                {
-                    Id = t.Id,
-                    FechaTransaccion = t.FechaTransaccion.ToString("dd/MM/yyyy HH:mm"),
-                    Monto = t.Monto,
-                    TipoTransaccion = t.TipoTransaccion,
-                    Beneficiario = t.Beneficiario,
-                    Origen = t.Origen,
-                    EstadoTransaccion = t.EstadoTransaccion
-                })
-            };
-
-            return View(viewModel);
+            // TODO: Obtener cuenta con transacciones
+            return View();
         }
 
         /// <summary>
-        /// Ver detalle de préstamo (tabla de amortización)
+        /// Muestra el detalle de un préstamo (tabla de amortización)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
-            var clienteId = _userManager.GetUserId(User);
-            var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(id);
-
-            if (prestamo == null || prestamo.ClienteId != clienteId)
-            {
-                return NotFound();
-            }
-
-            prestamo = await _repositorioPrestamo.ObtenerPorNumeroPrestamoAsync(prestamo.NumeroPrestamo);
-            var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(id);
-
-            var viewModel = new DetallePrestamoViewModel
-            {
-                Id = prestamo.Id,
-                NumeroPrestamo = prestamo.NumeroPrestamo,
-                NombreCliente = prestamo.Cliente.NombreCompleto,
-                MontoCapital = prestamo.MontoCapital,
-                TasaInteresAnual = prestamo.TasaInteresAnual,
-                PlazoMeses = prestamo.PlazoMeses,
-                CuotaMensual = prestamo.CuotaMensual,
-                EstaActivo = prestamo.EstaActivo,
-                TablaAmortizacion = cuotas.Select(c => new CuotaPrestamoViewModel
-                {
-                    Id = c.Id,
-                    FechaPago = c.FechaPago.ToString("dd/MM/yyyy"),
-                    MontoCuota = c.MontoCuota,
-                    EstaPagada = c.EstaPagada,
-                    EstaAtrasada = c.EstaAtrasada
-                })
-            };
-
-            return View(viewModel);
+            // TODO: Obtener préstamo con tabla de amortización
+            return View();
         }
 
         /// <summary>
-        /// Ver detalle de tarjeta de crédito (consumos)
+        /// Muestra el detalle de una tarjeta (consumos)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetalleTarjeta(int id)
         {
-            var clienteId = _userManager.GetUserId(User);
-            var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(id);
-
-            if (tarjeta == null || tarjeta.ClienteId != clienteId)
-            {
-                return NotFound();
-            }
-
-            tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(tarjeta.NumeroTarjeta);
-            var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosDeTarjetaAsync(id);
-
-            var viewModel = new DetalleTarjetaViewModel
-            {
-                Id = tarjeta.Id,
-                NumeroTarjeta = tarjeta.NumeroTarjeta,
-                UltimosCuatroDigitos = tarjeta.UltimosCuatroDigitos,
-                NombreCliente = tarjeta.Cliente.NombreCompleto,
-                LimiteCredito = tarjeta.LimiteCredito,
-                DeudaActual = tarjeta.DeudaActual,
-                CreditoDisponible = tarjeta.CreditoDisponible,
-                FechaExpiracion = tarjeta.FechaExpiracion,
-                EstaActiva = tarjeta.EstaActiva,
-                Consumos = consumos.Select(c => new ConsumoTarjetaViewModel
-                {
-                    Id = c.Id,
-                    FechaConsumo = c.FechaConsumo.ToString("dd/MM/yyyy HH:mm"),
-                    Monto = c.Monto,
-                    NombreComercio = c.NombreComercio,
-                    EstadoConsumo = c.EstadoConsumo
-                })
-            };
-
-            return View(viewModel);
+            // TODO: Obtener tarjeta con consumos
+            return View();
         }
 
-        #endregion
-
-        #region Gestión de Beneficiarios
+        // ==================== GESTIÓN DE BENEFICIARIOS ====================
 
         /// <summary>
-        /// Muestra la lista de beneficiarios del cliente
+        /// Muestra el listado de beneficiarios del cliente
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> Beneficiarios()
         {
-            var clienteId = _userManager.GetUserId(User);
-            var beneficiarios = await _repositorioBeneficiario.ObtenerBeneficiariosDeUsuarioAsync(clienteId);
+            var usuarioId = ObtenerUsuarioActualId();
 
+            // Obtener beneficiarios del servicio
+            var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+            if (!resultado.Exito)
+            {
+                TempData["ErrorMessage"] = resultado.Mensaje;
+                return View(new ListaBeneficiariosViewModel
+                {
+                    Beneficiarios = new List<BeneficiarioItemViewModel>()
+                });
+            }
+
+            // Mapear a ViewModel
             var viewModel = new ListaBeneficiariosViewModel
             {
-                Beneficiarios = beneficiarios.Select(b => new BeneficiarioItemViewModel
+                Beneficiarios = resultado.Datos.Select(b => new BeneficiarioItemViewModel
                 {
                     Id = b.Id,
-                    NombreBeneficiario = b.CuentaAhorro.Usuario.Nombre,
-                    ApellidoBeneficiario = b.CuentaAhorro.Usuario.Apellido,
+                    NombreBeneficiario = b.NombreBeneficiario,
+                    ApellidoBeneficiario = b.ApellidoBeneficiario,
                     NumeroCuentaBeneficiario = b.NumeroCuentaBeneficiario
                 })
             };
@@ -258,7 +134,8 @@ namespace ArtemisBanking.Web.Controllers
         }
 
         /// <summary>
-        /// Agrega un nuevo beneficiario
+        /// Procesa la creación de un nuevo beneficiario
+        /// Se llama desde un modal en la vista
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -266,48 +143,27 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { exito = false, mensaje = "Datos inválidos" });
+                TempData["ErrorMessage"] = "Debe ingresar un número de cuenta válido";
+                return RedirectToAction(nameof(Beneficiarios));
             }
 
-            var clienteId = _userManager.GetUserId(User);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Verificar que la cuenta existe
-            var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(model.NumeroCuenta);
+            // Llamar al servicio
+            var resultado = await _servicioBeneficiario.AgregarBeneficiarioAsync(
+                usuarioId,
+                model.NumeroCuenta);
 
-            if (cuenta == null || !cuenta.EstaActiva)
+            if (resultado.Exito)
             {
-                return Json(new { exito = false, mensaje = "El número ingresado no corresponde a ninguna cuenta válida." });
+                TempData["SuccessMessage"] = resultado.Mensaje;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = resultado.Mensaje;
             }
 
-            // Verificar que no sea la propia cuenta del cliente
-            if (cuenta.UsuarioId == clienteId)
-            {
-                return Json(new { exito = false, mensaje = "No puede agregar su propia cuenta como beneficiario." });
-            }
-
-            // Verificar que no exista ya como beneficiario
-            var existeBeneficiario = await _repositorioBeneficiario.ExisteBeneficiarioAsync(clienteId, model.NumeroCuenta);
-
-            if (existeBeneficiario)
-            {
-                return Json(new { exito = false, mensaje = "Esta cuenta ya está registrada como beneficiario." });
-            }
-
-            // Crear el beneficiario
-            var nuevoBeneficiario = new Beneficiario
-            {
-                NumeroCuentaBeneficiario = model.NumeroCuenta,
-                UsuarioId = clienteId,
-                CuentaAhorroId = cuenta.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioBeneficiario.AgregarAsync(nuevoBeneficiario);
-            await _repositorioBeneficiario.GuardarCambiosAsync();
-
-            _logger.LogInformation($"Beneficiario {model.NumeroCuenta} agregado por cliente {clienteId}");
-
-            return Json(new { exito = true, mensaje = "Beneficiario agregado exitosamente." });
+            return RedirectToAction(nameof(Beneficiarios));
         }
 
         /// <summary>
@@ -317,49 +173,103 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarBeneficiario(int id)
         {
-            var clienteId = _userManager.GetUserId(User);
-            var beneficiario = await _repositorioBeneficiario.ObtenerPorIdAsync(id);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            if (beneficiario == null || beneficiario.UsuarioId != clienteId)
+            // Llamar al servicio
+            var resultado = await _servicioBeneficiario.EliminarBeneficiarioAsync(id, usuarioId);
+
+            if (resultado.Exito)
             {
-                return Json(new { exito = false, mensaje = "Beneficiario no encontrado." });
+                TempData["SuccessMessage"] = resultado.Mensaje;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = resultado.Mensaje;
             }
 
-            await _repositorioBeneficiario.EliminarAsync(beneficiario);
-            await _repositorioBeneficiario.GuardarCambiosAsync();
-
-            _logger.LogInformation($"Beneficiario {id} eliminado por cliente {clienteId}");
-
-            return Json(new { exito = true, mensaje = "Beneficiario eliminado exitosamente." });
+            return RedirectToAction(nameof(Beneficiarios));
         }
 
-        #endregion
-
-        #region Transacción Express
+        // ==================== MÉTODO HELPER PARA CARGAR SELECTS ====================
 
         /// <summary>
-        /// Muestra el formulario de transacción express (a cualquier cuenta)
+        /// Obtiene las cuentas activas del cliente para llenar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerCuentasActivasAsync()
+        {
+            var usuarioId = ObtenerUsuarioActualId();
+
+            // TODO: Llamar al servicio para obtener cuentas activas
+            // Por ahora retornamos lista vacía
+            return new List<SelectListItem>();
+        }
+
+        /// <summary>
+        /// Obtiene las tarjetas activas del cliente para llenar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerTarjetasActivasAsync()
+        {
+            var usuarioId = ObtenerUsuarioActualId();
+
+            // TODO: Llamar al servicio para obtener tarjetas activas
+            // Por ahora retornamos lista vacía
+            return new List<SelectListItem>();
+        }
+
+        /// <summary>
+        /// Obtiene los préstamos activos del cliente para llenar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerPrestamosActivosAsync()
+        {
+            var usuarioId = ObtenerUsuarioActualId();
+
+            // TODO: Llamar al servicio para obtener préstamos activos
+            // Por ahora retornamos lista vacía
+            return new List<SelectListItem>();
+        }
+
+        /// <summary>
+        /// Obtiene los beneficiarios del cliente para llenar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerBeneficiariosAsync()
+        {
+            var usuarioId = ObtenerUsuarioActualId();
+
+            var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+            if (!resultado.Exito)
+                return new List<SelectListItem>();
+
+            return resultado.Datos.Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = $"{b.NumeroCuentaBeneficiario} - {b.NombreBeneficiario} {b.ApellidoBeneficiario}"
+            });
+        }
+
+
+        // ⚠️ AGREGAR ESTOS MÉTODOS AL ClienteController.cs (después de beneficiarios)
+
+        // ==================== TRANSACCIÓN EXPRESS ====================
+
+        /// <summary>
+        /// Muestra el formulario para hacer una transacción express
+        /// (Transferencia a cualquier cuenta)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> TransaccionExpress()
         {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-
             var viewModel = new TransaccionExpressViewModel
             {
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
+                CuentasDisponibles = await ObtenerCuentasActivasAsync()
             };
 
             return View(viewModel);
         }
 
         /// <summary>
-        /// Procesa la transacción express (validaciones y confirmación)
+        /// Procesa la transacción express
+        /// Primero valida y luego muestra pantalla de confirmación
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -367,163 +277,77 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var clienteId = _userManager.GetUserId(User);
-                var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-                model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                });
+                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
                 return View(model);
             }
 
-            // Verificar que la cuenta destino existe
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(model.NumeroCuentaDestino);
+            // Obtener información de la cuenta destino para confirmar
+            var infoDestino = await _servicioTransaccion.ObtenerInfoCuentaDestinoAsync(
+                model.NumeroCuentaDestino);
 
-            if (cuentaDestino == null || !cuentaDestino.EstaActiva)
+            if (!infoDestino.Exito)
             {
-                ModelState.AddModelError("NumeroCuentaDestino", "El número de cuenta ingresado no es válido.");
-                return await CargarCuentasYMostrarVistaAsync(model, nameof(TransaccionExpress));
+                ModelState.AddModelError(string.Empty, infoDestino.Mensaje);
+                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                return View(model);
             }
 
-            // Verificar que la cuenta origen tiene fondos suficientes
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-
-            if (cuentaOrigen.Balance < model.Monto)
+            // Redirigir a pantalla de confirmación
+            var confirmacionVM = new ConfirmarTransaccionViewModel
             {
-                ModelState.AddModelError("Monto", "El monto excede el saldo disponible.");
-                return await CargarCuentasYMostrarVistaAsync(model, nameof(TransaccionExpress));
-            }
-
-            // Redirigir a confirmación
-            var confirmacionViewModel = new ConfirmarTransaccionViewModel
-            {
-                NombreDestinatario = cuentaDestino.Usuario.Nombre,
-                ApellidoDestinatario = cuentaDestino.Usuario.Apellido,
-                NumeroCuentaDestino = cuentaDestino.NumeroCuenta,
+                NombreDestinatario = infoDestino.Datos.nombre,
+                ApellidoDestinatario = infoDestino.Datos.apellido,
+                NumeroCuentaDestino = model.NumeroCuentaDestino,
                 Monto = model.Monto,
-                CuentaOrigenId = model.CuentaOrigenId,
-                NumeroCuentaOrigen = cuentaOrigen.NumeroCuenta
+                CuentaOrigenId = model.CuentaOrigenId
             };
 
-            return View("ConfirmarTransaccionExpress", confirmacionViewModel);
+            return View("ConfirmarTransaccionExpress", confirmacionVM);
         }
 
         /// <summary>
-        /// Confirma y procesa la transacción express
+        /// Confirma y ejecuta la transacción express
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarTransaccionExpress(ConfirmarTransaccionViewModel model)
         {
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(model.NumeroCuentaDestino);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Descontar de origen
-            cuentaOrigen.Balance -= model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
-
-            // Acreditar a destino
-            cuentaDestino.Balance += model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
-
-            await _repositorioCuenta.GuardarCambiosAsync();
-
-            // Registrar transacciones
-            var transaccionOrigen = new Transaccion
+            // Crear el DTO
+            var dto = new TransaccionExpressDTO
             {
-                FechaTransaccion = DateTime.Now,
+                CuentaOrigenId = model.CuentaOrigenId,
+                NumeroCuentaDestino = model.NumeroCuentaDestino,
                 Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoDebito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaOrigen.Id,
-                FechaCreacion = DateTime.Now
+                UsuarioId = usuarioId
             };
 
-            var transaccionDestino = new Transaccion
+            // Llamar al servicio
+            var resultado = await _servicioTransaccion.RealizarTransaccionExpressAsync(dto);
+
+            if (resultado.Exito)
             {
-                FechaTransaccion = DateTime.Now,
-                Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoCredito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaDestino.Id,
-                FechaCreacion = DateTime.Now
-            };
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Index));
+            }
 
-            await _repositorioTransaccion.AgregarAsync(transaccionOrigen);
-            await _repositorioTransaccion.AgregarAsync(transaccionDestino);
-            await _repositorioTransaccion.GuardarCambiosAsync();
-
-            // Enviar correos
-            var clienteOrigen = await _userManager.FindByIdAsync(cuentaOrigen.UsuarioId);
-            var clienteDestino = await _userManager.FindByIdAsync(cuentaDestino.UsuarioId);
-
-            var ultimos4Destino = cuentaDestino.NumeroCuenta.Substring(cuentaDestino.NumeroCuenta.Length - 4);
-            var ultimos4Origen = cuentaOrigen.NumeroCuenta.Substring(cuentaOrigen.NumeroCuenta.Length - 4);
-
-            await _servicioCorreo.EnviarNotificacionTransaccionRealizadaAsync(
-                clienteOrigen.Email,
-                clienteOrigen.NombreCompleto,
-                model.Monto,
-                ultimos4Destino,
-                DateTime.Now);
-
-            await _servicioCorreo.EnviarNotificacionTransaccionRecibidaAsync(
-                clienteDestino.Email,
-                clienteDestino.NombreCompleto,
-                model.Monto,
-                ultimos4Origen,
-                DateTime.Now);
-
-            TempData["MensajeExito"] = "Transacción realizada exitosamente.";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = resultado.Mensaje;
+            return RedirectToAction(nameof(TransaccionExpress));
         }
 
-        // Método auxiliar para cargar cuentas en caso de error
-        private async Task<IActionResult> CargarCuentasYMostrarVistaAsync(TransaccionExpressViewModel model, string vistaName)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
-
-            return View(vistaName, model);
-        }
-
-        #endregion
-
-        #region Pago a Tarjeta de Crédito
+        // ==================== PAGO A TARJETA DE CRÉDITO ====================
 
         /// <summary>
-        /// Muestra el formulario de pago a tarjeta de crédito
+        /// Muestra el formulario para pagar una tarjeta de crédito
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> PagoTarjeta()
+        public async Task<IActionResult> PagarTarjeta()
         {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
-
             var viewModel = new PagoTarjetaViewModel
             {
-                TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
-                {
-                    Value = t.Id.ToString(),
-                    Text = $"**** {t.UltimosCuatroDigitos} - Deuda: RD${t.DeudaActual:N2}"
-                }),
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
+                TarjetasDisponibles = await ObtenerTarjetasActivasAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasAsync()
             };
 
             return View(viewModel);
@@ -534,116 +358,54 @@ namespace ArtemisBanking.Web.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PagoTarjeta(PagoTarjetaViewModel model)
+        public async Task<IActionResult> PagarTarjeta(PagoTarjetaViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return await CargarDatosYMostrarVistaPagoTarjetaAsync(model);
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                return View(model);
             }
 
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(model.TarjetaId);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Validar fondos suficientes
-            if (cuentaOrigen.Balance < model.Monto)
+            // Crear el DTO
+            var dto = new PagoTarjetaClienteDTO
             {
-                ModelState.AddModelError("Monto", "No dispone del monto requerido.");
-                return await CargarDatosYMostrarVistaPagoTarjetaAsync(model);
-            }
-
-            // Si el monto excede la deuda, solo pagar la deuda
-            var montoPagar = Math.Min(model.Monto, tarjeta.DeudaActual);
-
-            // Descontar de la cuenta
-            cuentaOrigen.Balance -= montoPagar;
-            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
-
-            // Reducir deuda de la tarjeta
-            tarjeta.DeudaActual -= montoPagar;
-            await _repositorioTarjeta.ActualizarAsync(tarjeta);
-
-            await _repositorioTarjeta.GuardarCambiosAsync();
-
-            // Registrar transacción
-            var transaccion = new Transaccion
-            {
-                FechaTransaccion = DateTime.Now,
-                Monto = montoPagar,
-                TipoTransaccion = Constantes.TipoDebito,
-                Beneficiario = tarjeta.NumeroTarjeta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaOrigen.Id,
-                FechaCreacion = DateTime.Now
+                TarjetaId = model.TarjetaId,
+                CuentaOrigenId = model.CuentaOrigenId,
+                Monto = model.Monto,
+                UsuarioId = usuarioId
             };
 
-            await _repositorioTransaccion.AgregarAsync(transaccion);
-            await _repositorioTransaccion.GuardarCambiosAsync();
+            // Llamar al servicio
+            var resultado = await _servicioTransaccion.PagarTarjetaCreditoClienteAsync(dto);
 
-            // Enviar correo
-            var cliente = await _userManager.GetUserAsync(User);
-            var ultimos4Tarjeta = tarjeta.UltimosCuatroDigitos;
-            var ultimos4Cuenta = cuentaOrigen.NumeroCuenta.Substring(cuentaOrigen.NumeroCuenta.Length - 4);
-
-            await _servicioCorreo.EnviarNotificacionPagoTarjetaAsync(
-                cliente.Email,
-                cliente.NombreCompleto,
-                montoPagar,
-                ultimos4Tarjeta,
-                ultimos4Cuenta,
-                DateTime.Now);
-
-            TempData["MensajeExito"] = "Pago realizado exitosamente.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<IActionResult> CargarDatosYMostrarVistaPagoTarjetaAsync(PagoTarjetaViewModel model)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
-
-            model.TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
+            if (resultado.Exito)
             {
-                Value = t.Id.ToString(),
-                Text = $"**** {t.UltimosCuatroDigitos} - Deuda: RD${t.DeudaActual:N2}"
-            });
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Index));
+            }
 
+            // Si hubo error
+            ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            model.TarjetasDisponibles = await ObtenerTarjetasActivasAsync();
+            model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
             return View(model);
         }
 
-        #endregion
-
-        #region Pago a Préstamo
+        // ==================== PAGO A PRÉSTAMO ====================
 
         /// <summary>
-        /// Muestra el formulario de pago a préstamo
+        /// Muestra el formulario para pagar un préstamo
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> PagoPrestamo()
+        public async Task<IActionResult> PagarPrestamo()
         {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(clienteId);
-            var prestamosActivos = prestamos.Where(p => p.EstaActivo).ToList();
-
             var viewModel = new PagoPrestamoViewModel
             {
-                PrestamosDisponibles = prestamosActivos.Select(p => new SelectListItem
-                {
-                    Value = p.Id.ToString(),
-                    Text = $"{p.NumeroPrestamo} - Pendiente: RD${p.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota):N2}"
-                }),
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
+                PrestamosDisponibles = await ObtenerPrestamosActivosAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasAsync()
             };
 
             return View(viewModel);
@@ -654,532 +416,142 @@ namespace ArtemisBanking.Web.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PagoPrestamo(PagoPrestamoViewModel model)
+        public async Task<IActionResult> PagarPrestamo(PagoPrestamoViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return await CargarDatosYMostrarVistaPagoPrestamoAsync(model);
+                model.PrestamosDisponibles = await ObtenerPrestamosActivosAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                return View(model);
             }
 
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(model.PrestamoId);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Validar fondos suficientes
-            if (cuentaOrigen.Balance < model.Monto)
+            // Crear el DTO
+            var dto = new PagoPrestamoClienteDTO
             {
-                ModelState.AddModelError("Monto", "No dispone del monto requerido.");
-                return await CargarDatosYMostrarVistaPagoPrestamoAsync(model);
-            }
-
-            // Aplicar el pago a las cuotas pendientes
-            decimal montoRestante = model.Monto;
-
-            while (montoRestante > 0)
-            {
-                var cuotaPendiente = await _repositorioCuotaPrestamo.ObtenerPrimeraCuotaPendienteAsync(prestamo.Id);
-
-                if (cuotaPendiente == null)
-                    break; // No hay más cuotas pendientes
-
-                if (montoRestante >= cuotaPendiente.MontoCuota)
-                {
-                    // Pagar la cuota completa
-                    montoRestante -= cuotaPendiente.MontoCuota;
-                    cuotaPendiente.EstaPagada = true;
-                    cuotaPendiente.EstaAtrasada = false;
-                    await _repositorioCuotaPrestamo.ActualizarAsync(cuotaPendiente);
-                }
-                else
-                {
-                    // Pago parcial - no se implementa en este sistema
-                    // El dinero restante se devuelve a la cuenta
-                    break;
-                }
-            }
-
-            await _repositorioCuotaPrestamo.GuardarCambiosAsync();
-
-            // Descontar de la cuenta (solo lo que realmente se usó)
-            decimal montoUsado = model.Monto - montoRestante;
-            cuentaOrigen.Balance -= montoUsado;
-
-            // Si sobró dinero, devolverlo
-            if (montoRestante > 0)
-            {
-                cuentaOrigen.Balance += montoRestante;
-            }
-
-            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
-            await _repositorioCuenta.GuardarCambiosAsync();
-
-            // Verificar si el préstamo está completamente pagado
-            var cuotasPendientes = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(prestamo.Id);
-            if (cuotasPendientes.All(c => c.EstaPagada))
-            {
-                prestamo.EstaActivo = false;
-                await _repositorioPrestamo.ActualizarAsync(prestamo);
-                await _repositorioPrestamo.GuardarCambiosAsync();
-            }
-
-            // Registrar transacción
-            var transaccion = new Transaccion
-            {
-                FechaTransaccion = DateTime.Now,
-                Monto = montoUsado,
-                TipoTransaccion = Constantes.TipoDebito,
-                Beneficiario = prestamo.NumeroPrestamo,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaOrigen.Id,
-                FechaCreacion = DateTime.Now
+                PrestamoId = model.PrestamoId,
+                CuentaOrigenId = model.CuentaOrigenId,
+                Monto = model.Monto,
+                UsuarioId = usuarioId
             };
 
-            await _repositorioTransaccion.AgregarAsync(transaccion);
-            await _repositorioTransaccion.GuardarCambiosAsync();
+            // Llamar al servicio
+            var resultado = await _servicioTransaccion.PagarPrestamoClienteAsync(dto);
 
-            // Enviar correo
-            var cliente = await _userManager.GetUserAsync(User);
-            var ultimos4Cuenta = cuentaOrigen.NumeroCuenta.Substring(cuentaOrigen.NumeroCuenta.Length - 4);
-
-            await _servicioCorreo.EnviarNotificacionPagoPrestamoAsync(
-                cliente.Email,
-                cliente.NombreCompleto,
-                montoUsado,
-                prestamo.NumeroPrestamo,
-                ultimos4Cuenta,
-                DateTime.Now);
-
-            TempData["MensajeExito"] = $"Pago realizado exitosamente. Monto aplicado: RD${montoUsado:N2}";
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<IActionResult> CargarDatosYMostrarVistaPagoPrestamoAsync(PagoPrestamoViewModel model)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(clienteId);
-            var prestamosActivos = prestamos.Where(p => p.EstaActivo).ToList();
-
-            model.PrestamosDisponibles = prestamosActivos.Select(p => new SelectListItem
+            if (resultado.Exito)
             {
-                Value = p.Id.ToString(),
-                Text = $"{p.NumeroPrestamo} - Pendiente: RD${p.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota):N2}"
-            });
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Index));
+            }
 
+            // Si hubo error
+            ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            model.PrestamosDisponibles = await ObtenerPrestamosActivosAsync();
+            model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
             return View(model);
         }
 
-        #endregion
-
-        #region Pago a Beneficiario
+        // ==================== PAGO A BENEFICIARIO ====================
 
         /// <summary>
-        /// Muestra el formulario de pago a beneficiario
+        /// Muestra el formulario para pagar a un beneficiario
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> PagoBeneficiario()
+        public async Task<IActionResult> PagarBeneficiario()
         {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var beneficiarios = await _repositorioBeneficiario.ObtenerBeneficiariosDeUsuarioAsync(clienteId);
-
             var viewModel = new PagoBeneficiarioViewModel
             {
-                BeneficiariosDisponibles = beneficiarios.Select(b => new SelectListItem
-                {
-                    Value = b.Id.ToString(),
-                    Text = $"{b.NumeroCuentaBeneficiario} - {b.CuentaAhorro.Usuario.NombreCompleto}"
-                }),
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
+                BeneficiariosDisponibles = await ObtenerBeneficiariosAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasAsync()
             };
 
             return View(viewModel);
         }
 
         /// <summary>
-        /// Procesa el pago a beneficiario (con confirmación)
+        /// Procesa el pago a beneficiario
+        /// Primero valida y luego muestra pantalla de confirmación
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PagoBeneficiario(PagoBeneficiarioViewModel model)
+        public async Task<IActionResult> PagarBeneficiario(PagoBeneficiarioViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return await CargarDatosYMostrarVistaPagoBeneficiarioAsync(model);
+                model.BeneficiariosDisponibles = await ObtenerBeneficiariosAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                return View(model);
             }
 
-            var beneficiario = await _repositorioBeneficiario.ObtenerPorIdAsync(model.BeneficiarioId);
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(beneficiario.CuentaAhorroId);
+            var usuarioId = ObtenerUsuarioActualId();
 
-            // Validar fondos suficientes
-            if (cuentaOrigen.Balance < model.Monto)
+            // Obtener datos del beneficiario
+            var beneficiariosResult = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+            if (!beneficiariosResult.Exito)
             {
-                ModelState.AddModelError("Monto", "No dispone de fondos suficientes.");
-                return await CargarDatosYMostrarVistaPagoBeneficiarioAsync(model);
+                TempData["ErrorMessage"] = "Error al obtener beneficiario";
+                return RedirectToAction(nameof(PagarBeneficiario));
             }
 
-            // Redirigir a confirmación
-            var confirmacionViewModel = new ConfirmarTransaccionViewModel
+            var beneficiario = beneficiariosResult.Datos.FirstOrDefault(b => b.Id == model.BeneficiarioId);
+
+            if (beneficiario == null)
             {
-                NombreDestinatario = cuentaDestino.Usuario.Nombre,
-                ApellidoDestinatario = cuentaDestino.Usuario.Apellido,
-                NumeroCuentaDestino = cuentaDestino.NumeroCuenta,
+                TempData["ErrorMessage"] = "Beneficiario no encontrado";
+                return RedirectToAction(nameof(PagarBeneficiario));
+            }
+
+            // Redirigir a pantalla de confirmación
+            var confirmacionVM = new ConfirmarTransaccionViewModel
+            {
+                NombreDestinatario = beneficiario.NombreBeneficiario,
+                ApellidoDestinatario = beneficiario.ApellidoBeneficiario,
+                NumeroCuentaDestino = beneficiario.NumeroCuentaBeneficiario,
                 Monto = model.Monto,
-                CuentaOrigenId = model.CuentaOrigenId,
-                NumeroCuentaOrigen = cuentaOrigen.NumeroCuenta
+                CuentaOrigenId = model.CuentaOrigenId
             };
 
-            return View("ConfirmarPagoBeneficiario", confirmacionViewModel);
+            // Guardar el ID del beneficiario en TempData para usarlo en la confirmación
+            TempData["BeneficiarioId"] = model.BeneficiarioId;
+
+            return View("ConfirmarPagoBeneficiario", confirmacionVM);
         }
 
         /// <summary>
-        /// Confirma y procesa el pago a beneficiario
+        /// Confirma y ejecuta el pago a beneficiario
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarPagoBeneficiario(ConfirmarTransaccionViewModel model)
         {
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(model.NumeroCuentaDestino);
+            var usuarioId = ObtenerUsuarioActualId();
+            var beneficiarioId = (int)TempData["BeneficiarioId"];
 
-            // Descontar de origen
-            cuentaOrigen.Balance -= model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
-
-            // Acreditar a destino
-            cuentaDestino.Balance += model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
-
-            await _repositorioCuenta.GuardarCambiosAsync();
-
-            // Registrar transacciones
-            var transaccionOrigen = new Transaccion
+            // Crear el DTO
+            var dto = new PagoBeneficiarioDTO
             {
-                FechaTransaccion = DateTime.Now,
+                BeneficiarioId = beneficiarioId,
+                CuentaOrigenId = model.CuentaOrigenId,
                 Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoDebito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaOrigen.Id,
-                FechaCreacion = DateTime.Now
+                UsuarioId = usuarioId
             };
 
-            var transaccionDestino = new Transaccion
+            // Llamar al servicio
+            var resultado = await _servicioTransaccion.PagarBeneficiarioAsync(dto);
+
+            if (resultado.Exito)
             {
-                FechaTransaccion = DateTime.Now,
-                Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoCredito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaDestino.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioTransaccion.AgregarAsync(transaccionOrigen);
-            await _repositorioTransaccion.AgregarAsync(transaccionDestino);
-            await _repositorioTransaccion.GuardarCambiosAsync();
-
-            // Enviar correos
-            var clienteOrigen = await _userManager.FindByIdAsync(cuentaOrigen.UsuarioId);
-            var clienteDestino = await _userManager.FindByIdAsync(cuentaDestino.UsuarioId);
-
-            var ultimos4Destino = cuentaDestino.NumeroCuenta.Substring(cuentaDestino.NumeroCuenta.Length - 4);
-            var ultimos4Origen = cuentaOrigen.NumeroCuenta.Substring(cuentaOrigen.NumeroCuenta.Length - 4);
-
-            await _servicioCorreo.EnviarNotificacionTransaccionRealizadaAsync(
-                clienteOrigen.Email,
-                clienteOrigen.NombreCompleto,
-                model.Monto,
-                ultimos4Destino,
-                DateTime.Now);
-
-            await _servicioCorreo.EnviarNotificacionTransaccionRecibidaAsync(
-                clienteDestino.Email,
-                clienteDestino.NombreCompleto,
-                model.Monto,
-                ultimos4Origen,
-                DateTime.Now);
-
-            TempData["MensajeExito"] = "Pago realizado exitosamente.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<IActionResult> CargarDatosYMostrarVistaPagoBeneficiarioAsync(PagoBeneficiarioViewModel model)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var beneficiarios = await _repositorioBeneficiario.ObtenerBeneficiariosDeUsuarioAsync(clienteId);
-
-            model.BeneficiariosDisponibles = beneficiarios.Select(b => new SelectListItem
-            {
-                Value = b.Id.ToString(),
-                Text = $"{b.NumeroCuentaBeneficiario} - {b.CuentaAhorro.Usuario.NombreCompleto}"
-            });
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
-
-            return View(model);
-        }
-
-        #endregion
-
-        #region Avance de Efectivo
-
-        /// <summary>
-        /// Muestra el formulario de avance de efectivo
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> AvanceEfectivo()
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
-
-            var viewModel = new AvanceEfectivoViewModel
-            {
-                TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
-                {
-                    Value = t.Id.ToString(),
-                    Text = $"**** {t.UltimosCuatroDigitos} - Disponible: RD${t.CreditoDisponible:N2}"
-                }),
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Procesa el avance de efectivo
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AvanceEfectivo(AvanceEfectivoViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await CargarDatosYMostrarVistaAvanceEfectivoAsync(model);
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Index));
             }
 
-            var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(model.TarjetaId);
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaDestinoId);
-
-            // Validar que el monto no exceda el crédito disponible
-            if (model.Monto > tarjeta.CreditoDisponible)
-            {
-                ModelState.AddModelError("Monto", $"El monto no puede exceder el crédito disponible (RD${tarjeta.CreditoDisponible:N2}).");
-                return await CargarDatosYMostrarVistaAvanceEfectivoAsync(model);
-            }
-
-            // Calcular interés del 6.25%
-            decimal interes = model.Monto * (Constantes.InteresAvanceEfectivo / 100);
-            decimal deudaTotal = model.Monto + interes;
-
-            // Acreditar a la cuenta
-            cuentaDestino.Balance += model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
-
-            // Aumentar deuda de la tarjeta (monto + interés)
-            tarjeta.DeudaActual += deudaTotal;
-            await _repositorioTarjeta.ActualizarAsync(tarjeta);
-
-            await _repositorioTarjeta.GuardarCambiosAsync();
-
-            // Registrar transacción en cuenta
-            var transaccion = new Transaccion
-            {
-                FechaTransaccion = DateTime.Now,
-                Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoCredito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = tarjeta.UltimosCuatroDigitos,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaDestino.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioTransaccion.AgregarAsync(transaccion);
-
-            // Registrar consumo en tarjeta
-            var consumo = new ConsumoTarjeta
-            {
-                FechaConsumo = DateTime.Now,
-                Monto = deudaTotal,
-                NombreComercio = Constantes.TextoAvance,
-                EstadoConsumo = Constantes.ConsumoAprobado,
-                TarjetaId = tarjeta.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioConsumoTarjeta.AgregarAsync(consumo);
-            await _repositorioConsumoTarjeta.GuardarCambiosAsync();
-
-            // Enviar correo
-            var cliente = await _userManager.GetUserAsync(User);
-            var ultimos4Tarjeta = tarjeta.UltimosCuatroDigitos;
-            var ultimos4Cuenta = cuentaDestino.NumeroCuenta.Substring(cuentaDestino.NumeroCuenta.Length - 4);
-
-            await _servicioCorreo.EnviarNotificacionAvanceEfectivoAsync(
-                cliente.Email,
-                cliente.NombreCompleto,
-                model.Monto,
-                ultimos4Tarjeta,
-                ultimos4Cuenta,
-                DateTime.Now);
-
-            TempData["MensajeExito"] = $"Avance de efectivo realizado exitosamente. Interés aplicado: RD${interes:N2}";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = resultado.Mensaje;
+            return RedirectToAction(nameof(PagarBeneficiario));
         }
 
-        private async Task<IActionResult> CargarDatosYMostrarVistaAvanceEfectivoAsync(AvanceEfectivoViewModel model)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-            var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(clienteId);
 
-            model.TarjetasDisponibles = tarjetas.Select(t => new SelectListItem
-            {
-                Value = t.Id.ToString(),
-                Text = $"**** {t.UltimosCuatroDigitos} - Disponible: RD${t.CreditoDisponible:N2}"
-            });
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
 
-            return View(model);
-        }
-
-        #endregion
-
-        #region Transferencia entre Cuentas
-
-        /// <summary>
-        /// Muestra el formulario de transferencia entre cuentas propias
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> TransferenciaEntreCuentas()
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-
-            var viewModel = new TransferenciaEntreCuentasViewModel
-            {
-                CuentasDisponibles = cuentas.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-                })
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Procesa la transferencia entre cuentas propias
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TransferenciaEntreCuentas(TransferenciaEntreCuentasViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
-            }
-
-            // Validar que no sean la misma cuenta
-            if (model.CuentaOrigenId == model.CuentaDestinoId)
-            {
-                ModelState.AddModelError("", "No puede transferir a la misma cuenta.");
-                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
-            }
-
-            var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaOrigenId);
-            var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(model.CuentaDestinoId);
-
-            // Validar fondos suficientes
-            if (cuentaOrigen.Balance < model.Monto)
-            {
-                ModelState.AddModelError("Monto", "No cuenta con saldo suficiente.");
-                return await CargarDatosYMostrarVistaTransferenciaAsync(model);
-            }
-
-            // Descontar de origen
-            cuentaOrigen.Balance -= model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaOrigen);
-
-            // Acreditar a destino
-            cuentaDestino.Balance += model.Monto;
-            await _repositorioCuenta.ActualizarAsync(cuentaDestino);
-
-            await _repositorioCuenta.GuardarCambiosAsync();
-
-            // Registrar transacciones
-            var transaccionOrigen = new Transaccion
-            {
-                FechaTransaccion = DateTime.Now,
-                Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoDebito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaOrigen.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            var transaccionDestino = new Transaccion
-            {
-                FechaTransaccion = DateTime.Now,
-                Monto = model.Monto,
-                TipoTransaccion = Constantes.TipoCredito,
-                Beneficiario = cuentaDestino.NumeroCuenta,
-                Origen = cuentaOrigen.NumeroCuenta,
-                EstadoTransaccion = Constantes.EstadoAprobada,
-                CuentaAhorroId = cuentaDestino.Id,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioTransaccion.AgregarAsync(transaccionOrigen);
-            await _repositorioTransaccion.AgregarAsync(transaccionDestino);
-            await _repositorioTransaccion.GuardarCambiosAsync();
-
-            TempData["MensajeExito"] = "Transferencia realizada exitosamente.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<IActionResult> CargarDatosYMostrarVistaTransferenciaAsync(TransferenciaEntreCuentasViewModel model)
-        {
-            var clienteId = _userManager.GetUserId(User);
-            var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(clienteId);
-
-            model.CuentasDisponibles = cuentas.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
-            });
-
-            return View(model);
-        }
-
-        #endregion
     }
 }

@@ -92,11 +92,11 @@ namespace ArtemisBanking.Application.Services
         /// Si tiene fondos, los transfiere automáticamente a la cuenta principal
         /// Las cuentas principales NO se pueden cancelar
         /// </summary>
-        public async Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId, string usuarioId)
+        public async Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId)
         {
             try
             {
-                // 1. Obtener la cuenta a cancelar
+                // 1. Obtener la cuenta a cancelar (CON el usuario incluido)
                 var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(cuentaId);
 
                 if (cuenta == null)
@@ -104,11 +104,13 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Cuenta no encontrada");
                 }
 
-                // 2. Validar que la cuenta pertenezca al usuario
-                if (cuenta.UsuarioId != usuarioId)
-                {
-                    return ResultadoOperacion.Fallo("No tiene permiso para cancelar esta cuenta");
-                }
+                // ELIMINAR esta validación porque ahora obtenemos el usuario de la cuenta:
+                // if (cuenta.UsuarioId != usuarioId)
+                // {
+                //     return ResultadoOperacion.Fallo("No tiene permiso para cancelar esta cuenta");
+                // }
+
+                // El resto del método queda igual...
 
                 // 3. Validar que NO sea la cuenta principal
                 if (cuenta.EsPrincipal)
@@ -119,7 +121,7 @@ namespace ArtemisBanking.Application.Services
                 // 4. Si la cuenta tiene fondos, transferirlos a la cuenta principal
                 if (cuenta.Balance > 0)
                 {
-                    var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(usuarioId);
+                    var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(cuenta.UsuarioId);
 
                     if (cuentaPrincipal == null)
                     {

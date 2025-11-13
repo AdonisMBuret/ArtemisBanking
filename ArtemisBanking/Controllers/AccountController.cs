@@ -1,3 +1,4 @@
+using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Web.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
@@ -6,107 +7,122 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArtemisBanking.Web.Controllers
 {
     /// <summary>
-    /// Controlador de autenticación - ARQUITECTURA LIMPIA
-    /// Este controlador SOLO:
-    /// 1. Recibe datos del usuario
-    /// 2. Llama al servicio correspondiente
-    /// 3. Retorna la vista con el resultado
-    /// NO contiene lógica de negocio
+    /// Controlador para manejar todo lo relacionado con autenticación
+    /// Solo recibe datos, llama al servicio y retorna vistas
+    /// NO tiene lógica de negocio
     /// </summary>
     public class AccountController : Controller
     {
-        // Solo depende de la ABSTRACCIÓN (interfaz), no de Identity
-        private readonly IServicioAutenticacion _servicioAuth;
+        // Servicio que tiene TODA la lógica de autenticación
+        private readonly IServicioAutenticacion _servicioAutenticacion;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
-            IServicioAutenticacion servicioAuth,
+            IServicioAutenticacion servicioAutenticacion,
             ILogger<AccountController> logger)
         {
-            _servicioAuth = servicioAuth;
+            _servicioAutenticacion = servicioAutenticacion;
             _logger = logger;
         }
 
         // ==================== LOGIN ====================
 
         /// <summary>
-        /// Muestra la pantalla de login
-        /// Si ya está autenticado, redirige a su home
+        /// Muestra el formulario de login
+        /// Si el usuario ya está logueado, lo redirige a su home
         /// </summary>
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            // Si ya está autenticado, redirigir según su rol
+            // Si el usuario ya está autenticado, redirigir a su home
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToRoleHome();
+                return RedirectToAction("Index", "Home");
             }
 
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         /// <summary>
-        /// Procesa el login
+        /// Procesa el formulario de login
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
-            // Validar el modelo
+            ViewData["ReturnUrl"] = returnUrl;
+
+            // Validar que el modelo sea válido
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Llamar al servicio (TODA la lógica está allí)
-            var resultado = await _servicioAuth.LoginAsync(
+            // Llamar al servicio de autenticación (aquí está TODA la lógica)
+            var resultado = await _servicioAutenticacion.LoginAsync(
                 model.NombreUsuario,
                 model.Contrasena,
                 model.Recordarme);
 
-            // Si falló, mostrar error
-            if (!resultado.Exito)
+            // Si el login fue exitoso
+            if (resultado.Exito)
             {
-                ModelState.AddModelError(string.Empty, resultado.Mensaje);
-                return View(model);
+                _logger.LogInformation($"Usuario {model.NombreUsuario} inició sesión correctamente");
+
+                // Redirigir según el rol del usuario
+                var rol = resultado.Datos; // El servicio retorna el rol
+
+                // Si hay una URL de retorno, ir ahí
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                // Si no, redirigir al home correspondiente según el rol
+                return rol switch
+                {
+                    Constantes.RolAdministrador => RedirectToAction("Index", "Admin"),
+                    Constantes.RolCajero => RedirectToAction("Index", "Cajero"),
+                    Constantes.RolCliente => RedirectToAction("Index", "Cliente"),
+                    _ => RedirectToAction("Index", "Home")
+                };
             }
 
-            // Si fue exitoso, redirigir según el rol retornado
-            _logger.LogInformation($"Login exitoso para {model.NombreUsuario}");
-
-            return RedirectToRoleHomeByRole(resultado.Datos);
+            // Si hubo error, mostrar el mensaje
+            ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            return View(model);
         }
 
         // ==================== LOGOUT ====================
 
         /// <summary>
-        /// Cierra la sesión
+        /// Cierra la sesión del usuario y lo redirige al login
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize] // Solo usuarios autenticados pueden hacer logout
         public async Task<IActionResult> Logout()
         {
-            await _servicioAuth.LogoutAsync();
+            await _servicioAutenticacion.LogoutAsync();
+            _logger.LogInformation("Usuario cerró sesión");
+
             return RedirectToAction(nameof(Login));
         }
 
-        // ==================== CONFIRMACIÓN DE CUENTA ====================
+        // ==================== CONFIRMAR CUENTA ====================
 
         /// <summary>
-        /// Muestra el formulario de confirmación
+        /// Muestra el formulario para confirmar cuenta con token
         /// </summary>
         [HttpGet]
-        public IActionResult ConfirmarCuenta(string usuarioId, string token)
+        public IActionResult ConfirmarCuenta(string userId = null, string token = null)
         {
-            if (string.IsNullOrEmpty(usuarioId) || string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction(nameof(Login));
-            }
-
+            // Si vienen los datos en la URL, pre-llenar el formulario
             var model = new ConfirmarCuentaViewModel
             {
-                UsuarioId = usuarioId,
-                Token = token
+                UsuarioId = userId ?? string.Empty,
+                Token = token ?? string.Empty
             };
 
             return View(model);
@@ -124,25 +140,27 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
 
-            // Llamar al servicio
-            var resultado = await _servicioAuth.ConfirmarCuentaAsync(
+            // Llamar al servicio para confirmar la cuenta
+            var resultado = await _servicioAutenticacion.ConfirmarCuentaAsync(
                 model.UsuarioId,
                 model.Token);
 
-            if (!resultado.Exito)
+            if (resultado.Exito)
             {
-                ModelState.AddModelError(string.Empty, resultado.Mensaje);
-                return View(model);
+                // Mostrar mensaje de éxito y redirigir al login
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Login));
             }
 
-            TempData["Exito"] = resultado.Mensaje;
-            return RedirectToAction(nameof(Login));
+            // Si hubo error, mostrar el mensaje
+            ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            return View(model);
         }
 
-        // ==================== OLVIDÉ MI CONTRASEÑA ====================
+        // ==================== RESETEO DE CONTRASEÑA ====================
 
         /// <summary>
-        /// Muestra el formulario para solicitar reseteo
+        /// Muestra el formulario para solicitar reseteo de contraseña
         /// </summary>
         [HttpGet]
         public IActionResult OlvideContrasena()
@@ -151,7 +169,8 @@ namespace ArtemisBanking.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa la solicitud de reseteo
+        /// Procesa la solicitud de reseteo de contraseña
+        /// Desactiva al usuario y envía correo con token
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -162,30 +181,30 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
 
-            // Llamar al servicio
-            var resultado = await _servicioAuth.SolicitarReseteoContrasenaAsync(model.NombreUsuario);
+            // Llamar al servicio (desactiva usuario y envía correo)
+            var resultado = await _servicioAutenticacion.SolicitarReseteoContrasenaAsync(
+                model.NombreUsuario);
 
-            // Siempre mostrar el mismo mensaje (por seguridad)
-            TempData["Mensaje"] = resultado.Mensaje;
+            // Siempre mostrar el mismo mensaje (por seguridad, no revelar si el usuario existe)
+            TempData["InfoMessage"] = resultado.Mensaje;
             return RedirectToAction(nameof(Login));
         }
 
-        // ==================== RESTABLECER CONTRASEÑA ====================
-
         /// <summary>
-        /// Muestra el formulario de reseteo
+        /// Muestra el formulario para restablecer contraseña con token
         /// </summary>
         [HttpGet]
-        public IActionResult RestablecerContrasena(string usuarioId, string token)
+        public IActionResult RestablecerContrasena(string userId = null, string token = null)
         {
-            if (string.IsNullOrEmpty(usuarioId) || string.IsNullOrEmpty(token))
+            // Si no vienen los parámetros, redirigir al login
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
             {
                 return RedirectToAction(nameof(Login));
             }
 
             var model = new RestablecerContrasenaViewModel
             {
-                UsuarioId = usuarioId,
+                UsuarioId = userId,
                 Token = token
             };
 
@@ -194,6 +213,7 @@ namespace ArtemisBanking.Web.Controllers
 
         /// <summary>
         /// Procesa el restablecimiento de contraseña
+        /// Cambia la contraseña y reactiva al usuario
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -204,74 +224,44 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
 
-            // Llamar al servicio
-            var resultado = await _servicioAuth.RestablecerContrasenaAsync(
+            // Llamar al servicio para cambiar la contraseña
+            var resultado = await _servicioAutenticacion.RestablecerContrasenaAsync(
                 model.UsuarioId,
                 model.Token,
                 model.Contrasena);
 
-            if (!resultado.Exito)
+            if (resultado.Exito)
             {
-                // Agregar errores al modelo
-                if (resultado.Errores.Any())
-                {
-                    foreach (var error in resultado.Errores)
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, resultado.Mensaje);
-                }
-
-                return View(model);
+                // Mostrar mensaje de éxito y redirigir al login
+                TempData["SuccessMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(Login));
             }
 
-            TempData["Exito"] = resultado.Mensaje;
-            return RedirectToAction(nameof(Login));
+            // Si hubo errores, mostrarlos
+            if (resultado.Errores.Any())
+            {
+                foreach (var error in resultado.Errores)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            }
+
+            return View(model);
         }
 
         // ==================== ACCESO DENEGADO ====================
 
+        /// <summary>
+        /// Página que se muestra cuando un usuario intenta acceder a una sección no autorizada
+        /// </summary>
         [HttpGet]
-        public IActionResult AccessDenied()
+        public IActionResult AccesoDenegado()
         {
             return View();
-        }
-
-
-        // ==================== MÉTODOS AUXILIARES ====================
-
-        /// <summary>
-        /// Redirige al home según el rol del usuario autenticado
-        /// </summary>
-        private IActionResult RedirectToRoleHome()
-        {
-            if (User.IsInRole("Administrador"))
-                return RedirectToAction("Index", "Admin");
-
-            if (User.IsInRole("Cajero"))
-                return RedirectToAction("Index", "Cajero");
-
-            if (User.IsInRole("Cliente"))
-                return RedirectToAction("Index", "Cliente");
-
-            return RedirectToAction(nameof(Login));
-        }
-
-        /// <summary>
-        /// Redirige al home según el rol especificado
-        /// </summary>
-        private IActionResult RedirectToRoleHomeByRole(string rol)
-        {
-            return rol switch
-            {
-                "Administrador" => RedirectToAction("Index", "Admin"),
-                "Cajero" => RedirectToAction("Index", "Cajero"),
-                "Cliente" => RedirectToAction("Index", "Cliente"),
-                _ => RedirectToAction(nameof(Login))
-            };
         }
     }
 }

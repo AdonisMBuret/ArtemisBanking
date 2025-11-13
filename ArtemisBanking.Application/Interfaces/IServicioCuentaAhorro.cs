@@ -19,7 +19,7 @@ namespace ArtemisBanking.Application.Interfaces
         /// Cancela una cuenta secundaria
         /// Transfiere el balance a la cuenta principal si tiene fondos
         /// </summary>
-        Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId, string usuarioId);
+        Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId);
 
         /// <summary>
         /// Transfiere dinero entre cuentas propias del cliente
@@ -31,5 +31,7 @@ namespace ArtemisBanking.Application.Interfaces
         /// Obtiene una cuenta por su ID con todas sus relaciones
         /// </summary>
         Task<ResultadoOperacion<CuentaAhorroDTO>> ObtenerCuentaPorIdAsync(int cuentaId);
+
+
     }
 }
