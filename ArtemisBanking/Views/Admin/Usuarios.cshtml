@@ -283,7 +283,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'RequestVerificationToken': '@GetAntiForgeryToken()'
+                        'RequestVerificationToken': '@GetAntiForgeryToken()'  // Error El nombre 'GetAntiForgeryToken' no existe en el contexto actual
                     }
                 })
                 .then(response => response.json())

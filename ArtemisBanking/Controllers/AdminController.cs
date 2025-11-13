@@ -415,9 +415,6 @@ namespace ArtemisBanking.Web.Controllers
 
         #endregion
 
-
-        // ArtemisBanking.Web/Controllers/AdminController.cs (Continuación - Gestión de Préstamos)
-
         #region Gestión de Préstamos
 
         /// <summary>
