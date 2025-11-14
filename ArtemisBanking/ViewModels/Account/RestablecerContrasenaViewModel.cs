@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Web.ViewModels.Account
 {
+    // ==================== RESTABLECER CONTRASEÑA ====================
+
     /// <summary>
-    /// ViewModel para restablecer la contraseña con token
+    /// ViewModel para restablecer la contraseña con el token recibido
     /// </summary>
     public class RestablecerContrasenaViewModel
     {
@@ -13,9 +15,8 @@ namespace ArtemisBanking.Web.ViewModels.Account
         [Required]
         public string Token { get; set; }
 
-        [Required(ErrorMessage = "La contraseña es requerida")]
-        [StringLength(100, MinimumLength = 8, 
-            ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} caracteres", MinimumLength = 8)]
         [DataType(DataType.Password)]
         [Display(Name = "Nueva Contraseña")]
         public string Contrasena { get; set; }

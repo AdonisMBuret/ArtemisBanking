@@ -1,6 +1,8 @@
 ﻿using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
+using ArtemisBanking.Domain.Interfaces.Repositories;
+using ArtemisBanking.ViewModels.Cliente;
 using ArtemisBanking.Web.ViewModels.Cliente;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -16,20 +18,49 @@ namespace ArtemisBanking.Web.Controllers
     [Authorize(Policy = "SoloCliente")]
     public class ClienteController : Controller
     {
-        // Servicios que usaremos
         private readonly IServicioTransaccion _servicioTransaccion;
         private readonly IServicioBeneficiario _servicioBeneficiario;
+        private readonly IServicioCuentaAhorro _servicioCuenta;
+
+        // ⭐ AGREGAR ESTOS REPOSITORIOS:
+        private readonly IRepositorioCuentaAhorro _repositorioCuenta;
+        private readonly IRepositorioPrestamo _repositorioPrestamo;
+        private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
+        private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
+        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
+        private readonly IRepositorioTransaccion _repositorioTransaccion;
+
         private readonly IMapper _mapper;
         private readonly ILogger<ClienteController> _logger;
 
         public ClienteController(
             IServicioTransaccion servicioTransaccion,
             IServicioBeneficiario servicioBeneficiario,
+            IServicioCuentaAhorro servicioCuenta,
+
+            // ⭐ AGREGAR ESTOS EN EL CONSTRUCTOR:
+            IRepositorioCuentaAhorro repositorioCuenta,
+            IRepositorioPrestamo repositorioPrestamo,
+            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
+            IRepositorioTarjetaCredito repositorioTarjeta,
+            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
+            IRepositorioTransaccion repositorioTransaccion,
+
             IMapper mapper,
             ILogger<ClienteController> logger)
         {
             _servicioTransaccion = servicioTransaccion;
             _servicioBeneficiario = servicioBeneficiario;
+            _servicioCuenta = servicioCuenta;
+
+            // ⭐ ASIGNAR LOS REPOSITORIOS:
+            _repositorioCuenta = repositorioCuenta;
+            _repositorioPrestamo = repositorioPrestamo;
+            _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
+            _repositorioTarjeta = repositorioTarjeta;
+            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
+            _repositorioTransaccion = repositorioTransaccion;
+
             _mapper = mapper;
             _logger = logger;
         }
@@ -550,9 +581,6 @@ namespace ArtemisBanking.Web.Controllers
             TempData["ErrorMessage"] = resultado.Mensaje;
             return RedirectToAction(nameof(PagarBeneficiario));
         }
-
-        // ==================== continuar  ====================
-
 
     }
 }

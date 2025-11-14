@@ -1,19 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ArtemisBanking.ViewModels.TarjetaCredito
+namespace ArtemisBanking.ViewModels.Cliente
 {
-    public class DetalleTarjetaViewModel
+    public class TarjetaClienteViewModel
     {
         public int Id { get; set; }
 
         [Display(Name = "Número de Tarjeta")]
         public string NumeroTarjeta { get; set; }
-
-        [Display(Name = "Últimos 4 Dígitos")]
-        public string UltimosCuatroDigitos { get; set; }
-
-        [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
 
         [Display(Name = "Límite de Crédito")]
         [DisplayFormat(DataFormatString = "{0:C2}")]
@@ -29,10 +23,5 @@ namespace ArtemisBanking.ViewModels.TarjetaCredito
 
         [Display(Name = "Fecha de Expiración")]
         public string FechaExpiracion { get; set; }
-
-        [Display(Name = "Estado")]
-        public bool EstaActiva { get; set; }
-
-        public IEnumerable<ConsumoTarjetaViewModel> Consumos { get; set; }
     }
 }

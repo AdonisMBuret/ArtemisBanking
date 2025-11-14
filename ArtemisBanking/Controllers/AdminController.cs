@@ -1,6 +1,11 @@
 using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
+using ArtemisBanking.Domain.Interfaces.Repositories;
+using ArtemisBanking.ViewModels.CuentaAhorro;
+using ArtemisBanking.ViewModels.Prestamo;
+using ArtemisBanking.ViewModels.TarjetaCredito;
+using ArtemisBanking.ViewModels.Usuario;
 using ArtemisBanking.Web.ViewModels;
 using ArtemisBanking.Web.ViewModels.CuentaAhorro;
 using ArtemisBanking.Web.ViewModels.TarjetaCredito;
@@ -18,11 +23,19 @@ namespace ArtemisBanking.Web.Controllers
     [Authorize(Policy = "SoloAdministrador")]
     public class AdminController : Controller
     {
-        // Servicios que usaremos
         private readonly IServicioUsuario _servicioUsuario;
         private readonly IServicioPrestamo _servicioPrestamo;
         private readonly IServicioTarjetaCredito _servicioTarjeta;
         private readonly IServicioCuentaAhorro _servicioCuenta;
+
+        // ⭐ AGREGAR ESTOS REPOSITORIOS:
+        private readonly IRepositorioPrestamo _repositorioPrestamo;
+        private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
+        private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
+        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
+        private readonly IRepositorioCuentaAhorro _repositorioCuenta;
+        private readonly IRepositorioTransaccion _repositorioTransaccion;
+
         private readonly IMapper _mapper;
         private readonly ILogger<AdminController> _logger;
 
@@ -31,6 +44,15 @@ namespace ArtemisBanking.Web.Controllers
             IServicioPrestamo servicioPrestamo,
             IServicioTarjetaCredito servicioTarjeta,
             IServicioCuentaAhorro servicioCuenta,
+
+            // ⭐ AGREGAR ESTOS EN EL CONSTRUCTOR:
+            IRepositorioPrestamo repositorioPrestamo,
+            IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
+            IRepositorioTarjetaCredito repositorioTarjeta,
+            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
+            IRepositorioCuentaAhorro repositorioCuenta,
+            IRepositorioTransaccion repositorioTransaccion,
+
             IMapper mapper,
             ILogger<AdminController> logger)
         {
@@ -38,6 +60,15 @@ namespace ArtemisBanking.Web.Controllers
             _servicioPrestamo = servicioPrestamo;
             _servicioTarjeta = servicioTarjeta;
             _servicioCuenta = servicioCuenta;
+
+            // ⭐ ASIGNAR LOS REPOSITORIOS:
+            _repositorioPrestamo = repositorioPrestamo;
+            _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
+            _repositorioTarjeta = repositorioTarjeta;
+            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
+            _repositorioCuenta = repositorioCuenta;
+            _repositorioTransaccion = repositorioTransaccion;
+
             _mapper = mapper;
             _logger = logger;
         }

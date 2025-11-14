@@ -1,12 +1,8 @@
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;   
 
-namespace ArtemisBanking.Web.ViewModels.Cliente
+namespace ArtemisBanking.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para pago a tarjeta de crédito
-    /// </summary>
     public class PagoTarjetaViewModel
     {
         [Required(ErrorMessage = "Debe seleccionar una tarjeta")]
@@ -17,11 +13,13 @@ namespace ArtemisBanking.Web.ViewModels.Cliente
         [Display(Name = "Cuenta de Origen")]
         public int CuentaOrigenId { get; set; }
 
-        [Required(ErrorMessage = "El monto es requerido")]
+        [Required(ErrorMessage = "El monto es obligatorio")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
         [Display(Name = "Monto a Pagar")]
+        [DisplayFormat(DataFormatString = "{0:C2}")]
         public decimal Monto { get; set; }
 
+        // Para los selectores
         public IEnumerable<SelectListItem> TarjetasDisponibles { get; set; }
         public IEnumerable<SelectListItem> CuentasDisponibles { get; set; }
     }
