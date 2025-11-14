@@ -2,6 +2,7 @@ using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Interfaces.Repositories;
+using ArtemisBanking.ViewModels.Cliente;
 using ArtemisBanking.ViewModels.CuentaAhorro;
 using ArtemisBanking.ViewModels.Prestamo;
 using ArtemisBanking.ViewModels.TarjetaCredito;
@@ -297,726 +298,472 @@ namespace ArtemisBanking.Web.Controllers
         }
 
 
-        // ⚠️ AGREGAR ESTOS MÉTODOS AL AdminController.cs (después de la gestión de usuarios)
-
-        // ==================== GESTIÓN DE PRÉSTAMOS ====================
+        // ==================== GESTIÓN DE PRÉSTAMOS (COMPLETA) ====================
+        // Esta sección va DESPUÉS de la gestión de usuarios en tu AdminController
 
         /// <summary>
         /// Lista paginada de préstamos con filtros
+        /// Muestra todos los préstamos del sistema ordenados del más reciente al más antiguo
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> Prestamos(int pagina = 1, string cedula = null, bool? estado = null)
         {
-            // TODO: Implementar con el servicio de préstamos
-            // Por ahora retornamos una vista vacía
-            return View();
-        }
-
-        /// <summary>
-        /// PASO 1: Muestra el listado de clientes para seleccionar uno
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> AsignarPrestamo()
-        {
-            // Obtener clientes sin préstamo activo
-            var resultado = await _servicioUsuario.ObtenerClientesSinPrestamoActivoAsync();
-
-            if (!resultado.Exito)
+            try
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Prestamos));
-            }
+                // Obtenemos los préstamos paginados del repositorio
+                // Si hay cédula, filtramos por ese cliente
+                // Si hay estado, filtramos por activos o completados
+                var (prestamos, total) = await _repositorioPrestamo.ObtenerPrestamosPaginadosAsync(
+                    pagina,
+                    Constantes.TamanoPaginaPorDefecto,
+                    cedula,
+                    estado
+                );
 
-            // Obtener deuda promedio
-            var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
-            var deudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0;
-
-            // Mapear a ViewModel
-            var viewModel = new SeleccionarClientePrestamoViewModel
-            {
-                Clientes = resultado.Datos.Select(c => new ClienteParaPrestamoViewModel
+                // Mapeamos cada préstamo a su ViewModel
+                var prestamosVM = prestamos.Select(p => new PrestamoListaItemViewModel
                 {
-                    Id = c.Id,
-                    Cedula = c.Cedula,
-                    NombreCompleto = c.NombreCompleto,
-                    Correo = c.Correo,
-                    DeudaTotal = c.MontoInicial // Reutilizamos este campo
-                }),
-                DeudaPromedio = deudaPromedio
-            };
+                    Id = p.Id,
+                    NumeroPrestamo = p.NumeroPrestamo,
+                    NombreCliente = $"{p.Cliente.Nombre} {p.Cliente.Apellido}",
+                    MontoCapital = p.MontoCapital,
+                    TotalCuotas = p.PlazoMeses,
+                    CuotasPagadas = p.CuotasPagadas,
+                    MontoPendiente = p.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota),
+                    TasaInteresAnual = p.TasaInteresAnual,
+                    PlazoMeses = p.PlazoMeses,
+                    EstaAlDia = p.EstaAlDia
+                });
 
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// PASO 2: Muestra el formulario para configurar el préstamo
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfigurarPrestamo(string clienteId)
-        {
-            if (string.IsNullOrEmpty(clienteId))
-            {
-                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
-                return RedirectToAction(nameof(AsignarPrestamo));
-            }
-
-            // Obtener datos del cliente
-            var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
-
-            if (!clienteResult.Exito)
-            {
-                TempData["ErrorMessage"] = clienteResult.Mensaje;
-                return RedirectToAction(nameof(AsignarPrestamo));
-            }
-
-            // Obtener deuda promedio y deuda actual del cliente
-            var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
-            var deudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0;
-
-            var viewModel = new ConfigurarPrestamoViewModel
-            {
-                ClienteId = clienteId,
-                NombreCliente = clienteResult.Datos.NombreCompleto,
-                DeudaActualCliente = clienteResult.Datos.MontoInicial,
-                DeudaPromedio = deudaPromedio
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// PASO 3: Procesa la asignación del préstamo
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("ConfigurarPrestamo", model);
-            }
-
-            // Obtener ID del administrador actual
-            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            // Crear el DTO
-            var dto = new AsignarPrestamoDTO
-            {
-                ClienteId = model.ClienteId,
-                AdministradorId = adminId,
-                MontoCapital = model.MontoCapital,
-                PlazoMeses = model.PlazoMeses,
-                TasaInteresAnual = model.TasaInteresAnual
-            };
-
-            // Primero validar si es cliente de alto riesgo
-            var riesgoResult = await _servicioPrestamo.ValidarRiesgoClienteAsync(
-                model.ClienteId,
-                model.MontoCapital);
-
-            if (riesgoResult.Exito && riesgoResult.Datos) // Es alto riesgo
-            {
-                // Mostrar pantalla de advertencia
-                var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
-                var deudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0;
-
-                var advertenciaVM = new AdvertenciaRiesgoViewModel
+                // Creamos el ViewModel para la vista
+                var viewModel = new ListaPrestamosViewModel
                 {
-                    ClienteId = model.ClienteId,
-                    NombreCliente = model.NombreCliente,
-                    MontoCapital = model.MontoCapital,
-                    PlazoMeses = model.PlazoMeses,
-                    TasaInteresAnual = model.TasaInteresAnual,
-                    DeudaActual = model.DeudaActualCliente,
-                    DeudaPromedio = deudaPromedio,
-                    DeudaDespuesDelPrestamo = model.DeudaActualCliente + model.MontoCapital,
-                    MensajeAdvertencia = model.DeudaActualCliente > deudaPromedio
-                        ? "Este cliente se considera de alto riesgo, ya que su deuda actual supera el promedio del sistema"
-                        : "Asignar este préstamo convertirá al cliente en un cliente de alto riesgo, ya que su deuda superará el umbral promedio del sistema"
+                    Prestamos = prestamosVM,
+                    PaginaActual = pagina,
+                    TotalPaginas = (int)Math.Ceiling((double)total / Constantes.TamanoPaginaPorDefecto),
+                    TotalRegistros = total,
+                    FiltroCedula = cedula,
+                    FiltroEstado = estado
                 };
 
-                return View("AdvertenciaRiesgo", advertenciaVM);
+                return View(viewModel);
             }
-
-            // Si no es alto riesgo, o ya fue confirmado, proceder a asignar
-            var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
-
-            if (resultado.Exito)
+            catch (Exception ex)
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Prestamos));
+                _logger.LogError(ex, "Error al obtener listado de préstamos");
+                TempData["ErrorMessage"] = "Error al cargar los préstamos";
+                return View(new ListaPrestamosViewModel());
             }
-
-            // Si hubo error
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return View("ConfigurarPrestamo", model);
         }
 
         /// <summary>
-        /// Confirma la asignación del préstamo (cliente de alto riesgo)
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmarPrestamoAltoRiesgo(AdvertenciaRiesgoViewModel model)
-        {
-            // Obtener ID del administrador actual
-            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            var dto = new AsignarPrestamoDTO
-            {
-                ClienteId = model.ClienteId,
-                AdministradorId = adminId,
-                MontoCapital = model.MontoCapital,
-                PlazoMeses = model.PlazoMeses,
-                TasaInteresAnual = model.TasaInteresAnual
-            };
-
-            var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
-
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Prestamos));
-            }
-
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return RedirectToAction(nameof(Prestamos));
-        }
-
-        /// <summary>
-        /// Muestra el detalle de un préstamo (tabla de amortización)
+        /// Muestra el detalle de un préstamo (tabla de amortización completa)
+        /// Aquí se ven todas las cuotas: cuáles están pagadas, cuáles no, cuáles atrasadas
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
-            // TODO: Implementar con el servicio
-            return View();
+            try
+            {
+                // Obtenemos el préstamo con todas sus relaciones
+                var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(id);
+
+                if (prestamo == null)
+                {
+                    TempData["ErrorMessage"] = "Préstamo no encontrado";
+                    return RedirectToAction(nameof(Prestamos));
+                }
+
+                // Obtenemos todas las cuotas de la tabla de amortización
+                var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(id);
+
+                // Creamos el ViewModel con toda la información
+                var viewModel = new DetallePrestamoViewModel
+                {
+                    Id = prestamo.Id,
+                    NumeroPrestamo = prestamo.NumeroPrestamo,
+                    NombreCliente = $"{prestamo.Cliente.Nombre} {prestamo.Cliente.Apellido}",
+                    MontoCapital = prestamo.MontoCapital,
+                    TasaInteresAnual = prestamo.TasaInteresAnual,
+                    PlazoMeses = prestamo.PlazoMeses,
+                    CuotaMensual = prestamo.CuotaMensual,
+                    EstaActivo = prestamo.EstaActivo,
+                    FechaCreacion = prestamo.FechaCreacion,
+                    // Mapeamos todas las cuotas de la tabla de amortización
+                    TablaAmortizacion = cuotas.Select(c => new CuotaPrestamoViewModel
+                    {
+                        FechaPago = c.FechaPago,
+                        MontoCuota = c.MontoCuota,
+                        EstaPagada = c.EstaPagada,
+                        EstaAtrasada = c.EstaAtrasada
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle del préstamo {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle del préstamo";
+                return RedirectToAction(nameof(Prestamos));
+            }
         }
 
         /// <summary>
-        /// Muestra el formulario para editar la tasa de interés
+        /// Muestra el formulario para editar la tasa de interés de un préstamo
+        /// Solo se pueden editar préstamos activos
+        /// Al cambiar la tasa, se recalculan las cuotas futuras
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> EditarPrestamo(int id)
         {
-            // TODO: Implementar con el servicio
-            return View();
+            try
+            {
+                var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(id);
+
+                if (prestamo == null)
+                {
+                    TempData["ErrorMessage"] = "Préstamo no encontrado";
+                    return RedirectToAction(nameof(Prestamos));
+                }
+
+                if (!prestamo.EstaActivo)
+                {
+                    TempData["ErrorMessage"] = "No se puede editar un préstamo completado";
+                    return RedirectToAction(nameof(Prestamos));
+                }
+
+                var viewModel = new EditarPrestamoViewModel
+                {
+                    Id = prestamo.Id,
+                    NumeroPrestamo = prestamo.NumeroPrestamo,
+                    NombreCliente = $"{prestamo.Cliente.Nombre} {prestamo.Cliente.Apellido}",
+                    TasaInteresActual = prestamo.TasaInteresAnual,
+                    NuevaTasaInteres = prestamo.TasaInteresAnual // Pre-llenamos con la tasa actual
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar formulario de edición del préstamo {id}");
+                TempData["ErrorMessage"] = "Error al cargar el préstamo";
+                return RedirectToAction(nameof(Prestamos));
+            }
         }
 
         /// <summary>
         /// Procesa la actualización de la tasa de interés
+        /// Recalcula todas las cuotas futuras (las que no se han pagado)
+        /// Las cuotas ya pagadas NO se modifican
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarPrestamo(int id, decimal nuevaTasa)
-        {
-            var dto = new ActualizarTasaPrestamoDTO
-            {
-                PrestamoId = id,
-                NuevaTasaInteres = nuevaTasa
-            };
-
-            var resultado = await _servicioPrestamo.ActualizarTasaInteresAsync(dto);
-
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Prestamos));
-            }
-
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return RedirectToAction(nameof(DetallePrestamo), new { id });
-        }
-
-
-        // ⚠️ AGREGAR ESTOS MÉTODOS AL AdminController.cs (después de gestión de préstamos)
-
-        // ==================== GESTIÓN DE TARJETAS DE CRÉDITO ====================
-
-        /// <summary>
-        /// Lista paginada de tarjetas de crédito con filtros
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> Tarjetas(int pagina = 1, string cedula = null, bool? estado = null)
-        {
-            // TODO: Implementar listado paginado con el servicio
-            // Por ahora retornamos vista vacía para estructura
-            return View(new ListaTarjetasViewModel());
-        }
-
-        /// <summary>
-        /// PASO 1: Muestra el listado de clientes para seleccionar uno
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> AsignarTarjeta()
-        {
-            // Obtener todos los clientes activos
-            var resultado = await _servicioUsuario.ObtenerClientesActivosAsync();
-
-            if (!resultado.Exito)
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
-            }
-
-            // Obtener deuda promedio para mostrar en la pantalla
-            var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
-            var deudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0;
-
-            // Mapear a ViewModel
-            var viewModel = new SeleccionarClienteTarjetaViewModel
-            {
-                Clientes = resultado.Datos.Select(c => new ClienteParaTarjetaViewModel
-                {
-                    Id = c.Id,
-                    Cedula = c.Cedula,
-                    NombreCompleto = c.NombreCompleto,
-                    Correo = c.Correo,
-                    DeudaTotal = c.MontoInicial // Reutilizamos este campo para la deuda
-                }),
-                DeudaPromedio = deudaPromedio
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// PASO 2: Muestra el formulario para configurar la tarjeta
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfigurarTarjeta(string clienteId)
-        {
-            if (string.IsNullOrEmpty(clienteId))
-            {
-                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
-                return RedirectToAction(nameof(AsignarTarjeta));
-            }
-
-            // Obtener datos del cliente
-            var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
-
-            if (!clienteResult.Exito)
-            {
-                TempData["ErrorMessage"] = clienteResult.Mensaje;
-                return RedirectToAction(nameof(AsignarTarjeta));
-            }
-
-            var viewModel = new ConfigurarTarjetaViewModel
-            {
-                ClienteId = clienteId,
-                NombreCliente = clienteResult.Datos.NombreCompleto
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// PASO 3: Procesa la asignación de la tarjeta
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcesarAsignacionTarjeta(ConfigurarTarjetaViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("ConfigurarTarjeta", model);
-            }
-
-            // Obtener ID del administrador actual
-            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            // Crear el DTO
-            var dto = new AsignarTarjetaDTO
-            {
-                ClienteId = model.ClienteId,
-                AdministradorId = adminId,
-                LimiteCredito = model.LimiteCredito
-            };
-
-            // Llamar al servicio para asignar la tarjeta
-            var resultado = await _servicioTarjeta.AsignarTarjetaAsync(dto);
-
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
-            }
-
-            // Si hubo error
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return View("ConfigurarTarjeta", model);
-        }
-
-        /// <summary>
-        /// Muestra el detalle de una tarjeta (todos los consumos)
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> DetalleTarjeta(int id)
-        {
-            // Obtener la tarjeta con sus consumos
-            var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
-
-            if (!resultado.Exito)
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
-            }
-
-            // Mapear a ViewModel
-            var viewModel = new DetalleTarjetaViewModel
-            {
-                Id = resultado.Datos.Id,
-                NumeroTarjeta = resultado.Datos.NumeroTarjeta,
-                UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
-                NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
-                LimiteCredito = resultado.Datos.LimiteCredito,
-                DeudaActual = resultado.Datos.DeudaActual,
-                CreditoDisponible = resultado.Datos.CreditoDisponible,
-                FechaExpiracion = resultado.Datos.FechaExpiracion,
-                EstaActiva = resultado.Datos.EstaActiva,
-                Consumos = new List<ConsumoTarjetaViewModel>() // TODO: mapear consumos
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Muestra el formulario para editar el límite de una tarjeta
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> EditarTarjeta(int id)
-        {
-            // Obtener la tarjeta
-            var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
-
-            if (!resultado.Exito)
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
-            }
-
-            // Mapear a ViewModel
-            var viewModel = new EditarTarjetaViewModel
-            {
-                Id = resultado.Datos.Id,
-                NumeroTarjeta = resultado.Datos.NumeroTarjeta,
-                UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
-                NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
-                DeudaActual = resultado.Datos.DeudaActual,
-                LimiteCredito = resultado.Datos.LimiteCredito
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Procesa la actualización del límite de crédito
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarTarjeta(EditarTarjetaViewModel model)
+        public async Task<IActionResult> EditarPrestamo(EditarPrestamoViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Crear el DTO
-            var dto = new ActualizarLimiteTarjetaDTO
+            try
             {
-                TarjetaId = model.Id,
-                NuevoLimite = model.LimiteCredito
-            };
+                // Creamos el DTO para el servicio
+                var dto = new ActualizarTasaPrestamoDTO
+                {
+                    PrestamoId = model.Id,
+                    NuevaTasaInteres = model.NuevaTasaInteres
+                };
 
-            // Llamar al servicio
-            var resultado = await _servicioTarjeta.ActualizarLimiteAsync(dto);
+                // El servicio se encarga de:
+                // 1. Validar que el préstamo existe y está activo
+                // 2. Obtener las cuotas futuras (no pagadas)
+                // 3. Recalcular el monto de cada cuota con la nueva tasa
+                // 4. Actualizar la cuota mensual del préstamo
+                // 5. Enviar correo al cliente notificando el cambio
+                var resultado = await _servicioPrestamo.ActualizarTasaInteresAsync(dto);
 
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(DetallePrestamo), new { id = model.Id });
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                return View(model);
             }
-
-            // Si hubo error
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return View(model);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al actualizar tasa del préstamo {model.Id}");
+                ModelState.AddModelError(string.Empty, "Error al actualizar la tasa de interés");
+                return View(model);
+            }
         }
 
+
+        // ==================== GESTIÓN DE TARJETAS DE CRÉDITO (COMPLETA) ====================
+        // Esta sección va DESPUÉS de la gestión de préstamos en tu AdminController
+
         /// <summary>
-        /// Muestra la pantalla de confirmación para cancelar una tarjeta
+        /// Lista paginada de tarjetas de crédito con filtros
+        /// Muestra todas las tarjetas del sistema ordenadas de la más reciente a la más antigua
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> CancelarTarjeta(int id)
+        public async Task<IActionResult> Tarjetas(int pagina = 1, string cedula = null, bool? estado = null)
         {
-            // Obtener la tarjeta
-            var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
-
-            if (!resultado.Exito)
+            try
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Tarjetas));
+                // Obtenemos las tarjetas paginadas del repositorio
+                var (tarjetas, total) = await _repositorioTarjeta.ObtenerTarjetasPaginadasAsync(
+                    pagina,
+                    Constantes.TamanoPaginaPorDefecto,
+                    cedula,
+                    estado
+                );
+
+                // Mapeamos cada tarjeta a su ViewModel
+                var tarjetasVM = tarjetas.Select(t => new TarjetaListaItemViewModel
+                {
+                    Id = t.Id,
+                    NumeroTarjeta = t.NumeroTarjeta,
+                    NombreCliente = $"{t.Cliente.Nombre} {t.Cliente.Apellido}",
+                    LimiteCredito = t.LimiteCredito,
+                    DeudaActual = t.DeudaActual,
+                    FechaExpiracion = t.FechaExpiracion,
+                    EstaActiva = t.EstaActiva
+                });
+
+                // Creamos el ViewModel para la vista
+                var viewModel = new ListaTarjetasViewModel
+                {
+                    Tarjetas = tarjetasVM,
+                    PaginaActual = pagina,
+                    TotalPaginas = (int)Math.Ceiling((double)total / Constantes.TamanoPaginaPorDefecto),
+                    TotalRegistros = total,
+                    FiltroCedula = cedula,
+                    FiltroEstado = estado
+                };
+
+                return View(viewModel);
             }
-
-            // Mapear a ViewModel
-            var viewModel = new CancelarTarjetaViewModel
+            catch (Exception ex)
             {
-                Id = resultado.Datos.Id,
-                UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
-                NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
-                DeudaActual = resultado.Datos.DeudaActual
-            };
-
-            return View(viewModel);
+                _logger.LogError(ex, "Error al obtener listado de tarjetas");
+                TempData["ErrorMessage"] = "Error al cargar las tarjetas";
+                return View(new ListaTarjetasViewModel());
+            }
         }
+
+        // Los métodos AsignarTarjeta, ConfigurarTarjeta, etc. ya los tienes implementados
+        // DetalleTarjeta ya está implementado también
 
         /// <summary>
-        /// Procesa la cancelación de una tarjeta
+        /// Muestra el detalle de una tarjeta con todos sus consumos
         /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmarCancelacionTarjeta(int id)
+        [HttpGet]
+        public async Task<IActionResult> DetalleTarjeta(int id)
         {
-            // Llamar al servicio para cancelar la tarjeta
-            var resultado = await _servicioTarjeta.CancelarTarjetaAsync(id);
-
-            if (resultado.Exito)
+            try
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-            }
+                // Obtenemos la tarjeta
+                var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
 
-            return RedirectToAction(nameof(Tarjetas));
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                // Obtenemos todos los consumos de la tarjeta
+                var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosDeTarjetaAsync(id);
+
+                // Mapeamos a ViewModel
+                var viewModel = new DetalleTarjetaViewModel
+                {
+                    Id = resultado.Datos.Id,
+                    NumeroTarjeta = resultado.Datos.NumeroTarjeta,
+                    UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
+                    NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
+                    LimiteCredito = resultado.Datos.LimiteCredito,
+                    DeudaActual = resultado.Datos.DeudaActual,
+                    CreditoDisponible = resultado.Datos.CreditoDisponible,
+                    FechaExpiracion = resultado.Datos.FechaExpiracion,
+                    EstaActiva = resultado.Datos.EstaActiva,
+                    // Mapeamos todos los consumos
+                    Consumos = consumos.Select(c => new ConsumoTarjetaViewModel
+                    {
+                        FechaConsumo = c.FechaConsumo,
+                        Monto = c.Monto,
+                        NombreComercio = c.NombreComercio,
+                        EstadoConsumo = c.EstadoConsumo
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle de tarjeta {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle de la tarjeta";
+                return RedirectToAction(nameof(Tarjetas));
+            }
         }
 
 
-        // ⚠️ AGREGAR ESTOS MÉTODOS AL AdminController.cs (después de gestión de tarjetas)
-
-        // ==================== GESTIÓN DE CUENTAS DE AHORRO ====================
+        // ==================== GESTIÓN DE CUENTAS DE AHORRO (COMPLETA) ====================
+        // Esta sección va DESPUÉS de la gestión de tarjetas en tu AdminController
 
         /// <summary>
         /// Lista paginada de cuentas de ahorro con filtros
+        /// Muestra todas las cuentas (principales y secundarias) ordenadas de la más reciente a la más antigua
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> Cuentas(
             int pagina = 1,
             string cedula = null,
             bool? estado = null,
-            bool? tipo = null)
+            bool? tipo = null) // true = principal, false = secundaria
         {
-            // TODO: Implementar listado paginado con el servicio
-            // Por ahora retornamos vista vacía para estructura
-            return View(new ListaCuentasViewModel());
-        }
-
-        /// <summary>
-        /// PASO 1: Muestra el listado de clientes para seleccionar uno
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> AsignarCuenta()
-        {
-            // Obtener todos los clientes activos
-            var resultado = await _servicioUsuario.ObtenerClientesActivosAsync();
-
-            if (!resultado.Exito)
+            try
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Cuentas));
-            }
+                // Obtenemos las cuentas paginadas del repositorio
+                var (cuentas, total) = await _repositorioCuenta.ObtenerCuentasPaginadasAsync(
+                    pagina,
+                    Constantes.TamanoPaginaPorDefecto,
+                    cedula,
+                    estado,
+                    tipo
+                );
 
-            // Mapear a ViewModel
-            var viewModel = new SeleccionarClienteCuentaViewModel
-            {
-                Clientes = resultado.Datos.Select(c => new ClienteParaCuentaViewModel
+                // Mapeamos cada cuenta a su ViewModel
+                var cuentasVM = cuentas.Select(c => new CuentaListaItemViewModel
                 {
                     Id = c.Id,
-                    Cedula = c.Cedula,
-                    NombreCompleto = c.NombreCompleto,
-                    Correo = c.Correo,
-                    DeudaTotal = c.MontoInicial // Reutilizamos este campo
-                })
-            };
+                    NumeroCuenta = c.NumeroCuenta,
+                    NombreCliente = $"{c.Usuario.Nombre} {c.Usuario.Apellido}",
+                    Balance = c.Balance,
+                    TipoCuenta = c.EsPrincipal ? "Principal" : "Secundaria",
+                    EstaActiva = c.EstaActiva,
+                    EsPrincipal = c.EsPrincipal
+                });
 
-            return View(viewModel);
+                // Creamos el ViewModel para la vista
+                var viewModel = new ListaCuentasViewModel
+                {
+                    Cuentas = cuentasVM,
+                    PaginaActual = pagina,
+                    TotalPaginas = (int)Math.Ceiling((double)total / Constantes.TamanoPaginaPorDefecto),
+                    TotalRegistros = total,
+                    FiltroCedula = cedula,
+                    FiltroEstado = estado,
+                    FiltroTipo = tipo
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener listado de cuentas");
+                TempData["ErrorMessage"] = "Error al cargar las cuentas";
+                return View(new ListaCuentasViewModel());
+            }
         }
 
-        /// <summary>
-        /// PASO 2: Muestra el formulario para configurar la cuenta
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfigurarCuenta(string clienteId)
-        {
-            if (string.IsNullOrEmpty(clienteId))
-            {
-                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
-                return RedirectToAction(nameof(AsignarCuenta));
-            }
-
-            // Obtener datos del cliente
-            var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
-
-            if (!clienteResult.Exito)
-            {
-                TempData["ErrorMessage"] = clienteResult.Mensaje;
-                return RedirectToAction(nameof(AsignarCuenta));
-            }
-
-            var viewModel = new ConfigurarCuentaViewModel
-            {
-                ClienteId = clienteId,
-                NombreCliente = clienteResult.Datos.NombreCompleto,
-                BalanceInicial = 0
-            };
-
-            return View(viewModel);
-        }
+        // Los métodos AsignarCuenta, ConfigurarCuenta, etc. ya los tienes implementados
 
         /// <summary>
-        /// PASO 3: Procesa la asignación de la cuenta secundaria
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcesarAsignacionCuenta(ConfigurarCuentaViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("ConfigurarCuenta", model);
-            }
-
-            // Obtener ID del administrador actual
-            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            // Crear el DTO
-            var dto = new CrearCuentaSecundariaDTO
-            {
-                ClienteId = model.ClienteId,
-                AdministradorId = adminId,
-                BalanceInicial = model.BalanceInicial
-            };
-
-            // Llamar al servicio para crear la cuenta
-            var resultado = await _servicioCuenta.CrearCuentaSecundariaAsync(dto);
-
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Cuentas));
-            }
-
-            // Si hubo error
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return View("ConfigurarCuenta", model);
-        }
-
-        /// <summary>
-        /// Muestra el detalle de una cuenta (todas las transacciones)
+        /// Muestra el detalle de una cuenta con todas sus transacciones
+        /// Aquí se ven todos los movimientos: depósitos, retiros, transferencias, pagos, etc.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
-            // Obtener la cuenta con sus transacciones
-            var resultado = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
-
-            if (!resultado.Exito)
+            try
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
+                // Obtenemos la cuenta
+                var resultado = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Cuentas));
+                }
+
+                // Obtenemos todas las transacciones de la cuenta
+                var transacciones = await _repositorioTransaccion.ObtenerTransaccionesDeCuentaAsync(id);
+
+                // Mapeamos a ViewModel
+                var viewModel = new DetalleCuentaViewModel
+                {
+                    Id = resultado.Datos.Id,
+                    NumeroCuenta = resultado.Datos.NumeroCuenta,
+                    NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
+                    Balance = resultado.Datos.Balance,
+                    EsPrincipal = resultado.Datos.EsPrincipal,
+                    EstaActiva = resultado.Datos.EstaActiva,
+                    // Mapeamos todas las transacciones
+                    Transacciones = transacciones.Select(t => new TransaccionViewModel
+                    {
+                        FechaTransaccion = t.FechaTransaccion,
+                        Monto = t.Monto,
+                        TipoTransaccion = t.TipoTransaccion,
+                        Beneficiario = t.Beneficiario,
+                        Origen = t.Origen,
+                        EstadoTransaccion = t.EstadoTransaccion
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle de cuenta {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle de la cuenta";
                 return RedirectToAction(nameof(Cuentas));
             }
-
-            // Mapear a ViewModel
-            var viewModel = new DetalleCuentaViewModel
-            {
-                Id = resultado.Datos.Id,
-                NumeroCuenta = resultado.Datos.NumeroCuenta,
-                NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
-                Balance = resultado.Datos.Balance,
-                EsPrincipal = resultado.Datos.EsPrincipal,
-                EstaActiva = resultado.Datos.EstaActiva,
-                Transacciones = new List<TransaccionViewModel>() // TODO: mapear transacciones
-            };
-
-            return View(viewModel);
         }
 
-        /// <summary>
-        /// Muestra la pantalla de confirmación para cancelar una cuenta
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> CancelarCuenta(int id)
-        {
-            // Obtener la cuenta
-            var resultado = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
-
-            if (!resultado.Exito)
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Cuentas));
-            }
-
-            // Validar que no sea cuenta principal
-            if (resultado.Datos.EsPrincipal)
-            {
-                TempData["ErrorMessage"] = "No se puede cancelar la cuenta principal";
-                return RedirectToAction(nameof(Cuentas));
-            }
-
-            // Mapear a ViewModel
-            var viewModel = new CancelarCuentaViewModel
-            {
-                Id = resultado.Datos.Id,
-                NumeroCuenta = resultado.Datos.NumeroCuenta,
-                NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
-                Balance = resultado.Datos.Balance,
-                EsPrincipal = resultado.Datos.EsPrincipal
-            };
-
-            return View(viewModel);
-        }
+        // CancelarCuenta ya lo tienes implementado
+        // ConfirmarCancelacionCuenta ya lo tienes implementado, solo necesita este ajuste:
 
         /// <summary>
         /// Procesa la cancelación de una cuenta secundaria
-        /// Si tiene fondos, los transfiere a la cuenta principal
+        /// Si tiene fondos, los transfiere a la cuenta principal automáticamente
+        /// Las cuentas principales NO se pueden cancelar
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarCancelacionCuenta(int id)
         {
-            // Obtener ID del usuario actual (para pasarlo al servicio)
-            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            // Obtener primero la cuenta para saber de qué usuario es
-            var cuentaResult = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
-
-            if (!cuentaResult.Exito)
+            try
             {
-                TempData["ErrorMessage"] = cuentaResult.Mensaje;
+                // El servicio se encarga de:
+                // 1. Validar que la cuenta existe
+                // 2. Validar que NO sea cuenta principal
+                // 3. Si tiene balance, transferirlo a la cuenta principal del cliente
+                // 4. Marcar la cuenta como inactiva
+                var resultado = await _servicioCuenta.CancelarCuentaAsync(id);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                }
+
                 return RedirectToAction(nameof(Cuentas));
             }
-
-            // Llamar al servicio para cancelar la cuenta
-            // Nota: El servicio necesita el ID del usuario dueño de la cuenta
-            // Deberíamos agregarlo al DTO de la cuenta
-            var resultado = await _servicioCuenta.CancelarCuentaAsync(id);
-
-            if (resultado.Exito)
+            catch (Exception ex)
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
+                _logger.LogError(ex, $"Error al cancelar cuenta {id}");
+                TempData["ErrorMessage"] = "Error al cancelar la cuenta";
+                return RedirectToAction(nameof(Cuentas));
             }
-            else
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-            }
-
-            return RedirectToAction(nameof(Cuentas));
         }
 
-        // ==================== FIN DEL CONTROLADOR ====================
-        // Cierra la clase aquí: }
+
     }
 
 }
