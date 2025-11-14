@@ -3,6 +3,7 @@ using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.ViewModels.Cliente;
+using ArtemisBanking.ViewModels.Prestamo;
 using ArtemisBanking.Web.ViewModels.Cliente;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,24 @@ namespace ArtemisBanking.Web.Controllers
     /// <summary>
     /// Controlador para todas las funcionalidades del Cliente
     /// Solo accesible para usuarios con rol "Cliente"
+    /// 
+    /// Este controlador maneja:
+    /// - Ver todos sus productos financieros (cuentas, préstamos, tarjetas)
+    /// - Gestionar beneficiarios (agregar, eliminar, listar)
+    /// - Realizar transacciones (express, a beneficiarios, entre cuentas propias)
+    /// - Pagar tarjetas de crédito
+    /// - Pagar préstamos
+    /// - Hacer avances de efectivo
     /// </summary>
-    [Authorize(Policy = "SoloCliente")]
+    [Authorize(Policy = "SoloCliente")] // Solo los clientes pueden acceder
     public class ClienteController : Controller
     {
+        // Servicios que vamos a usar
         private readonly IServicioTransaccion _servicioTransaccion;
         private readonly IServicioBeneficiario _servicioBeneficiario;
         private readonly IServicioCuentaAhorro _servicioCuenta;
 
-        // ⭐ AGREGAR ESTOS REPOSITORIOS:
+        // Repositorios para obtener datos directamente
         private readonly IRepositorioCuentaAhorro _repositorioCuenta;
         private readonly IRepositorioPrestamo _repositorioPrestamo;
         private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
@@ -33,39 +43,34 @@ namespace ArtemisBanking.Web.Controllers
         private readonly IMapper _mapper;
         private readonly ILogger<ClienteController> _logger;
 
+        // Constructor: recibe todas las dependencias
         public ClienteController(
             IServicioTransaccion servicioTransaccion,
             IServicioBeneficiario servicioBeneficiario,
             IServicioCuentaAhorro servicioCuenta,
-
-            // ⭐ AGREGAR ESTOS EN EL CONSTRUCTOR:
             IRepositorioCuentaAhorro repositorioCuenta,
             IRepositorioPrestamo repositorioPrestamo,
             IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
             IRepositorioTarjetaCredito repositorioTarjeta,
             IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
             IRepositorioTransaccion repositorioTransaccion,
-
             IMapper mapper,
             ILogger<ClienteController> logger)
         {
             _servicioTransaccion = servicioTransaccion;
             _servicioBeneficiario = servicioBeneficiario;
             _servicioCuenta = servicioCuenta;
-
-            // ⭐ ASIGNAR LOS REPOSITORIOS:
             _repositorioCuenta = repositorioCuenta;
             _repositorioPrestamo = repositorioPrestamo;
             _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
             _repositorioTarjeta = repositorioTarjeta;
             _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _repositorioTransaccion = repositorioTransaccion;
-
             _mapper = mapper;
             _logger = logger;
         }
 
-        // Método helper para obtener el ID del usuario actual
+        // Método helper para obtener el ID del cliente que está logueado
         private string ObtenerUsuarioActualId()
         {
             return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -74,99 +79,306 @@ namespace ArtemisBanking.Web.Controllers
         // ==================== HOME (LISTADO DE PRODUCTOS) ====================
 
         /// <summary>
-        /// Página principal del cliente - muestra todos sus productos financieros
-        /// (Cuentas de ahorro, Préstamos, Tarjetas de crédito)
+        /// Página principal del cliente
+        /// Muestra todos sus productos financieros:
+        /// - Todas sus cuentas de ahorro (principal y secundarias)
+        /// - Sus préstamos activos (si tiene)
+        /// - Sus tarjetas de crédito activas (si tiene)
         /// </summary>
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // TODO: Aquí llamaremos a servicios para obtener:
-            // - Cuentas de ahorro del cliente
-            // - Préstamos activos del cliente
-            // - Tarjetas de crédito activas del cliente
-
-            // Por ahora retornamos una vista vacía
-            var viewModel = new HomeClienteViewModel
+            try
             {
-                CuentasAhorro = new List<CuentaClienteViewModel>(),
-                Prestamos = new List<PrestamoClienteViewModel>(),
-                TarjetasCredito = new List<TarjetaClienteViewModel>()
-            };
+                var usuarioId = ObtenerUsuarioActualId();
 
-            return View(viewModel);
+                // 1. OBTENEMOS TODAS LAS CUENTAS DE AHORRO ACTIVAS
+                var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(usuarioId);
+
+                var cuentasVM = cuentas.Select(c => new CuentaClienteViewModel
+                {
+                    Id = c.Id,
+                    NumeroCuenta = c.NumeroCuenta,
+                    Balance = c.Balance,
+                    TipoCuenta = c.EsPrincipal ? "Principal" : "Secundaria",
+                    EsPrincipal = c.EsPrincipal
+                }).ToList();
+
+                // 2. OBTENEMOS TODOS LOS PRÉSTAMOS ACTIVOS
+                var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(usuarioId);
+                var prestamosActivos = prestamos.Where(p => p.EstaActivo).ToList();
+
+                var prestamosVM = new List<PrestamoClienteViewModel>();
+
+                foreach (var prestamo in prestamosActivos)
+                {
+                    // Obtenemos las cuotas para calcular el monto pendiente
+                    var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(prestamo.Id);
+                    var cuotasPendientes = cuotas.Where(c => !c.EstaPagada).ToList();
+
+                    prestamosVM.Add(new PrestamoClienteViewModel
+                    {
+                        Id = prestamo.Id,
+                        NumeroPrestamo = prestamo.NumeroPrestamo,
+                        MontoCapital = prestamo.MontoCapital,
+                        TotalCuotas = prestamo.PlazoMeses,
+                        CuotasPagadas = prestamo.CuotasPagadas,
+                        MontoPendiente = cuotasPendientes.Sum(c => c.MontoCuota),
+                        TasaInteresAnual = prestamo.TasaInteresAnual,
+                        PlazoMeses = prestamo.PlazoMeses,
+                        Estado = prestamo.EstaAlDia ? "Al día" : "En mora",
+                        EstaAlDia = prestamo.EstaAlDia
+                    });
+                }
+
+                // 3. OBTENEMOS TODAS LAS TARJETAS DE CRÉDITO ACTIVAS
+                var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(usuarioId);
+
+                var tarjetasVM = tarjetas.Select(t => new TarjetaClienteViewModel
+                {
+                    Id = t.Id,
+                    NumeroTarjeta = t.NumeroTarjeta,
+                    LimiteCredito = t.LimiteCredito,
+                    DeudaActual = t.DeudaActual,
+                    CreditoDisponible = t.CreditoDisponible,
+                    FechaExpiracion = t.FechaExpiracion
+                }).ToList();
+
+                // 4. CREAMOS EL VIEWMODEL CON TODOS LOS PRODUCTOS
+                var viewModel = new HomeClienteViewModel
+                {
+                    CuentasAhorro = cuentasVM,
+                    Prestamos = prestamosVM,
+                    TarjetasCredito = tarjetasVM
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar el home del cliente");
+                TempData["ErrorMessage"] = "Error al cargar tus productos financieros";
+                return View(new HomeClienteViewModel
+                {
+                    CuentasAhorro = new List<CuentaClienteViewModel>(),
+                    Prestamos = new List<PrestamoClienteViewModel>(),
+                    TarjetasCredito = new List<TarjetaClienteViewModel>()
+                });
+            }
         }
 
+        // ==================== DETALLES DE PRODUCTOS ====================
+
         /// <summary>
-        /// Muestra el detalle de una cuenta de ahorro (transacciones)
+        /// Muestra el detalle de una cuenta de ahorro
+        /// Lista todas las transacciones de esa cuenta ordenadas de la más reciente a la más antigua
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
-            // TODO: Obtener cuenta con transacciones
-            return View();
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // Obtenemos la cuenta
+                var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(id);
+
+                // Validamos que la cuenta pertenezca al usuario logueado
+                if (cuenta == null || cuenta.UsuarioId != usuarioId)
+                {
+                    TempData["ErrorMessage"] = "Cuenta no encontrada";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Obtenemos todas las transacciones de esta cuenta
+                var transacciones = await _repositorioTransaccion.ObtenerTransaccionesDeCuentaAsync(id);
+
+                var viewModel = new DetalleCuentaClienteViewModel
+                {
+                    Id = cuenta.Id,
+                    NumeroCuenta = cuenta.NumeroCuenta,
+                    Balance = cuenta.Balance,
+                    TipoCuenta = cuenta.EsPrincipal ? "Principal" : "Secundaria",
+                    EsPrincipal = cuenta.EsPrincipal,
+                    // Mapeamos todas las transacciones
+                    Transacciones = transacciones.Select(t => new TransaccionClienteViewModel
+                    {
+                        FechaTransaccion = t.FechaTransaccion,
+                        Monto = t.Monto,
+                        TipoTransaccion = t.TipoTransaccion,
+                        Beneficiario = t.Beneficiario,
+                        Origen = t.Origen,
+                        EstadoTransaccion = t.EstadoTransaccion
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle de cuenta {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle de la cuenta";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         /// <summary>
-        /// Muestra el detalle de un préstamo (tabla de amortización)
+        /// Muestra el detalle de un préstamo
+        /// Lista la tabla de amortización con todas las cuotas
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
-            // TODO: Obtener préstamo con tabla de amortización
-            return View();
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // Obtenemos el préstamo
+                var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(id);
+
+                // Validamos que el préstamo pertenezca al usuario logueado
+                if (prestamo == null || prestamo.ClienteId != usuarioId)
+                {
+                    TempData["ErrorMessage"] = "Préstamo no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Obtenemos todas las cuotas
+                var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(id);
+
+                var viewModel = new DetallePrestamoClienteViewModel
+                {
+                    Id = prestamo.Id,
+                    NumeroPrestamo = prestamo.NumeroPrestamo,
+                    MontoCapital = prestamo.MontoCapital,
+                    TasaInteresAnual = prestamo.TasaInteresAnual,
+                    // Mapeamos todas las cuotas
+                    TablaAmortizacion = cuotas.Select(c => new CuotaPrestamoViewModel
+                    {
+                        FechaPago = c.FechaPago,
+                        MontoCuota = c.MontoCuota,
+                        EstaPagada = c.EstaPagada,
+                        EstaAtrasada = c.EstaAtrasada
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle de préstamo {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle del préstamo";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         /// <summary>
-        /// Muestra el detalle de una tarjeta (consumos)
+        /// Muestra el detalle de una tarjeta de crédito
+        /// Lista todos los consumos realizados con esa tarjeta
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> DetalleTarjeta(int id)
         {
-            // TODO: Obtener tarjeta con consumos
-            return View();
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // Obtenemos la tarjeta
+                var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(id);
+
+                // Validamos que la tarjeta pertenezca al usuario logueado
+                if (tarjeta == null || tarjeta.ClienteId != usuarioId)
+                {
+                    TempData["ErrorMessage"] = "Tarjeta no encontrada";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Obtenemos todos los consumos
+                var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosDeTarjetaAsync(id);
+
+                var viewModel = new DetalleTarjetaClienteViewModel
+                {
+                    Id = tarjeta.Id,
+                    NumeroTarjeta = tarjeta.NumeroTarjeta,
+                    LimiteCredito = tarjeta.LimiteCredito,
+                    DeudaActual = tarjeta.DeudaActual,
+                    CreditoDisponible = tarjeta.CreditoDisponible,
+                    FechaExpiracion = tarjeta.FechaExpiracion,
+                    // Mapeamos todos los consumos
+                    Consumos = consumos.Select(c => new ConsumoTarjetaClienteViewModel
+                    {
+                        FechaConsumo = c.FechaConsumo,
+                        Monto = c.Monto,
+                        NombreComercio = c.NombreComercio,
+                        EstadoConsumo = c.EstadoConsumo
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al obtener detalle de tarjeta {id}");
+                TempData["ErrorMessage"] = "Error al cargar el detalle de la tarjeta";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // ==================== GESTIÓN DE BENEFICIARIOS ====================
 
         /// <summary>
         /// Muestra el listado de beneficiarios del cliente
+        /// Un beneficiario es una cuenta a la que el cliente transfiere con frecuencia
+        /// Esto evita tener que escribir el número de cuenta cada vez
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> Beneficiarios()
         {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Obtener beneficiarios del servicio
-            var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
-
-            if (!resultado.Exito)
+            try
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // Obtenemos todos los beneficiarios del cliente
+                var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return View(new ListaBeneficiariosViewModel
+                    {
+                        Beneficiarios = new List<BeneficiarioItemViewModel>()
+                    });
+                }
+
+                // Mapeamos a ViewModel
+                var viewModel = new ListaBeneficiariosViewModel
+                {
+                    Beneficiarios = resultado.Datos.Select(b => new BeneficiarioItemViewModel
+                    {
+                        Id = b.Id,
+                        NombreBeneficiario = b.NombreBeneficiario,
+                        ApellidoBeneficiario = b.ApellidoBeneficiario,
+                        NumeroCuentaBeneficiario = b.NumeroCuentaBeneficiario
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener beneficiarios");
+                TempData["ErrorMessage"] = "Error al cargar los beneficiarios";
                 return View(new ListaBeneficiariosViewModel
                 {
                     Beneficiarios = new List<BeneficiarioItemViewModel>()
                 });
             }
-
-            // Mapear a ViewModel
-            var viewModel = new ListaBeneficiariosViewModel
-            {
-                Beneficiarios = resultado.Datos.Select(b => new BeneficiarioItemViewModel
-                {
-                    Id = b.Id,
-                    NombreBeneficiario = b.NombreBeneficiario,
-                    ApellidoBeneficiario = b.ApellidoBeneficiario,
-                    NumeroCuentaBeneficiario = b.NumeroCuentaBeneficiario
-                })
-            };
-
-            return View(viewModel);
         }
 
         /// <summary>
-        /// Procesa la creación de un nuevo beneficiario
-        /// Se llama desde un modal en la vista
+        /// Agrega un nuevo beneficiario
+        /// El cliente solo necesita ingresar el número de cuenta
+        /// El sistema busca a quién pertenece y lo agrega a la lista
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -178,121 +390,84 @@ namespace ArtemisBanking.Web.Controllers
                 return RedirectToAction(nameof(Beneficiarios));
             }
 
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Llamar al servicio
-            var resultado = await _servicioBeneficiario.AgregarBeneficiarioAsync(
-                usuarioId,
-                model.NumeroCuenta);
-
-            if (resultado.Exito)
+            try
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = resultado.Mensaje;
-            }
+                var usuarioId = ObtenerUsuarioActualId();
 
-            return RedirectToAction(nameof(Beneficiarios));
+                // El servicio se encarga de:
+                // 1. Validar que la cuenta existe y está activa
+                // 2. Validar que no sea la propia cuenta del cliente
+                // 3. Validar que no esté ya registrada como beneficiario
+                // 4. Agregar el beneficiario
+                var resultado = await _servicioBeneficiario.AgregarBeneficiarioAsync(
+                    usuarioId,
+                    model.NumeroCuenta);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                }
+
+                return RedirectToAction(nameof(Beneficiarios));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al agregar beneficiario");
+                TempData["ErrorMessage"] = "Error al agregar el beneficiario";
+                return RedirectToAction(nameof(Beneficiarios));
+            }
         }
 
         /// <summary>
-        /// Elimina un beneficiario
+        /// Elimina un beneficiario de la lista
+        /// Solo se puede eliminar si le pertenece al cliente logueado
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarBeneficiario(int id)
         {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Llamar al servicio
-            var resultado = await _servicioBeneficiario.EliminarBeneficiarioAsync(id, usuarioId);
-
-            if (resultado.Exito)
+            try
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // El servicio valida que el beneficiario pertenezca al usuario
+                var resultado = await _servicioBeneficiario.EliminarBeneficiarioAsync(id, usuarioId);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                }
+
+                return RedirectToAction(nameof(Beneficiarios));
             }
-            else
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = resultado.Mensaje;
+                _logger.LogError(ex, $"Error al eliminar beneficiario {id}");
+                TempData["ErrorMessage"] = "Error al eliminar el beneficiario";
+                return RedirectToAction(nameof(Beneficiarios));
             }
-
-            return RedirectToAction(nameof(Beneficiarios));
         }
 
-        // ==================== MÉTODO HELPER PARA CARGAR SELECTS ====================
-
-        /// <summary>
-        /// Obtiene las cuentas activas del cliente para llenar selectores
-        /// </summary>
-        private async Task<IEnumerable<SelectListItem>> ObtenerCuentasActivasAsync()
-        {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // TODO: Llamar al servicio para obtener cuentas activas
-            // Por ahora retornamos lista vacía
-            return new List<SelectListItem>();
-        }
-
-        /// <summary>
-        /// Obtiene las tarjetas activas del cliente para llenar selectores
-        /// </summary>
-        private async Task<IEnumerable<SelectListItem>> ObtenerTarjetasActivasAsync()
-        {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // TODO: Llamar al servicio para obtener tarjetas activas
-            // Por ahora retornamos lista vacía
-            return new List<SelectListItem>();
-        }
-
-        /// <summary>
-        /// Obtiene los préstamos activos del cliente para llenar selectores
-        /// </summary>
-        private async Task<IEnumerable<SelectListItem>> ObtenerPrestamosActivosAsync()
-        {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // TODO: Llamar al servicio para obtener préstamos activos
-            // Por ahora retornamos lista vacía
-            return new List<SelectListItem>();
-        }
-
-        /// <summary>
-        /// Obtiene los beneficiarios del cliente para llenar selectores
-        /// </summary>
-        private async Task<IEnumerable<SelectListItem>> ObtenerBeneficiariosAsync()
-        {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
-
-            if (!resultado.Exito)
-                return new List<SelectListItem>();
-
-            return resultado.Datos.Select(b => new SelectListItem
-            {
-                Value = b.Id.ToString(),
-                Text = $"{b.NumeroCuentaBeneficiario} - {b.NombreBeneficiario} {b.ApellidoBeneficiario}"
-            });
-        }
-
-
-        // ⚠️ AGREGAR ESTOS MÉTODOS AL ClienteController.cs (después de beneficiarios)
-
-        // ==================== TRANSACCIÓN EXPRESS ====================
 
         /// <summary>
         /// Muestra el formulario para hacer una transacción express
-        /// (Transferencia a cualquier cuenta)
+        /// Una transacción express es transferir dinero a cualquier cuenta
+        /// sin necesidad de tenerla registrada como beneficiario
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> TransaccionExpress()
         {
             var viewModel = new TransaccionExpressViewModel
             {
-                CuentasDisponibles = await ObtenerCuentasActivasAsync()
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
             };
 
             return View(viewModel);
@@ -300,7 +475,7 @@ namespace ArtemisBanking.Web.Controllers
 
         /// <summary>
         /// Procesa la transacción express
-        /// Primero valida y luego muestra pantalla de confirmación
+        /// Primero valida y luego muestra una confirmación con el nombre del destinatario
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -308,32 +483,42 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
 
-            // Obtener información de la cuenta destino para confirmar
-            var infoDestino = await _servicioTransaccion.ObtenerInfoCuentaDestinoAsync(
-                model.NumeroCuentaDestino);
-
-            if (!infoDestino.Exito)
+            try
             {
-                ModelState.AddModelError(string.Empty, infoDestino.Mensaje);
-                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                // Obtenemos información de la cuenta destino para confirmar
+                var infoDestino = await _servicioTransaccion.ObtenerInfoCuentaDestinoAsync(
+                    model.NumeroCuentaDestino);
+
+                if (!infoDestino.Exito)
+                {
+                    ModelState.AddModelError(string.Empty, infoDestino.Mensaje);
+                    model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                    return View(model);
+                }
+
+                // Redirigimos a pantalla de confirmación
+                var confirmacionVM = new ConfirmarTransaccionViewModel
+                {
+                    NombreDestinatario = infoDestino.Datos.nombre,
+                    ApellidoDestinatario = infoDestino.Datos.apellido,
+                    NumeroCuentaDestino = model.NumeroCuentaDestino,
+                    Monto = model.Monto,
+                    CuentaOrigenId = model.CuentaOrigenId
+                };
+
+                return View("ConfirmarTransaccionExpress", confirmacionVM);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al procesar transacción express");
+                ModelState.AddModelError(string.Empty, "Error al procesar la transacción");
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
-
-            // Redirigir a pantalla de confirmación
-            var confirmacionVM = new ConfirmarTransaccionViewModel
-            {
-                NombreDestinatario = infoDestino.Datos.nombre,
-                ApellidoDestinatario = infoDestino.Datos.apellido,
-                NumeroCuentaDestino = model.NumeroCuentaDestino,
-                Monto = model.Monto,
-                CuentaOrigenId = model.CuentaOrigenId
-            };
-
-            return View("ConfirmarTransaccionExpress", confirmacionVM);
         }
 
         /// <summary>
@@ -343,42 +528,56 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarTransaccionExpress(ConfirmarTransaccionViewModel model)
         {
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Crear el DTO
-            var dto = new TransaccionExpressDTO
+            try
             {
-                CuentaOrigenId = model.CuentaOrigenId,
-                NumeroCuentaDestino = model.NumeroCuentaDestino,
-                Monto = model.Monto,
-                UsuarioId = usuarioId
-            };
+                var usuarioId = ObtenerUsuarioActualId();
 
-            // Llamar al servicio
-            var resultado = await _servicioTransaccion.RealizarTransaccionExpressAsync(dto);
+                var dto = new TransaccionExpressDTO
+                {
+                    CuentaOrigenId = model.CuentaOrigenId,
+                    NumeroCuentaDestino = model.NumeroCuentaDestino,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
 
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Index));
+                // El servicio se encarga de:
+                // 1. Validar que ambas cuentas existen
+                // 2. Validar fondos suficientes
+                // 3. Descontar de origen y acreditar a destino
+                // 4. Registrar dos transacciones (débito y crédito)
+                // 5. Enviar correos a ambos clientes
+                var resultado = await _servicioTransaccion.RealizarTransaccionExpressAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                TempData["ErrorMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(TransaccionExpress));
             }
-
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return RedirectToAction(nameof(TransaccionExpress));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al confirmar transacción express");
+                TempData["ErrorMessage"] = "Error al procesar la transacción";
+                return RedirectToAction(nameof(TransaccionExpress));
+            }
         }
 
         // ==================== PAGO A TARJETA DE CRÉDITO ====================
 
         /// <summary>
         /// Muestra el formulario para pagar una tarjeta de crédito
+        /// El cliente selecciona la tarjeta y la cuenta desde donde pagará
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> PagarTarjeta()
         {
             var viewModel = new PagoTarjetaViewModel
             {
-                TarjetasDisponibles = await ObtenerTarjetasActivasAsync(),
-                CuentasDisponibles = await ObtenerCuentasActivasAsync()
+                TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
             };
 
             return View(viewModel);
@@ -386,6 +585,7 @@ namespace ArtemisBanking.Web.Controllers
 
         /// <summary>
         /// Procesa el pago a tarjeta de crédito
+        /// IMPORTANTE: Si el monto es mayor a la deuda, solo se paga hasta la deuda
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -393,50 +593,65 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.TarjetasDisponibles = await ObtenerTarjetasActivasAsync();
-                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
 
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Crear el DTO
-            var dto = new PagoTarjetaClienteDTO
+            try
             {
-                TarjetaId = model.TarjetaId,
-                CuentaOrigenId = model.CuentaOrigenId,
-                Monto = model.Monto,
-                UsuarioId = usuarioId
-            };
+                var usuarioId = ObtenerUsuarioActualId();
 
-            // Llamar al servicio
-            var resultado = await _servicioTransaccion.PagarTarjetaCreditoClienteAsync(dto);
+                var dto = new PagoTarjetaClienteDTO
+                {
+                    TarjetaId = model.TarjetaId,
+                    CuentaOrigenId = model.CuentaOrigenId,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
 
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Index));
+                // El servicio se encarga de:
+                // 1. Validar fondos suficientes en la cuenta
+                // 2. Calcular monto real a pagar (máximo la deuda)
+                // 3. Descontar de cuenta y reducir deuda de tarjeta
+                // 4. Registrar transacción
+                // 5. Enviar correo al cliente
+                var resultado = await _servicioTransaccion.PagarTarjetaCreditoClienteAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
             }
-
-            // Si hubo error
-            ModelState.AddModelError(string.Empty, resultado.Mensaje);
-            model.TarjetasDisponibles = await ObtenerTarjetasActivasAsync();
-            model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
-            return View(model);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al pagar tarjeta");
+                ModelState.AddModelError(string.Empty, "Error al procesar el pago");
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
         }
 
         // ==================== PAGO A PRÉSTAMO ====================
 
         /// <summary>
         /// Muestra el formulario para pagar un préstamo
+        /// El cliente selecciona el préstamo y la cuenta desde donde pagará
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> PagarPrestamo()
         {
             var viewModel = new PagoPrestamoViewModel
             {
-                PrestamosDisponibles = await ObtenerPrestamosActivosAsync(),
-                CuentasDisponibles = await ObtenerCuentasActivasAsync()
+                PrestamosDisponibles = await ObtenerPrestamosActivosSelectAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
             };
 
             return View(viewModel);
@@ -444,6 +659,8 @@ namespace ArtemisBanking.Web.Controllers
 
         /// <summary>
         /// Procesa el pago a préstamo
+        /// El pago se aplica a las cuotas de forma secuencial
+        /// Si sobra dinero, se devuelve a la cuenta
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -451,50 +668,62 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.PrestamosDisponibles = await ObtenerPrestamosActivosAsync();
-                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                model.PrestamosDisponibles = await ObtenerPrestamosActivosSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
 
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Crear el DTO
-            var dto = new PagoPrestamoClienteDTO
+            try
             {
-                PrestamoId = model.PrestamoId,
-                CuentaOrigenId = model.CuentaOrigenId,
-                Monto = model.Monto,
-                UsuarioId = usuarioId
-            };
+                var usuarioId = ObtenerUsuarioActualId();
 
-            // Llamar al servicio
-            var resultado = await _servicioTransaccion.PagarPrestamoClienteAsync(dto);
+                var dto = new PagoPrestamoClienteDTO
+                {
+                    PrestamoId = model.PrestamoId,
+                    CuentaOrigenId = model.CuentaOrigenId,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
 
-            if (resultado.Exito)
-            {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Index));
+                // El servicio aplica el pago secuencialmente a las cuotas
+                var resultado = await _servicioTransaccion.PagarPrestamoClienteAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                model.PrestamosDisponibles = await ObtenerPrestamosActivosSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
             }
-
-            // Si hubo error
-            ModelState.AddModelError(string.Empty, resultado.Mensaje);
-            model.PrestamosDisponibles = await ObtenerPrestamosActivosAsync();
-            model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
-            return View(model);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al pagar préstamo");
+                ModelState.AddModelError(string.Empty, "Error al procesar el pago");
+                model.PrestamosDisponibles = await ObtenerPrestamosActivosSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
         }
 
-        // ==================== PAGO A BENEFICIARIO ====================
+
+        // ==================== PAGO A BENEFICIARIO (PARTE 4/5) ====================
+        // Agregar estos métodos al ClienteController DESPUÉS de PagarPrestamo
 
         /// <summary>
         /// Muestra el formulario para pagar a un beneficiario
+        /// Es similar a la transacción express pero usando un beneficiario registrado
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> PagarBeneficiario()
         {
             var viewModel = new PagoBeneficiarioViewModel
             {
-                BeneficiariosDisponibles = await ObtenerBeneficiariosAsync(),
-                CuentasDisponibles = await ObtenerCuentasActivasAsync()
+                BeneficiariosDisponibles = await ObtenerBeneficiariosSelectAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
             };
 
             return View(viewModel);
@@ -502,7 +731,7 @@ namespace ArtemisBanking.Web.Controllers
 
         /// <summary>
         /// Procesa el pago a beneficiario
-        /// Primero valida y luego muestra pantalla de confirmación
+        /// Primero valida y luego muestra confirmación con el nombre del beneficiario
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -510,44 +739,53 @@ namespace ArtemisBanking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.BeneficiariosDisponibles = await ObtenerBeneficiariosAsync();
-                model.CuentasDisponibles = await ObtenerCuentasActivasAsync();
+                model.BeneficiariosDisponibles = await ObtenerBeneficiariosSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
 
-            var usuarioId = ObtenerUsuarioActualId();
-
-            // Obtener datos del beneficiario
-            var beneficiariosResult = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
-
-            if (!beneficiariosResult.Exito)
+            try
             {
-                TempData["ErrorMessage"] = "Error al obtener beneficiario";
+                var usuarioId = ObtenerUsuarioActualId();
+
+                // Obtenemos datos del beneficiario para la confirmación
+                var beneficiariosResult = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+                if (!beneficiariosResult.Exito)
+                {
+                    TempData["ErrorMessage"] = "Error al obtener beneficiario";
+                    return RedirectToAction(nameof(PagarBeneficiario));
+                }
+
+                var beneficiario = beneficiariosResult.Datos.FirstOrDefault(b => b.Id == model.BeneficiarioId);
+
+                if (beneficiario == null)
+                {
+                    TempData["ErrorMessage"] = "Beneficiario no encontrado";
+                    return RedirectToAction(nameof(PagarBeneficiario));
+                }
+
+                // Redirigir a pantalla de confirmación
+                var confirmacionVM = new ConfirmarTransaccionViewModel
+                {
+                    NombreDestinatario = beneficiario.NombreBeneficiario,
+                    ApellidoDestinatario = beneficiario.ApellidoBeneficiario,
+                    NumeroCuentaDestino = beneficiario.NumeroCuentaBeneficiario,
+                    Monto = model.Monto,
+                    CuentaOrigenId = model.CuentaOrigenId
+                };
+
+                // Guardamos el ID del beneficiario en TempData para usarlo en la confirmación
+                TempData["BeneficiarioId"] = model.BeneficiarioId;
+
+                return View("ConfirmarPagoBeneficiario", confirmacionVM);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al procesar pago a beneficiario");
+                TempData["ErrorMessage"] = "Error al procesar el pago";
                 return RedirectToAction(nameof(PagarBeneficiario));
             }
-
-            var beneficiario = beneficiariosResult.Datos.FirstOrDefault(b => b.Id == model.BeneficiarioId);
-
-            if (beneficiario == null)
-            {
-                TempData["ErrorMessage"] = "Beneficiario no encontrado";
-                return RedirectToAction(nameof(PagarBeneficiario));
-            }
-
-            // Redirigir a pantalla de confirmación
-            var confirmacionVM = new ConfirmarTransaccionViewModel
-            {
-                NombreDestinatario = beneficiario.NombreBeneficiario,
-                ApellidoDestinatario = beneficiario.ApellidoBeneficiario,
-                NumeroCuentaDestino = beneficiario.NumeroCuentaBeneficiario,
-                Monto = model.Monto,
-                CuentaOrigenId = model.CuentaOrigenId
-            };
-
-            // Guardar el ID del beneficiario en TempData para usarlo en la confirmación
-            TempData["BeneficiarioId"] = model.BeneficiarioId;
-
-            return View("ConfirmarPagoBeneficiario", confirmacionVM);
         }
 
         /// <summary>
@@ -557,29 +795,184 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarPagoBeneficiario(ConfirmarTransaccionViewModel model)
         {
-            var usuarioId = ObtenerUsuarioActualId();
-            var beneficiarioId = (int)TempData["BeneficiarioId"];
-
-            // Crear el DTO
-            var dto = new PagoBeneficiarioDTO
+            try
             {
-                BeneficiarioId = beneficiarioId,
-                CuentaOrigenId = model.CuentaOrigenId,
-                Monto = model.Monto,
-                UsuarioId = usuarioId
+                var usuarioId = ObtenerUsuarioActualId();
+                var beneficiarioId = (int)TempData["BeneficiarioId"];
+
+                var dto = new PagoBeneficiarioDTO
+                {
+                    BeneficiarioId = beneficiarioId,
+                    CuentaOrigenId = model.CuentaOrigenId,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
+
+                // El servicio procesa la transacción al beneficiario
+                var resultado = await _servicioTransaccion.PagarBeneficiarioAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                TempData["ErrorMessage"] = resultado.Mensaje;
+                return RedirectToAction(nameof(PagarBeneficiario));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al confirmar pago a beneficiario");
+                TempData["ErrorMessage"] = "Error al procesar el pago";
+                return RedirectToAction(nameof(PagarBeneficiario));
+            }
+        }
+
+        // ==================== AVANCE DE EFECTIVO ====================
+
+        /// <summary>
+        /// Muestra el formulario para hacer un avance de efectivo
+        /// Un avance de efectivo toma dinero de la tarjeta y lo deposita en una cuenta
+        /// Se cobra un interés del 6.25% sobre el monto
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> AvanceEfectivo()
+        {
+            var viewModel = new AvanceEfectivoViewModel
+            {
+                TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync(),
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
             };
 
-            // Llamar al servicio
-            var resultado = await _servicioTransaccion.PagarBeneficiarioAsync(dto);
+            return View(viewModel);
+        }
 
-            if (resultado.Exito)
+        /// <summary>
+        /// Procesa el avance de efectivo
+        /// Valida que no exceda el crédito disponible
+        /// Aplica un interés del 6.25%
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AvanceEfectivo(AvanceEfectivoViewModel model)
+        {
+            if (!ModelState.IsValid)
             {
-                TempData["SuccessMessage"] = resultado.Mensaje;
-                return RedirectToAction(nameof(Index));
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
             }
 
-            TempData["ErrorMessage"] = resultado.Mensaje;
-            return RedirectToAction(nameof(PagarBeneficiario));
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+
+                var dto = new AvanceEfectivoDTO
+                {
+                    TarjetaId = model.TarjetaId,
+                    CuentaDestinoId = model.CuentaDestinoId,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
+
+                // El servicio se encarga de:
+                // 1. Validar que el monto no exceda el crédito disponible
+                // 2. Acreditar el monto a la cuenta
+                // 3. Aumentar la deuda de la tarjeta (monto + 6.25% de interés)
+                // 4. Registrar la transacción en la cuenta
+                // 5. Registrar el consumo en la tarjeta como "AVANCE"
+                // 6. Enviar correo al cliente
+                var resultado = await _servicioTransaccion.RealizarAvanceEfectivoClienteAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al realizar avance de efectivo");
+                ModelState.AddModelError(string.Empty, "Error al procesar el avance");
+                model.TarjetasDisponibles = await ObtenerTarjetasActivasSelectAsync();
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
+        }
+
+        // ==================== TRANSFERENCIA ENTRE CUENTAS PROPIAS ====================
+
+        /// <summary>
+        /// Muestra el formulario para transferir entre cuentas propias
+        /// El cliente puede mover dinero entre su cuenta principal y secundarias
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> TransferirEntreCuentas()
+        {
+            var viewModel = new TransferenciaEntreCuentasViewModel
+            {
+                CuentasDisponibles = await ObtenerCuentasActivasSelectAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        /// <summary>
+        /// Procesa la transferencia entre cuentas propias
+        /// Valida que ambas cuentas sean del mismo cliente
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TransferirEntreCuentas(TransferenciaEntreCuentasViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
+
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+
+                var dto = new TransferirEntrePropiasDTO
+                {
+                    CuentaOrigenId = model.CuentaOrigenId,
+                    CuentaDestinoId = model.CuentaDestinoId,
+                    Monto = model.Monto,
+                    UsuarioId = usuarioId
+                };
+
+                // El servicio se encarga de:
+                // 1. Validar que ambas cuentas pertenezcan al usuario
+                // 2. Validar que no sean la misma cuenta
+                // 3. Validar fondos suficientes
+                // 4. Descontar de origen y acreditar a destino
+                // 5. Registrar dos transacciones (débito y crédito)
+                var resultado = await _servicioCuenta.TransferirEntreCuentasPropiasAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al transferir entre cuentas");
+                ModelState.AddModelError(string.Empty, "Error al realizar la transferencia");
+                model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
+                return View(model);
+            }
         }
 
     }
