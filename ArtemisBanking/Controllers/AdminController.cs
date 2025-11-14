@@ -2,7 +2,6 @@ using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Interfaces.Repositories;
-using ArtemisBanking.ViewModels.Cliente;
 using ArtemisBanking.ViewModels.CuentaAhorro;
 using ArtemisBanking.ViewModels.Prestamo;
 using ArtemisBanking.ViewModels.TarjetaCredito;
@@ -763,6 +762,612 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
+
+        // ==================== ASIGNACIÓN DE PRÉSTAMOS (COMPLETO) ====================
+
+        /// <summary>
+        /// Muestra el listado de clientes para asignar préstamo
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> AsignarPrestamo()
+        {
+            try
+            {
+                // Obtener clientes sin préstamo activo
+                var resultado = await _servicioUsuario.ObtenerClientesSinPrestamoActivoAsync();
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Prestamos));
+                }
+
+                // Obtener deuda promedio del sistema
+                var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
+
+                var viewModel = new SeleccionarClientePrestamoViewModel
+                {
+                    Clientes = resultado.Datos.Select(c => new ClienteParaPrestamoViewModel
+                    {
+                        Id = c.Id,
+                        Cedula = c.Cedula,
+                        NombreCompleto = c.NombreCompleto,
+                        Correo = c.Correo,
+                        DeudaTotal = c.MontoInicial // Reutilizamos este campo
+                    }),
+                    DeudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar clientes para préstamo");
+                TempData["ErrorMessage"] = "Error al cargar los clientes";
+                return RedirectToAction(nameof(Prestamos));
+            }
+        }
+
+        /// <summary>
+        /// Muestra el formulario para configurar el préstamo
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfigurarPrestamo(string clienteId)
+        {
+            if (string.IsNullOrEmpty(clienteId))
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
+                return RedirectToAction(nameof(AsignarPrestamo));
+            }
+
+            try
+            {
+                // Obtener datos del cliente
+                var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
+
+                if (!clienteResult.Exito)
+                {
+                    TempData["ErrorMessage"] = "Cliente no encontrado";
+                    return RedirectToAction(nameof(AsignarPrestamo));
+                }
+
+                // Obtener deuda actual y promedio
+                var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteId);
+                var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
+
+                var viewModel = new ConfigurarPrestamoViewModel
+                {
+                    ClienteId = clienteId,
+                    NombreCliente = clienteResult.Datos.NombreCompleto,
+                    DeudaActualCliente = deudaActual,
+                    DeudaPromedio = deudaPromedio
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al configurar préstamo");
+                TempData["ErrorMessage"] = "Error al configurar el préstamo";
+                return RedirectToAction(nameof(AsignarPrestamo));
+            }
+        }
+
+        /// <summary>
+        /// Procesa la asignación del préstamo
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("ConfigurarPrestamo", model);
+            }
+
+            try
+            {
+                var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                var dto = new AsignarPrestamoDTO
+                {
+                    ClienteId = model.ClienteId,
+                    AdministradorId = adminId,
+                    MontoCapital = model.MontoCapital,
+                    PlazoMeses = model.PlazoMeses,
+                    TasaInteresAnual = model.TasaInteresAnual
+                };
+
+                // Validar riesgo del cliente
+                var riesgoResult = await _servicioPrestamo.ValidarRiesgoClienteAsync(
+                    model.ClienteId,
+                    model.MontoCapital
+                );
+
+                // Si es alto riesgo, mostrar advertencia
+                if (riesgoResult.Exito && riesgoResult.Datos)
+                {
+                    var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(model.ClienteId);
+                    var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
+
+                    var advertenciaVM = new AdvertenciaRiesgoViewModel
+                    {
+                        ClienteId = model.ClienteId,
+                        NombreCliente = model.NombreCliente,
+                        MontoCapital = model.MontoCapital,
+                        PlazoMeses = model.PlazoMeses,
+                        TasaInteresAnual = model.TasaInteresAnual,
+                        DeudaActual = deudaActual,
+                        DeudaPromedio = deudaPromedio,
+                        DeudaDespuesDelPrestamo = deudaActual + model.MontoCapital,
+                        MensajeAdvertencia = deudaActual > deudaPromedio
+                            ? "Este cliente se considera de alto riesgo, ya que su deuda actual supera el promedio del sistema"
+                            : "Asignar este préstamo convertirá al cliente en un cliente de alto riesgo, ya que su deuda superará el umbral promedio del sistema"
+                    };
+
+                    return View("AdvertenciaRiesgoPrestamo", advertenciaVM);
+                }
+
+                // Si no es alto riesgo, asignar directamente
+                var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Prestamos));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                return View("ConfigurarPrestamo", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al procesar asignación de préstamo");
+                ModelState.AddModelError(string.Empty, "Error al asignar el préstamo");
+                return View("ConfigurarPrestamo", model);
+            }
+        }
+
+        /// <summary>
+        /// Confirma la asignación de préstamo para cliente de alto riesgo
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarPrestamoAltoRiesgo(AdvertenciaRiesgoViewModel model)
+        {
+            try
+            {
+                var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                var dto = new AsignarPrestamoDTO
+                {
+                    ClienteId = model.ClienteId,
+                    AdministradorId = adminId,
+                    MontoCapital = model.MontoCapital,
+                    PlazoMeses = model.PlazoMeses,
+                    TasaInteresAnual = model.TasaInteresAnual
+                };
+
+                var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                }
+
+                return RedirectToAction(nameof(Prestamos));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al confirmar préstamo de alto riesgo");
+                TempData["ErrorMessage"] = "Error al asignar el préstamo";
+                return RedirectToAction(nameof(Prestamos));
+            }
+        }
+
+        // ==================== ASIGNACIÓN DE TARJETAS ====================
+
+        /// <summary>
+        /// Muestra el listado de clientes para asignar tarjeta
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> AsignarTarjeta()
+        {
+            try
+            {
+                var resultado = await _servicioUsuario.ObtenerClientesActivosAsync();
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
+
+                var viewModel = new SeleccionarClienteTarjetaViewModel
+                {
+                    Clientes = resultado.Datos.Select(c => new ClienteParaTarjetaViewModel
+                    {
+                        Id = c.Id,
+                        Cedula = c.Cedula,
+                        NombreCompleto = c.NombreCompleto,
+                        Correo = c.Correo,
+                        DeudaTotal = c.MontoInicial
+                    }),
+                    DeudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar clientes para tarjeta");
+                TempData["ErrorMessage"] = "Error al cargar los clientes";
+                return RedirectToAction(nameof(Tarjetas));
+            }
+        }
+
+        /// <summary>
+        /// Muestra el formulario para configurar la tarjeta
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfigurarTarjeta(string clienteId)
+        {
+            if (string.IsNullOrEmpty(clienteId))
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
+                return RedirectToAction(nameof(AsignarTarjeta));
+            }
+
+            try
+            {
+                var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
+
+                if (!clienteResult.Exito)
+                {
+                    TempData["ErrorMessage"] = "Cliente no encontrado";
+                    return RedirectToAction(nameof(AsignarTarjeta));
+                }
+
+                var viewModel = new ConfigurarTarjetaViewModel
+                {
+                    ClienteId = clienteId,
+                    NombreCliente = clienteResult.Datos.NombreCompleto
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al configurar tarjeta");
+                TempData["ErrorMessage"] = "Error al configurar la tarjeta";
+                return RedirectToAction(nameof(AsignarTarjeta));
+            }
+        }
+
+        /// <summary>
+        /// Procesa la asignación de la tarjeta
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcesarAsignacionTarjeta(ConfigurarTarjetaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("ConfigurarTarjeta", model);
+            }
+
+            try
+            {
+                var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                var dto = new AsignarTarjetaDTO
+                {
+                    ClienteId = model.ClienteId,
+                    AdministradorId = adminId,
+                    LimiteCredito = model.LimiteCredito
+                };
+
+                var resultado = await _servicioTarjeta.AsignarTarjetaAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                return View("ConfigurarTarjeta", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al asignar tarjeta");
+                ModelState.AddModelError(string.Empty, "Error al asignar la tarjeta");
+                return View("ConfigurarTarjeta", model);
+            }
+        }
+
+        // ==================== EDITAR TARJETA ====================
+
+        [HttpGet]
+        public async Task<IActionResult> EditarTarjeta(int id)
+        {
+            try
+            {
+                var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                var viewModel = new EditarTarjetaViewModel
+                {
+                    Id = resultado.Datos.Id,
+                    NumeroTarjeta = resultado.Datos.NumeroTarjeta,
+                    UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
+                    NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
+                    DeudaActual = resultado.Datos.DeudaActual,
+                    LimiteCredito = resultado.Datos.LimiteCredito
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar tarjeta {id}");
+                TempData["ErrorMessage"] = "Error al cargar la tarjeta";
+                return RedirectToAction(nameof(Tarjetas));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarTarjeta(EditarTarjetaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var dto = new ActualizarLimiteTarjetaDTO
+                {
+                    TarjetaId = model.Id,
+                    NuevoLimite = model.LimiteCredito
+                };
+
+                var resultado = await _servicioTarjeta.ActualizarLimiteAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al editar tarjeta {model.Id}");
+                ModelState.AddModelError(string.Empty, "Error al actualizar la tarjeta");
+                return View(model);
+            }
+        }
+
+        // ==================== CANCELAR TARJETA ====================
+
+        [HttpGet]
+        public async Task<IActionResult> CancelarTarjeta(int id)
+        {
+            try
+            {
+                var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Tarjetas));
+                }
+
+                var viewModel = new CancelarTarjetaViewModel
+                {
+                    Id = resultado.Datos.Id,
+                    UltimosCuatroDigitos = resultado.Datos.UltimosCuatroDigitos,
+                    NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
+                    DeudaActual = resultado.Datos.DeudaActual
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar tarjeta para cancelación {id}");
+                TempData["ErrorMessage"] = "Error al cargar la tarjeta";
+                return RedirectToAction(nameof(Tarjetas));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarCancelacionTarjeta(int id)
+        {
+            try
+            {
+                var resultado = await _servicioTarjeta.CancelarTarjetaAsync(id);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                }
+
+                return RedirectToAction(nameof(Tarjetas));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cancelar tarjeta {id}");
+                TempData["ErrorMessage"] = "Error al cancelar la tarjeta";
+                return RedirectToAction(nameof(Tarjetas));
+            }
+        }
+
+        // ==================== ASIGNACIÓN DE CUENTAS DE AHORRO ====================
+
+        [HttpGet]
+        public async Task<IActionResult> AsignarCuenta()
+        {
+            try
+            {
+                var resultado = await _servicioUsuario.ObtenerClientesActivosAsync();
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Cuentas));
+                }
+
+                var viewModel = new SeleccionarClienteCuentaViewModel
+                {
+                    Clientes = resultado.Datos.Select(c => new ClienteParaCuentaViewModel
+                    {
+                        Id = c.Id,
+                        Cedula = c.Cedula,
+                        NombreCompleto = c.NombreCompleto,
+                        Correo = c.Correo,
+                        DeudaTotal = c.MontoInicial
+                    })
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar clientes para cuenta");
+                TempData["ErrorMessage"] = "Error al cargar los clientes";
+                return RedirectToAction(nameof(Cuentas));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfigurarCuenta(string clienteId)
+        {
+            if (string.IsNullOrEmpty(clienteId))
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar un cliente";
+                return RedirectToAction(nameof(AsignarCuenta));
+            }
+
+            try
+            {
+                var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
+
+                if (!clienteResult.Exito)
+                {
+                    TempData["ErrorMessage"] = "Cliente no encontrado";
+                    return RedirectToAction(nameof(AsignarCuenta));
+                }
+
+                var viewModel = new ConfigurarCuentaViewModel
+                {
+                    ClienteId = clienteId,
+                    NombreCliente = clienteResult.Datos.NombreCompleto
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al configurar cuenta");
+                TempData["ErrorMessage"] = "Error al configurar la cuenta";
+                return RedirectToAction(nameof(AsignarCuenta));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcesarAsignacionCuenta(ConfigurarCuentaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("ConfigurarCuenta", model);
+            }
+
+            try
+            {
+                var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                var dto = new CrearCuentaSecundariaDTO
+                {
+                    ClienteId = model.ClienteId,
+                    AdministradorId = adminId,
+                    BalanceInicial = model.BalanceInicial
+                };
+
+                var resultado = await _servicioCuenta.CrearCuentaSecundariaAsync(dto);
+
+                if (resultado.Exito)
+                {
+                    TempData["SuccessMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Cuentas));
+                }
+
+                ModelState.AddModelError(string.Empty, resultado.Mensaje);
+                return View("ConfigurarCuenta", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al asignar cuenta");
+                ModelState.AddModelError(string.Empty, "Error al asignar la cuenta");
+                return View("ConfigurarCuenta", model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CancelarCuenta(int id)
+        {
+            try
+            {
+                var resultado = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
+
+                if (!resultado.Exito)
+                {
+                    TempData["ErrorMessage"] = resultado.Mensaje;
+                    return RedirectToAction(nameof(Cuentas));
+                }
+
+                var viewModel = new CancelarCuentaViewModel
+                {
+                    Id = resultado.Datos.Id,
+                    NumeroCuenta = resultado.Datos.NumeroCuenta,
+                    NombreCliente = $"{resultado.Datos.NombreCliente} {resultado.Datos.ApellidoCliente}",
+                    Balance = resultado.Datos.Balance,
+                    EsPrincipal = resultado.Datos.EsPrincipal
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar cuenta para cancelación {id}");
+                TempData["ErrorMessage"] = "Error al cargar la cuenta";
+                return RedirectToAction(nameof(Cuentas));
+            }
+        }
 
     }
 

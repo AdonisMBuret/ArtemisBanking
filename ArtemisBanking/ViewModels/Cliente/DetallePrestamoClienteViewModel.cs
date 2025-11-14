@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ArtemisBanking.ViewModels.Prestamo;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.ViewModels.Cliente
 {

@@ -1,6 +1,7 @@
 ﻿using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
+using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using ArtemisBanking.ViewModels.Cliente;
 using ArtemisBanking.ViewModels.Prestamo;
@@ -973,6 +974,120 @@ namespace ArtemisBanking.Web.Controllers
                 model.CuentasDisponibles = await ObtenerCuentasActivasSelectAsync();
                 return View(model);
             }
+        }
+
+
+        // ==================== MÉTODOS HELPER PRIVADOS ====================
+
+        /// <summary>
+        /// Obtiene las cuentas activas del usuario para poblar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerCuentasActivasSelectAsync()
+        {
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+                var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(usuarioId);
+
+                return cuentas.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = $"{c.NumeroCuenta} - Balance: RD${c.Balance:N2}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener cuentas activas para selector");
+                return Enumerable.Empty<SelectListItem>();
+            }
+        }
+
+        /// <summary>
+        /// Obtiene las tarjetas activas del usuario para poblar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerTarjetasActivasSelectAsync()
+        {
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+                var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(usuarioId);
+
+                return tarjetas.Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = $"****{t.UltimosCuatroDigitos} - Disponible: RD${t.CreditoDisponible:N2}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener tarjetas activas para selector");
+                return Enumerable.Empty<SelectListItem>();
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los préstamos activos del usuario para poblar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerPrestamosActivosSelectAsync()
+        {
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+                var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(usuarioId);
+                var prestamosActivos = prestamos.Where(p => p.EstaActivo);
+
+                return prestamosActivos.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = $"{p.NumeroPrestamo} - Pendiente: {CalcularMontoPendiente(p):N2}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener préstamos activos para selector");
+                return Enumerable.Empty<SelectListItem>();
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los beneficiarios del usuario para poblar selectores
+        /// </summary>
+        private async Task<IEnumerable<SelectListItem>> ObtenerBeneficiariosSelectAsync()
+        {
+            try
+            {
+                var usuarioId = ObtenerUsuarioActualId();
+                var resultado = await _servicioBeneficiario.ObtenerBeneficiariosAsync(usuarioId);
+
+                if (!resultado.Exito)
+                {
+                    return Enumerable.Empty<SelectListItem>();
+                }
+
+                return resultado.Datos.Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = $"{b.NombreBeneficiario} {b.ApellidoBeneficiario} - {b.NumeroCuentaBeneficiario}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener beneficiarios para selector");
+                return Enumerable.Empty<SelectListItem>();
+            }
+        }
+
+        /// <summary>
+        /// Calcula el monto pendiente de un préstamo sumando las cuotas no pagadas
+        /// </summary>
+        private decimal CalcularMontoPendiente(Prestamo prestamo)
+        {
+            if (prestamo?.TablaAmortizacion == null)
+                return 0;
+
+            return prestamo.TablaAmortizacion
+                .Where(c => !c.EstaPagada)
+                .Sum(c => c.MontoCuota);
         }
 
     }
