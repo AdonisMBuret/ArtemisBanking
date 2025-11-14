@@ -73,14 +73,10 @@ namespace ArtemisBanking.Web.Controllers
             _logger = logger;
         }
 
-        // ==================== DASHBOARD (HOME) ====================
 
-        /// <summary>
-        /// Página principal del administrador con todos los indicadores
-        /// </summary>
+        // ==================== DASHBOARD (HOME) ====================
         public async Task<IActionResult> Index()
         {
-            // Llamar al servicio para obtener todos los indicadores
             var resultado = await _servicioUsuario.ObtenerDashboardAdminAsync();
 
             if (!resultado.Exito)
@@ -89,13 +85,26 @@ namespace ArtemisBanking.Web.Controllers
                 return View(new DashboardAdminViewModel());
             }
 
-            // Mapear el DTO al ViewModel
-            var viewModel = _mapper.Map<DashboardAdminViewModel>(resultado.Datos);
+            // Mapeo manual de DTO a ViewModel
+            var viewModel = new DashboardAdminViewModel
+            {
+                TotalTransacciones = resultado.Datos.TotalTransacciones,
+                TransaccionesDelDia = resultado.Datos.TransaccionesDelDia,
+                TotalPagos = resultado.Datos.TotalPagos,
+                PagosDelDia = resultado.Datos.PagosDelDia,
+                ClientesActivos = resultado.Datos.ClientesActivos,
+                ClientesInactivos = resultado.Datos.ClientesInactivos,
+                TotalProductosFinancieros = resultado.Datos.TotalProductosFinancieros,
+                PrestamosVigentes = resultado.Datos.PrestamosVigentes,
+                TarjetasActivas = resultado.Datos.TarjetasActivas,
+                CuentasAhorro = resultado.Datos.CuentasAhorro,
+                DeudaPromedioCliente = resultado.Datos.DeudaPromedioCliente
+            };
 
             return View(viewModel);
         }
 
-        // ==================== GESTIÓN DE USUARIOS ====================
+       // ==================== GESTIÓN DE USUARIOS ====================
 
         /// <summary>
         /// Lista paginada de usuarios con filtros
