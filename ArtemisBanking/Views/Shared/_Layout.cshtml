@@ -5,129 +5,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Artemis Banking</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Estilos personalizados de Artemis Banking -->
-    <link rel="stylesheet" href="~/css/artemis-banking.css" asp-append-version="true" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-    <!-- Font Awesome para iconos (opcional) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="~/css/artemis-styles.css" />
 </head>
 <body>
-    <!-- ==================== NAVBAR ==================== -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-artemis">
-            <div class="container-fluid px-4">
-                <!-- Logo/Marca -->
-                <a class="navbar-brand" href="#">
-                    <i class="fas fa-university me-2"></i>
-                    Artemis Banking
-                </a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-artemis sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                <i class="bi bi-bank2"></i> Artemis Banking
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <!-- Botón hamburguesa para móvil -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Links del navbar (se llenan según el rol del usuario) -->
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        @if (User.Identity.IsAuthenticated)
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (User.IsInRole("Administrador"))
                         {
-                            <!-- Mostrar nombre del usuario logueado -->
                             <li class="nav-item">
-                                <span class="nav-link">
-                                    <i class="fas fa-user-circle me-1"></i>
-                                    Bienvenido, @User.Identity.Name
-                                </span>
+                                <a class="nav-link" href="@Url.Action("Index", "Admin")">
+                                    <i class="bi bi-speedometer2"></i> Dashboard
+                                </a>
                             </li>
-
-                            <!-- Botón de cerrar sesión -->
                             <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-light btn-sm ms-2">
-                                        <i class="fas fa-sign-out-alt me-1"></i>
-                                        Cerrar Sesión
-                                    </button>
-                                </form>
+                                <a class="nav-link" href="@Url.Action("Usuarios", "Admin")">
+                                    <i class="bi bi-people"></i> Usuarios
+                                </a>
                             </li>
-                        }
-                        else
-                        {
-                            <!-- Si no está logueado, mostrar link de login -->
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">
-                                    <i class="fas fa-sign-in-alt me-1"></i>
-                                    Iniciar Sesión
+                                <a class="nav-link" href="@Url.Action("Prestamos", "Admin")">
+                                    <i class="bi bi-cash-stack"></i> Préstamos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Tarjetas", "Admin")">
+                                    <i class="bi bi-credit-card"></i> Tarjetas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Cuentas", "Admin")">
+                                    <i class="bi bi-piggy-bank"></i> Cuentas
                                 </a>
                             </li>
                         }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
 
-    <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
-    <div class="container my-4">
-        <!-- Mensajes de éxito/error usando TempData -->
-        @if (TempData["MensajeExito"] != null)
+                        @if (User.IsInRole("Cajero"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Cajero")">
+                                    <i class="bi bi-speedometer2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Deposito", "Cajero")">
+                                    <i class="bi bi-plus-circle"></i> Depósito
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Retiro", "Cajero")">
+                                    <i class="bi bi-dash-circle"></i> Retiro
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="pagosCajero" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-currency-dollar"></i> Pagos
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="@Url.Action("PagarTarjeta", "Cajero")">Pagar Tarjeta</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("PagarPrestamo", "Cajero")">Pagar Préstamo</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("TransaccionTerceros", "Cajero")">
+                                    <i class="bi bi-arrow-left-right"></i> Transacciones
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Cliente"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Cliente")">
+                                    <i class="bi bi-house"></i> Inicio
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="transacciones" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-arrow-left-right"></i> Transacciones
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="@Url.Action("TransaccionExpress", "Cliente")">Express</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("PagarTarjeta", "Cliente")">Pagar Tarjeta</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("PagarPrestamo", "Cliente")">Pagar Préstamo</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("PagarBeneficiario", "Cliente")">Pagar Beneficiario</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Beneficiarios", "Cliente")">
+                                    <i class="bi bi-people"></i> Beneficiarios
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("AvanceEfectivo", "Cliente")">
+                                    <i class="bi bi-cash-coin"></i> Avance
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("TransferirEntreCuentas", "Cliente")">
+                                    <i class="bi bi-shuffle"></i> Transferir
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="nav-link btn btn-link">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mensajes de Alerta -->
+    <div class="container mt-3">
+        @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success-artemis alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                @TempData["MensajeExito"]
+            <div class="alert alert-artemis-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <strong>¡Éxito!</strong> @TempData["SuccessMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
-        @if (TempData["MensajeError"] != null)
+        @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger-artemis alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                @TempData["MensajeError"]
+            <div class="alert alert-artemis-error alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>¡Error!</strong> @TempData["ErrorMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
-        @if (TempData["MensajeAdvertencia"] != null)
+        @if (TempData["InfoMessage"] != null)
         {
-            <div class="alert alert-warning-artemis alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                @TempData["MensajeAdvertencia"]
+            <div class="alert alert-artemis-info alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle-fill"></i>
+                <strong>Información:</strong> @TempData["InfoMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
-
-        <!-- Aquí se renderiza el contenido de cada vista -->
-        <main role="main">
-            @RenderBody()
-        </main>
     </div>
 
-    <!-- ==================== FOOTER ==================== -->
+    <!-- Contenido Principal -->
+    <main class="container">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
     <footer class="footer-artemis text-center">
         <div class="container">
             <p class="mb-0">
-                &copy; 2025 - Artemis Banking | Sistema de Banca en Línea
+                &copy; @DateTime.Now.Year Artemis Banking - Sistema de Banca en Línea
             </p>
-            <small class="text-muted">
-                Proyecto desarrollado para fines educativos - ITLA
-            </small>
+            <p class="mb-0">
+                <small>Desarrollado con <i class="bi bi-heart-fill text-danger"></i> por estudiantes del ITLA</small>
+            </p>
         </div>
     </footer>
 
-    <!-- ==================== SCRIPTS ==================== -->
-    <!-- jQuery (necesario para Bootstrap) -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Bootstrap JS -->
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery (para validaciones) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Scripts personalizados -->
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- Sección para scripts adicionales de cada vista -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

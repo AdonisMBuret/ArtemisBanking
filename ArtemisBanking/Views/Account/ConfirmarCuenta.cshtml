@@ -1,6 +1,6 @@
-﻿@model ArtemisBanking.Application.ViewModels.Account.OlvideContrasenaViewModel
+﻿@model ArtemisBanking.Web.ViewModels.Account.ConfirmarCuentaViewModel 
 @{
-    ViewData["Title"] = "Olvidé mi Contraseña";
+    ViewData["Title"] = "Confirmar Cuenta";
     Layout = null;
 }
 
@@ -15,23 +15,28 @@
 <body class="bg-light">
     <div class="container">
         <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="card shadow">
                     <div class="card-body p-5">
-                        <h2 class="text-center mb-3">Restablecer Contraseña</h2>
-                        <p class="text-muted text-center mb-4">Ingrese su nombre de usuario para recibir un token de reseteo</p>
+                        <h2 class="text-center mb-4">Confirmar Cuenta</h2>
 
-                        <form asp-action="OlvideContrasena" method="post">
+                        <form asp-action="ConfirmarCuenta" method="post">
                             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                             <div class="mb-3">
-                                <label asp-for="NombreUsuario" class="form-label"></label>
-                                <input asp-for="NombreUsuario" class="form-control" autofocus />
-                                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                                <label asp-for="UsuarioId" class="form-label">ID de Usuario</label>
+                                <input asp-for="UsuarioId" class="form-control" />
+                                <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Token" class="form-label"></label>
+                                <textarea asp-for="Token" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Token" class="text-danger"></span>
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Enviar Token</button>
+                                <button type="submit" class="btn btn-primary">Confirmar Cuenta</button>
                                 <a asp-action="Login" class="btn btn-secondary">Volver al Login</a>
                             </div>
                         </form>
