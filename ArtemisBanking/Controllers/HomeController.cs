@@ -1,7 +1,5 @@
 using ArtemisBanking.Application.Common;
-using ArtemisBanking.Models;
-using ArtemisBanking.Web.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+using ArtemisBanking.Application.ViewModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

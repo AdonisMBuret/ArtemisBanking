@@ -1,31 +1,18 @@
-﻿using ArtemisBanking.Application.Common;
-using ArtemisBanking.Application.DTOs;
+﻿using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
-using ArtemisBanking.ViewModels.Cliente;
-using ArtemisBanking.ViewModels.Prestamo;
-using ArtemisBanking.Web.ViewModels.Cliente;
+using ArtemisBanking.Application.ViewModels.Cliente;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ArtemisBanking.Application.ViewModels.Prestamo;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
-    /// Controlador para todas las funcionalidades del Cliente
-    /// Solo accesible para usuarios con rol "Cliente"
-    /// 
-    /// Este controlador maneja:
-    /// - Ver todos sus productos financieros (cuentas, préstamos, tarjetas)
-    /// - Gestionar beneficiarios (agregar, eliminar, listar)
-    /// - Realizar transacciones (express, a beneficiarios, entre cuentas propias)
-    /// - Pagar tarjetas de crédito
-    /// - Pagar préstamos
-    /// - Hacer avances de efectivo
-    /// </summary>
-    [Authorize(Policy = "SoloCliente")] // Solo los clientes pueden acceder
+   
+    [Authorize(Policy = "SoloCliente")] 
     public class ClienteController : Controller
     {
         // Servicios que vamos a usar
@@ -79,13 +66,7 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== HOME (LISTADO DE PRODUCTOS) ====================
 
-        /// <summary>
-        /// Página principal del cliente
-        /// Muestra todos sus productos financieros:
-        /// - Todas sus cuentas de ahorro (principal y secundarias)
-        /// - Sus préstamos activos (si tiene)
-        /// - Sus tarjetas de crédito activas (si tiene)
-        /// </summary>
+      
         [HttpGet]
         public async Task<IActionResult> Index()
         {

@@ -1,25 +1,14 @@
-﻿using ArtemisBanking.Application.Common;
-using ArtemisBanking.Application.DTOs;
+﻿using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
-using ArtemisBanking.ViewModels.Cajero;
-using ArtemisBanking.Web.ViewModels;
+using ArtemisBanking.Application.ViewModels;
+using ArtemisBanking.Application.ViewModels.Cajero;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
-    /// Controlador para todas las funcionalidades del Cajero
-    /// Solo accesible para usuarios con rol "Cajero"
-    /// Este controlador maneja todas las operaciones que un cajero puede realizar:
-    /// - Ver su dashboard con estadísticas del día
-    /// - Realizar depósitos a cuentas de clientes
-    /// - Realizar retiros de cuentas de clientes
-    /// - Procesar pagos a tarjetas de crédito
-    /// - Procesar pagos a préstamos
-    /// - Realizar transacciones entre cuentas de terceros
-    /// </summary>
+ 
     [Authorize(Policy = "SoloCajero")] // Solo los cajeros pueden acceder a este controlador
     public class CajeroController : Controller
     {

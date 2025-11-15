@@ -1,6 +1,6 @@
 using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.Interfaces;
-using ArtemisBanking.Web.ViewModels.Account;
+using ArtemisBanking.Application.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
