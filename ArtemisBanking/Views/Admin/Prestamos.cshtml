@@ -1,0 +1,131 @@
+﻿@model ArtemisBanking.Application.ViewModels.Prestamo.ListaPrestamosViewModel
+@{
+    ViewData["Title"] = "Gestión de Préstamos";
+}
+
+<div class="container-artemis fade-in">
+
+    <!-- Encabezado y Filtros -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">Gestión de Préstamos</h2>
+        <a asp-action="AsignarPrestamo" class="btn btn-artemis-primary">
+            <i class="bi bi-plus-circle me-2"></i>Asignar Préstamo
+        </a>
+    </div>
+
+    <!-- Formulario de Filtro -->
+    <div class="card-artemis mb-4">
+        <div class="card-body">
+            <form asp-action="Prestamos" method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label for="FiltroCedula" class="form-label-artemis">Filtrar por Cédula</label>
+                        <input name="cedula" id="FiltroCedula" class="form-control form-control-artemis" value="@Model.FiltroCedula" placeholder="Ingrese cédula del cliente..." />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="FiltroEstado" class="form-label-artemis">Filtrar por Estado</label>
+                        <select name="estado" id="FiltroEstado" class="form-select form-control-artemis">
+                            <option value="">Todos</option>
+                            <option value="true" selected="@(Model.FiltroEstado == true)">Activos</option>
+                            <option value="false" selected="@(Model.FiltroEstado == false)">Completados</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-grid">
+                        <button type="submit" class="btn btn-artemis-secondary">
+                            <i class="bi bi-search me-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Tabla de Préstamos -->
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nro. Préstamo</th>
+                    <th>Cliente</th>
+                    <th>Monto Capital</th>
+                    <th>Cuotas (Pag/Total)</th>
+                    <th>Monto Pendiente</th>
+                    <th>Tasa</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Prestamos == null || !Model.Prestamos.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center">No se encontraron préstamos.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Prestamos)
+                    {
+                        <tr>
+                            <td><strong>@item.NumeroPrestamo</strong></td>
+                            <td>@item.NombreCliente</td>
+                            <td>@item.MontoCapital.ToString("C2")</td>
+                            <td>@item.CuotasPagadas / @item.TotalCuotas</td>
+                            <td class="fw-bold">@item.MontoPendiente.ToString("C2")</td>
+                            <td>@item.TasaInteresAnual.ToString("N2")%</td>
+                            <td>
+                                @if (item.EstaAlDia)
+                                {
+                                    <span class="badge-artemis-success">Al día</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artemis-danger">En mora</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="DetallePrestamo" asp-route-id="@item.Id" class="btn btn-sm btn-outline-artemis" title="Ver Detalle">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                <a asp-action="EditarPrestamo" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Editar Tasa">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination pagination-artemis justify-content-end">
+                <!-- Anterior -->
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Prestamos" asp-route-pagina="@(Model.PaginaActual - 1)" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado">
+                        Anterior
+                    </a>
+                </li>
+
+                <!-- Números de Página -->
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-action="Prestamos" asp-route-pagina="@i" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado">@i</a>
+                    </li>
+                }
+
+                <!-- Siguiente -->
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Prestamos" asp-route-pagina="@(Model.PaginaActual + 1)" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado">
+                        Siguiente
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

@@ -1,0 +1,67 @@
+@model ArtemisBanking.Application.ViewModels.Prestamo.EditarPrestamoViewModel
+@{
+    ViewData["Title"] = "Editar Tasa de Préstamo";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0">Editar Tasa de Interés</h3>
+                </div>
+                <div class="card-body">
+
+                    <form asp-action="EditarPrestamo" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Mensaje de error general -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+
+                        <!-- Información del Préstamo (Solo lectura) -->
+                        <h5 class="text-artemis-secondary mb-3">Información del Préstamo</h5>
+                        <div class="bg-artemis-light p-3 rounded mb-4">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Nro. Préstamo:</dt>
+                                <dd class="col-sm-8">@Model.NumeroPrestamo</dd>
+
+                                <dt class="col-sm-4">Cliente:</dt>
+                                <dd class="col-sm-8">@Model.NombreCliente</dd>
+
+                                <dt class="col-sm-4">Tasa Actual:</dt>
+                                <dd class="col-sm-8 fw-bold">@Model.TasaInteresActual.ToString("N2")%</dd>
+                            </dl>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Campo para editar -->
+                        <div class="mb-3">
+                            <label asp-for="NuevaTasaInteres" class="form-label-artemis"></label>
+                            <input asp-for="NuevaTasaInteres" class="form-control form-control-artemis" type="number" step="0.01" />
+                            <span asp-validation-for="NuevaTasaInteres" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Al cambiar la tasa, se recalcularán todas las cuotas futuras (no pagadas) del préstamo.
+                            </small>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-action="Prestamos" class="btn btn-outline-artemis">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-save-fill me-2"></i>Actualizar Tasa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

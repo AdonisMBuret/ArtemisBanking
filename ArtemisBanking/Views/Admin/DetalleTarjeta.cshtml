@@ -1,0 +1,102 @@
+﻿@model ArtemisBanking.Application.ViewModels.TarjetaCredito.DetalleTarjetaViewModel
+@{
+    ViewData["Title"] = "Detalle de Tarjeta";
+}
+
+<div class="container-artemis fade-in">
+    <!-- Encabezado y Botón Volver -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">Detalle de Tarjeta de Crédito</h2>
+        <a asp-action="Tarjetas" class="btn btn-outline-artemis">
+            <i class="bi bi-arrow-left-circle me-2"></i>Volver al Listado
+        </a>
+    </div>
+
+    <!-- Información General de la Tarjeta -->
+    <div class="card-artemis mb-4">
+        <div class="card-header-artemis">
+            <h5 class="mb-0">Tarjeta Nro: **** **** **** @Model.UltimosCuatroDigitos</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">Cliente:</dt>
+                        <dd class="col-sm-7">@Model.NombreCliente</dd>
+
+                        <dt class="col-sm-5">Límite de Crédito:</dt>
+                        <dd class="col-sm-7">@Model.LimiteCredito.ToString("C2")</dd>
+
+                        <dt class="col-sm-5">Deuda Actual:</dt>
+                        <dd class="col-sm-7 fw-bold text-danger">@Model.DeudaActual.ToString("C2")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">Crédito Disponible:</dt>
+                        <dd class="col-sm-7 fw-bold text-success">@Model.CreditoDisponible.ToString("C2")</dd>
+
+                        <dt class="col-sm-5">Expiración:</dt>
+                        <dd class="col-sm-7">@Model.FechaExpiracion</dd>
+
+                        <dt class="col-sm-5">Estado:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.EstaActiva)
+                            {
+                                <span class="badge-artemis-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="badge-artemis-danger">Cancelada</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Consumos -->
+    <h4 class="text-artemis-secondary mb-3">Historial de Consumos</h4>
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Comercio</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Consumos == null || !Model.Consumos.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">No se encontraron consumos para esta tarjeta.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var consumo in Model.Consumos)
+                    {
+                        <tr>
+                            <td>@consumo.FechaConsumo.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@consumo.NombreComercio</td>
+                            <td>@consumo.Monto.ToString("C2")</td>
+                            <td>
+                                @if (consumo.EstadoConsumo == "APROBADO")
+                                {
+                                    <span class="badge-artemis-success">@consumo.EstadoConsumo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artemis-danger">@consumo.EstadoConsumo</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

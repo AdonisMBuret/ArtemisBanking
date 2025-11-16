@@ -1,0 +1,72 @@
+﻿@model ArtemisBanking.Application.ViewModels.Prestamo.AdvertenciaRiesgoViewModel
+@{
+    ViewData["Title"] = "Advertencia de Alto Riesgo";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis border-danger border-2">
+                <div class="card-header-artemis bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Advertencia de Alto Riesgo
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="alert alert-artemis-danger text-center">
+                        <strong class="fs-5">@Model.MensajeAdvertencia</strong>
+                    </div>
+
+                    <h5 class="text-artemis-secondary mt-4 mb-3">Resumen del Cliente</h5>
+                    <dl class="row">
+                        <dt class="col-sm-5">Cliente:</dt>
+                        <dd class="col-sm-7">@Model.NombreCliente</dd>
+
+                        <dt class="col-sm-5">Deuda Actual:</dt>
+                        <dd class="col-sm-7">@Model.DeudaActual.ToString("C2")</dd>
+
+                        <dt class="col-sm-5">Deuda Promedio Sistema:</dt>
+                        <dd class="col-sm-7">@Model.DeudaPromedio.ToString("C2")</dd>
+                    </dl>
+
+                    <hr>
+
+                    <h5 class="text-artemis-secondary mt-4 mb-3">Resumen del Nuevo Préstamo</h5>
+                    <dl class="row">
+                        <dt class="col-sm-5">Monto a Prestar:</dt>
+                        <dd class="col-sm-7">@Model.MontoCapital.ToString("C2")</dd>
+
+                        <dt class="col-sm-5">Deuda Total (con Préstamo):</dt>
+                        <dd class="col-sm-7 fw-bold text-danger fs-5">@Model.DeudaDespuesDelPrestamo.ToString("C2")</dd>
+                    </dl>
+
+                    <p class="text-center fw-bold mt-4">
+                        ¿Desea continuar y asignar este préstamo de alto riesgo de todas formas?
+                    </p>
+
+                    <!-- Formulario de Confirmación -->
+                    <form asp-action="ConfirmarPrestamoAltoRiesgo" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Campos ocultos para enviar los datos del préstamo -->
+                        <input type="hidden" asp-for="ClienteId" />
+                        <input type="hidden" asp-for="MontoCapital" />
+                        <input type="hidden" asp-for="PlazoMeses" />
+                        <input type="hidden" asp-for="TasaInteresAnual" />
+                        <input type="hidden" asp-for="NombreCliente" />
+
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a asp-action="Prestamos" class="btn btn-outline-artemis btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar (No Asignar)
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary btn-lg">
+                                <i class="bi bi-check-circle-fill me-2"></i>Confirmar y Asignar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+@model ArtemisBanking.Application.ViewModels.Prestamo.ConfigurarPrestamoViewModel
+@{
+    ViewData["Title"] = "Asignar Préstamo - Paso 2";
+
+    // Opciones para el plazo del préstamo (intervalos de 6 meses)
+    var opcionesPlazo = new List<SelectListItem>();
+    for (int i = 6; i <= 60; i += 6)
+    {
+        opcionesPlazo.Add(new SelectListItem { Value = i.ToString(), Text = $"{i} meses" });
+    }
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0">Configurar Préstamo</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de Configuración -->
+                    <form asp-action="ProcesarAsignacionPrestamo" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ClienteId" />
+
+                        <!-- Mensaje de error general -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+
+                        <!-- Info del Cliente -->
+                        <h5 class="text-artemis-secondary mb-3">Cliente Seleccionado</h5>
+                        <div class="bg-artemis-light p-3 rounded mb-4">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Nombre:</dt>
+                                <dd class="col-sm-8">@Model.NombreCliente</dd>
+
+                                <dt class="col-sm-4">Deuda Actual:</dt>
+                                <dd class="col-sm-8">@Model.DeudaActualCliente.ToString("C2")</dd>
+
+                                <dt class="col-sm-4">Deuda Promedio:</dt>
+                                <dd class="col-sm-8">@Model.DeudaPromedio.ToString("C2")</dd>
+                            </dl>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Configuración del Préstamo -->
+                        <h5 class="text-artemis-secondary mb-3">Detalles del Préstamo</h5>
+                        <div class="mb-3">
+                            <label asp-for="MontoCapital" class="form-label-artemis"></label>
+                            <input asp-for="MontoCapital" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 100000.00" />
+                            <span asp-validation-for="MontoCapital" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="TasaInteresAnual" class="form-label-artemis"></label>
+                            <input asp-for="TasaInteresAnual" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 12.5" />
+                            <span asp-validation-for="TasaInteresAnual" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PlazoMeses" class="form-label-artemis"></label>
+                            <select asp-for="PlazoMeses" class="form-select form-control-artemis" asp-items="opcionesPlazo">
+                                <option value="">Seleccione un plazo...</option>
+                            </select>
+                            <span asp-validation-for="PlazoMeses" class="text-danger"></span>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between gap-2 mt-4">
+                            <a asp-action="AsignarPrestamo" class="btn btn-outline-artemis">
+                                <i class="bi bi-arrow-left-circle me-2"></i>Volver (Seleccionar Cliente)
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-check-circle-fill me-2"></i>Asignar Préstamo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

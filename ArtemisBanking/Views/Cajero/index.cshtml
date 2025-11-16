@@ -1,0 +1,99 @@
+﻿@model ArtemisBanking.Application.ViewModels.DashboardCajeroViewModel
+@{
+    ViewData["Title"] = "Dashboard Cajero";
+}
+
+<div class="container-fluid mt-4 fade-in">
+
+    <h2 class="text-artemis-primary mb-4">Resumen del Día</h2>
+    <p class="text-muted">Estos son sus indicadores para la jornada actual.</p>
+
+    <!-- Fila de Indicadores -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.TransaccionesDelDia</div>
+                        <div class="indicator-label">Transacciones (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.PagosDelDia</div>
+                        <div class="indicator-label">Pagos (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100" style="border-left-color: #28a745;">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon" style="color: #28a745;">
+                            <i class="bi bi-plus-circle-fill"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value" style="color: #155724;">@Model.DepositosDelDia</div>
+                        <div class="indicator-label" style="color: #155724;">Depósitos (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100" style="border-left-color: #dc3545;">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon" style="color: #dc3545;">
+                            <i class="bi bi-dash-circle-fill"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value" style="color: #721c24;">@Model.RetirosDelDia</div>
+                        <div class="indicator-label" style="color: #721c24;">Retiros (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row g-3">
+        <h4 class="text-artemis-secondary mb-2 mt-4">Acciones Rápidas</h4>
+        <div class="col-md-4">
+            <a asp-action="Deposito" class="btn btn-artemis-primary btn-lg w-100 py-3">
+                <i class="bi bi-plus-circle-fill me-2"></i>Realizar Depósito
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Retiro" class="btn btn-artemis-danger btn-lg w-100 py-3" style="background-color: var(--morado-oscuro); border-color: var(--morado-oscuro);">
+                <i class="bi bi-dash-circle-fill me-2"></i>Realizar Retiro
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="TransaccionTerceros" class="btn btn-artemis-secondary btn-lg w-100 py-3">
+                <i class="bi bi-arrow-left-right me-2"></i>Transferir a Terceros
+            </a>
+        </div>
+    </div>
+</div>

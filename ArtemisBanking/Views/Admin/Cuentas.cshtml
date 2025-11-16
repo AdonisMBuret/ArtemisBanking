@@ -1,0 +1,137 @@
+@model ArtemisBanking.Application.ViewModels.CuentaAhorro.ListaCuentasViewModel
+@{
+    ViewData["Title"] = "Gestión de Cuentas de Ahorro";
+}
+
+<div class="container-artemis fade-in">
+
+    <!-- Encabezado y Botón -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">Gestión de Cuentas de Ahorro</h2>
+        <a asp-action="AsignarCuenta" class="btn btn-artemis-primary">
+            <i class="bi bi-plus-circle me-2"></i>Asignar Cuenta Secundaria
+        </a>
+    </div>
+
+    <!-- Formulario de Filtro -->
+    <div class="card-artemis mb-4">
+        <div class="card-body">
+            <form asp-action="Cuentas" method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="FiltroCedula" class="form-label-artemis">Filtrar por Cédula</label>
+                        <input name="cedula" id="FiltroCedula" class="form-control form-control-artemis" value="@Model.FiltroCedula" placeholder="Ingrese cédula del cliente..." />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="FiltroTipo" class="form-label-artemis">Filtrar por Tipo</label>
+                        <select name="tipo" id="FiltroTipo" class="form-select form-control-artemis">
+                            <option value="">Todas</option>
+                            <option value="true" selected="@(Model.FiltroTipo == true)">Principal</option>
+                            <option value="false" selected="@(Model.FiltroTipo == false)">Secundaria</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="FiltroEstado" class="form-label-artemis">Filtrar por Estado</label>
+                        <select name="estado" id="FiltroEstado" class="form-select form-control-artemis">
+                            <option value="">Todos</option>
+                            <option value="true" selected="@(Model.FiltroEstado == true)">Activas</option>
+                            <option value="false" selected="@(Model.FiltroEstado == false)">Canceladas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-artemis-secondary">
+                            <i class="bi bi-search me-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Cuentas -->
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nro. Cuenta</th>
+                    <th>Cliente</th>
+                    <th>Balance</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Cuentas == null || !Model.Cuentas.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron cuentas de ahorro.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Cuentas)
+                    {
+                        <tr>
+                            <td><strong>@item.NumeroCuenta</strong></td>
+                            <td>@item.NombreCliente</td>
+                            <td class="fw-bold">@item.Balance.ToString("C2")</td>
+                            <td>
+                                @if (item.EsPrincipal)
+                                {
+                                    <span class="badge-artemis-secondary">@item.TipoCuenta</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">@item.TipoCuenta</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.EstaActiva)
+                                {
+                                    <span class="badge-artemis-success">Activa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artemis-danger">Cancelada</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="DetalleCuenta" asp-route-id="@item.Id" class="btn btn-sm btn-outline-artemis" title="Ver Detalle">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                @if (item.EstaActiva && !item.EsPrincipal) // Solo se pueden cancelar cuentas secundarias activas
+                                {
+                                    <a asp-action="CancelarCuenta" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Cancelar Cuenta">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination pagination-artemis justify-content-end">
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Cuentas" asp-route-pagina="@(Model.PaginaActual - 1)" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado" asp-route-tipo="@Model.FiltroTipo">Anterior</a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-action="Cuentas" asp-route-pagina="@i" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado" asp-route-tipo="@Model.FiltroTipo">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Cuentas" asp-route-pagina="@(Model.PaginaActual + 1)" asp-route-cedula="@Model.FiltroCedula" asp-route-estado="@Model.FiltroEstado" asp-route-tipo="@Model.FiltroTipo">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

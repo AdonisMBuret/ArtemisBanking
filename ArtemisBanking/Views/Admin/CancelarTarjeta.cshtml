@@ -1,0 +1,79 @@
+﻿@model ArtemisBanking.Application.ViewModels.TarjetaCredito.CancelarTarjetaViewModel
+@{
+    ViewData["Title"] = "Cancelar Tarjeta de Crédito";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis border-danger border-2">
+                <div class="card-header-artemis bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Cancelación
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+
+                    <h5 class="text-artemis-secondary mt-2 mb-3">Información de la Tarjeta</h5>
+                    <dl class="row">
+                        <dt class="col-sm-5">Cliente:</dt>
+                        <dd class="col-sm-7">@Model.NombreCliente</dd>
+
+                        <dt class="col-sm-5">Tarjeta Nro:</dt>
+                        <dd class="col-sm-7">**** **** **** @Model.UltimosCuatroDigitos</dd>
+
+                        <dt class="col-sm-5">Deuda Actual:</dt>
+                        <dd class="col-sm-7 fw-bold text-danger fs-5">@Model.DeudaActual.ToString("C2")</dd>
+                    </dl>
+
+                    <hr>
+
+                    <!-- Lógica de Confirmación -->
+                    @if (Model.DeudaActual > 0)
+                    {
+                        <div class="alert alert-artemis-danger text-center">
+                            <strong class="fs-5">
+                                <i class="bi bi-x-octagon-fill me-2"></i>¡Acción Requerida!
+                            </strong>
+                            <p class="mb-0 mt-2">
+                                Esta tarjeta no puede ser cancelada porque tiene una deuda pendiente de <strong>@Model.DeudaActual.ToString("C2")</strong>.
+                                El cliente debe saldar la deuda antes de poder cancelar la tarjeta.
+                            </p>
+                        </div>
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a asp-action="Tarjetas" class="btn btn-outline-artemis btn-lg">
+                                <i class="bi bi-arrow-left-circle me-2"></i>Volver al Listado
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-artemis-warning text-center">
+                            <strong class="fs-5">
+                                ¿Está seguro de que desea cancelar esta tarjeta?
+                            </strong>
+                            <p class="mb-0 mt-2">
+                                Esta acción es irreversible. La tarjeta será marcada como "Cancelada" y no podrá ser utilizada nuevamente.
+                            </p>
+                        </div>
+
+                        <!-- Formulario de Confirmación -->
+                        <form asp-action="ConfirmarCancelacionTarjeta" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a asp-action="Tarjetas" class="btn btn-outline-artemis btn-lg">
+                                    <i class="bi bi-x-circle me-2"></i>No, volver
+                                </a>
+                                <button type="submit" class="btn btn-artemis-danger btn-lg">
+                                    <i class="bi bi-trash-fill me-2"></i>Sí, Cancelar Tarjeta
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

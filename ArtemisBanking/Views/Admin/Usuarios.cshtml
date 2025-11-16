@@ -1,0 +1,135 @@
+﻿@model ArtemisBanking.Application.ViewModels.Usuario.ListaUsuariosViewModel
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="container-artemis fade-in">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">Gestión de Usuarios</h2>
+        <a asp-action="CrearUsuario" class="btn btn-artemis-primary">
+            <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Usuario
+        </a>
+    </div>
+
+    <form asp-action="Usuarios" method="get" class="mb-3">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label for="filtroRol" class="form-label-artemis">Filtrar por Rol</label>
+                <select name="filtroRol" id="filtroRol" class="form-select form-control-artemis" onchange="this.form.submit()">
+                    <option value="">Todos los Roles</option>
+                    <option value="Administrador" selected="@(Model.FiltroRol == "Administrador")">Administrador</option>
+                    <option value="Cajero" selected="@(Model.FiltroRol == "Cajero")">Cajero</option>
+                    <option value="Cliente" selected="@(Model.FiltroRol == "Cliente")">Cliente</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().NombreUsuario)</th>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().Cedula)</th>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().NombreCompleto)</th>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().Correo)</th>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().TipoUsuario)</th>
+                    <th>@Html.DisplayNameFor(m => m.Usuarios.First().EstaActivo)</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Usuarios == null || !Model.Usuarios.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No se encontraron usuarios.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Usuarios)
+                    {
+                        <tr>
+                            <td>@item.NombreUsuario</td>
+                            <td>@item.Cedula</td>
+                            <td>@item.NombreCompleto</td>
+                            <td>@item.Correo</td>
+                            <td>
+                                @if (item.TipoUsuario == "Administrador")
+                                {
+                                    <span class="badge-artemis-secondary">@item.TipoUsuario</span>
+                                }
+                                else if (item.TipoUsuario == "Cajero")
+                                {
+                                    <span class="badge-artemis-primary">@item.TipoUsuario</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">@item.TipoUsuario</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.EstaActivo)
+                                {
+                                    <span class="badge-artemis-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artemis-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                [cite_start]@if (item.PuedeEditar) // [cite: 4355] No permite editarse a sí mismo [cite: 2530]
+                                {
+                                    <a asp-action="EditarUsuario" asp-route-id="@item.Id" class="btn btn-sm btn-outline-artemis me-1" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+
+                                    <form asp-action="CambiarEstadoUsuario" asp-route-id="@item.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('¿Está seguro de que desea @(item.EstaActivo ? "desactivar" : "activar") este usuario?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm @(item.EstaActivo ? "btn-outline-danger" : "btn-outline-success")"
+                                                title="@(item.EstaActivo ? "Desactivar" : "Activar")">
+                                            <i class="bi @(item.EstaActivo ? "bi-toggle-off" : "bi-toggle-on")"></i>
+                                        </button>
+                                    </form>
+                                }
+                                                else
+                                {
+                                    <span class="text-muted fst-italic">No aplica</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination pagination-artemis justify-content-end">
+                <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Usuarios" asp-route-pagina="@(Model.PaginaActual - 1)" asp-route-filtroRol="@Model.FiltroRol">
+                        Anterior
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-action="Usuarios" asp-route-pagina="@i" asp-route-filtroRol="@Model.FiltroRol">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Usuarios" asp-route-pagina="@(Model.PaginaActual + 1)" asp-route-filtroRol="@Model.FiltroRol">
+                        Siguiente
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

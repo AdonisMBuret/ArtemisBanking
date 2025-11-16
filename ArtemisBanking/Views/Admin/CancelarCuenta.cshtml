@@ -1,0 +1,88 @@
+﻿@model ArtemisBanking.Application.ViewModels.CuentaAhorro.CancelarCuentaViewModel
+@{
+    ViewData["Title"] = "Cancelar Cuenta de Ahorro";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis border-danger border-2">
+                <div class="card-header-artemis bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Cancelación
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+
+                    <h5 class="text-artemis-secondary mt-2 mb-3">Información de la Cuenta</h5>
+                    <dl class="row">
+                        <dt class="col-sm-5">Cliente:</dt>
+                        <dd class="col-sm-7">@Model.NombreCliente</dd>
+
+                        <dt class="col-sm-5">Nro. Cuenta:</dt>
+                        <dd class="col-sm-7">@Model.NumeroCuenta</dd>
+
+                        <dt class="col-sm-5">Tipo:</dt>
+                        <dd class="col-sm-7"><span class="badge bg-light text-dark border">Secundaria</span></dd>
+
+                        <dt class="col-sm-5">Balance Actual:</dt>
+                        <dd class="col-sm-7 fw-bold @(Model.Balance > 0 ? "text-danger" : "text-success") fs-5">
+                            @Model.Balance.ToString("C2")
+                        </dd>
+                    </dl>
+
+                    <hr>
+
+                    <!-- Lógica de Confirmación -->
+                    @if (Model.EsPrincipal)
+                    {
+                        <div class="alert alert-artemis-danger text-center">
+                            <strong class="fs-5">
+                                <i class="bi bi-x-octagon-fill me-2"></i>¡Acción No Permitida!
+                            </strong>
+                            <p class="mb-0 mt-2">
+                                Las cuentas de ahorro <strong>Principales</strong> no pueden ser canceladas.
+                            </p>
+                        </div>
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a asp-action="Cuentas" class="btn btn-outline-artemis btn-lg">
+                                <i class="bi bi-arrow-left-circle me-2"></i>Volver al Listado
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-artemis-warning text-center">
+                            <strong class="fs-5">
+                                ¿Está seguro de que desea cancelar esta cuenta secundaria?
+                            </strong>
+                            @if (Model.Balance > 0)
+                            {
+                                <p class="mb-0 mt-2">
+                                    El balance actual de <strong>@Model.Balance.ToString("C2")</strong> será transferido automáticamente
+                                    a la cuenta principal del cliente.
+                                </p>
+                            }
+                            <p class="mb-0 mt-2">Esta acción es irreversible.</p>
+                        </div>
+
+                        <!-- Formulario de Confirmación -->
+                        <form asp-action="ConfirmarCancelacionCuenta" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a asp-action="Cuentas" class="btn btn-outline-artemis btn-lg">
+                                    <i class="bi bi-x-circle me-2"></i>No, volver
+                                </a>
+                                <button type="submit" class="btn btn-artemis-danger btn-lg">
+                                    <i class="bi bi-trash-fill me-2"></i>Sí, Cancelar Cuenta
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

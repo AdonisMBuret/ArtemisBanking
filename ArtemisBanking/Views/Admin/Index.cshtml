@@ -1,0 +1,165 @@
+﻿@model ArtemisBanking.Application.ViewModels.DashboardAdminViewModel
+@{
+    ViewData["Title"] = "Dashboard Administrador";
+}
+
+<div class="container-fluid mt-4 fade-in">
+
+    <h2 class="text-artemis-primary mb-4">Dashboard Principal</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.TotalTransacciones</div>
+                        <div class="indicator-label">Transacciones Totales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-calendar-day"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.TransaccionesDelDia</div>
+                        <div class="indicator-label">Transacciones (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.TotalPagos</div>
+                        <div class="indicator-label">Pagos Totales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.PagosDelDia</div>
+                        <div class="indicator-label">Pagos (Hoy)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.ClientesActivos</div>
+                        <div class="indicator-label">Clientes Activos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-person-x-fill"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.ClientesInactivos</div>
+                        <div class="indicator-label">Clientes Inactivos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value">@Model.TotalProductosFinancieros</div>
+                        <div class="indicator-label">Productos Financieros</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="indicator-card h-100" style="border-left-color: var(--morado-suave);">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="indicator-icon" style="color: var(--morado-suave);">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="indicator-value text-artemis-secondary">@Model.DeudaPromedioCliente.ToString("C2")</div>
+                        <div class="indicator-label" style="color: var(--morado-suave);">Deuda Promedio / Cliente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card-artemis">
+                <div class="card-body text-center">
+                    <h3 class_="text-artemis-primary"><i class="bi bi-cash-stack"></i></h3>
+                    <h4 class="fw-bold">@Model.PrestamosVigentes</h4>
+                    <p class="text-muted mb-0">Préstamos Vigentes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-artemis">
+                <div class="card-body text-center">
+                    <h3 class="text-artemis-primary"><i class="bi bi-credit-card"></i></h3>
+                    <h4 class="fw-bold">@Model.TarjetasActivas</h4>
+                    <p class="text-muted mb-0">Tarjetas Activas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-artemis">
+                <div class="card-body text-center">
+                    <h3 class="text-artemis-primary"><i class="bi bi-piggy-bank"></i></h3>
+                    <h4 class="fw-bold">@Model.CuentasAhorro</h4>
+                    <p class="text-muted mb-0">Cuentas de Ahorro</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
