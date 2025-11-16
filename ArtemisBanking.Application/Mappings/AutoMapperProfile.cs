@@ -1,5 +1,7 @@
-﻿using ArtemisBanking.Domain.Entities;
-using ArtemisBanking.Application.DTOs;
+﻿using ArtemisBanking.Application.DTOs;
+using ArtemisBanking.Application.ViewModels;
+using ArtemisBanking.Application.ViewModels.Usuario;
+using ArtemisBanking.Domain.Entities;
 using AutoMapper;
 
 namespace ArtemisBanking.Application.Mappings
@@ -16,6 +18,15 @@ namespace ArtemisBanking.Application.Mappings
                     opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.NombreUsuario,
                     opt => opt.MapFrom(src => src.UserName));
+
+            // ==================== MAPEOS DE VIEWMODEL <-> DTO (¡AQUÍ!) ====================
+
+            
+            CreateMap<DashboardCajeroDTO, DashboardCajeroViewModel>();
+
+            CreateMap<CrearUsuarioViewModel, CrearUsuarioDTO>();
+
+            CreateMap<EditarUsuarioViewModel, ActualizarUsuarioDTO>();
 
             // ==================== MAPEO DE CUENTA DE AHORRO ====================
             CreateMap<CuentaAhorro, CuentaAhorroDTO>()
