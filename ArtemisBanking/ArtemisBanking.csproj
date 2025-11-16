@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Home\**" />
+    <Content Remove="Views\Home\**" />
+    <EmbeddedResource Remove="Views\Home\**" />
+    <None Remove="Views\Home\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\Admin\ConfigurarPrestamo.cshtml" />
     <Content Remove="Views\Admin\Cuentas.cshtml" />
     <Content Remove="Views\Admin\EditarPrestamo.cshtml" />
@@ -24,10 +31,6 @@
     <ProjectReference Include="..\ArtemisBanking.Application\ArtemisBanking.Application.csproj" />
     <ProjectReference Include="..\ArtemisBanking.Domain\ArtemisBanking.Domain.csproj" />
     <ProjectReference Include="..\ArtemisBanking.Infrastructure\ArtemisBanking.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\Home\" />
   </ItemGroup>
 
   <ItemGroup>

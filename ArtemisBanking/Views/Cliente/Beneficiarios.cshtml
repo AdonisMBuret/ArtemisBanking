@@ -1,0 +1,84 @@
+﻿@model ArtemisBanking.Application.ViewModels.Cliente.ListaBeneficiariosViewModel
+@{
+    ViewData["Title"] = "Mis Beneficiarios";
+    // Usamos un ViewModel separado para el formulario de agregar
+    var agregarModel = new ArtemisBanking.Application.ViewModels.Cliente.AgregarBeneficiarioViewModel();
+}
+
+<div class="container-artemis fade-in">
+    <h2 class="text-artemis-primary mb-4">@ViewData["Title"]</h2>
+
+    <div class="row g-4">
+        <!-- Columna para Agregar Beneficiario -->
+        <div class="col-lg-4">
+            <div class="card-artemis sticky-top" style="top: 80px;">
+                <div class="card-header-artemis">
+                    <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Agregar Beneficiario</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AgregarBeneficiario" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="@agregarModel.NumeroCuenta" class="form-label-artemis"></label>
+                            <input asp-for="@agregarModel.NumeroCuenta" class="form-control form-control-artemis" placeholder="Ingrese 9 dígitos" />
+                            <span asp-validation-for="@agregarModel.NumeroCuenta" class="text-danger"></span>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Agregar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna para Listar Beneficiarios -->
+        <div class="col-lg-8">
+            <h4 class="text-artemis-secondary mb-3">Beneficiarios Guardados</h4>
+            @if (Model.Beneficiarios == null || !Model.Beneficiarios.Any())
+            {
+                <div class="card-artemis">
+                    <div class="card-body text-center text-muted">
+                        No tienes beneficiarios guardados. Agrega uno usando el formulario.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-artemis table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Nro. de Cuenta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Beneficiarios)
+                            {
+                                <tr>
+                                    <td>@item.NombreBeneficiario @item.ApellidoBeneficiario</td>
+                                    <td><strong>@item.NumeroCuentaBeneficiario</strong></td>
+                                    <td>
+                                        <form asp-action="EliminarBeneficiario" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar a este beneficiario?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,106 @@
+﻿@model ArtemisBanking.Application.ViewModels.Cliente.DetalleCuentaClienteViewModel
+@{
+    ViewData["Title"] = "Detalle de Cuenta";
+}
+
+<div class="container-artemis fade-in">
+    <!-- Encabezado y Botón Volver -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">@ViewData["Title"]</h2>
+        <a asp-action="Index" class="btn btn-outline-artemis">
+            <i class="bi bi-arrow-left-circle me-2"></i>Volver al Resumen
+        </a>
+    </div>
+
+    <!-- Información General de la Cuenta -->
+    <div class="card-artemis mb-4">
+        <div class="card-header-artemis">
+            <h5 class="mb-0">Cuenta Nro: @Model.NumeroCuenta</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">Tipo de Cuenta:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.EsPrincipal)
+                            {
+                                <span class="badge-artemis-primary">@Model.TipoCuenta</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark border">@Model.TipoCuenta</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">Balance Actual:</dt>
+                        <dd class="col-sm-7 fw-bold fs-4 text-success">@Model.Balance.ToString("C2")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Transacciones -->
+    <h4 class="text-artemis-secondary mb-3">Historial de Transacciones</h4>
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Monto</th>
+                    <th>Origen</th>
+                    <th>Beneficiario</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Transacciones == null || !Model.Transacciones.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron transacciones para esta cuenta.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var tx in Model.Transacciones)
+                    {
+                        var montoClase = tx.TipoTransaccion == "CREDITO" ? "text-success" : "text-danger";
+                        var montoSigno = tx.TipoTransaccion == "CREDITO" ? "+" : "-";
+
+                        <tr>
+                            <td>@tx.FechaTransaccion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @if (tx.TipoTransaccion == "CREDITO")
+                                {
+                                    <span class="badge bg-success-subtle text-success-emphasis">@tx.TipoTransaccion</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger-emphasis">@tx.TipoTransaccion</span>
+                                }
+                            </td>
+                            <td class="fw-bold @montoClase">@montoSigno @tx.Monto.ToString("C2")</td>
+                            <td>@tx.Origen</td>
+                            <td>@tx.Beneficiario</td>
+                            <td>
+                                @if (tx.EstadoTransaccion == "APROBADA")
+                                {
+                                    <span class="badge-artemis-success">@tx.EstadoTransaccion</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artemis-danger">@tx.EstadoTransaccion</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div> 

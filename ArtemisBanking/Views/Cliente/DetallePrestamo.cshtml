@@ -1,0 +1,87 @@
+﻿@model ArtemisBanking.Application.ViewModels.Cliente.DetallePrestamoClienteViewModel
+@{
+    ViewData["Title"] = "Detalle de Préstamo";
+}
+
+<div class="container-artemis fade-in">
+    <!-- Encabezado y Botón Volver -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-artemis-primary mb-0">@ViewData["Title"]</h2>
+        <a asp-action="Index" class="btn btn-outline-artemis">
+            <i class="bi bi-arrow-left-circle me-2"></i>Volver al Resumen
+        </a>
+    </div>
+
+    <!-- Información General del Préstamo -->
+    <div class="card-artemis mb-4">
+        <div class="card-header-artemis">
+            <h5 class="mb-0">Préstamo Nro: @Model.NumeroPrestamo</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">Monto Capital:</dt>
+                <dd class="col-sm-8">@Model.MontoCapital.ToString("C2")</dd>
+
+                <dt class="col-sm-4">Tasa de Interés:</dt>
+                <dd class="col-sm-8">@Model.TasaInteresAnual.ToString("N2")%</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Tabla de Amortización -->
+    <h4 class="text-artemis-secondary mb-3">Tabla de Amortización</h4>
+    <div class="table-responsive">
+        <table class="table table-artemis table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nro. Cuota</th>
+                    <th>Fecha de Pago</th>
+                    <th>Monto de Cuota</th>
+                    <th>Estado</th>
+                    <th>Atrasada</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.TablaAmortizacion == null || !Model.TablaAmortizacion.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">No se encontraron cuotas para este préstamo.</td>
+                    </tr>
+                }
+                else
+                {
+                    int contadorCuota = 1;
+                    @foreach (var cuota in Model.TablaAmortizacion)
+                    {
+                        <tr>
+                            <td><strong>@contadorCuota</strong></td>
+                            <td>@cuota.FechaPago.ToString("dd/MM/yyyy")</td>
+                            <td>@cuota.MontoCuota.ToString("C2")</td>
+                            <td>
+                                @if (cuota.EstaPagada)
+                                {
+                                    <span class="badge-artemis-success">Pagada</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">Pendiente</span>
+                                }
+                            </td>
+                            <td>
+                                @if (cuota.EstaAtrasada)
+                                {
+                                    <span class="badge-artemis-danger">Sí</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">No</span>
+                                }
+                            </td>
+                        </tr>
+                        contadorCuota++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

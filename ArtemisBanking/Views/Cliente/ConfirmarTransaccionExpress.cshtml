@@ -1,0 +1,50 @@
+﻿@model ArtemisBanking.Application.ViewModels.Cliente.ConfirmarTransaccionViewModel
+@{
+    ViewData["Title"] = "Confirmar Transacción";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-artemis-info text-center">
+                        <strong class="fs-5">Por favor, verifique los datos antes de confirmar.</strong>
+                    </div>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-5">Destinatario:</dt>
+                        <dd class="col-sm-7">@Model.NombreDestinatario @Model.ApellidoDestinatario</dd>
+
+                        <dt class="col-sm-5">Cuenta Destino:</dt>
+                        <dd class="col-sm-7">@Model.NumeroCuentaDestino</dd>
+
+                        <dt class="col-sm-5">Monto a Enviar:</dt>
+                        <dd class="col-sm-7 fw-bold fs-4 text-artemis-primary">@Model.Monto.ToString("C2")</dd>
+                    </dl>
+
+                    <form asp-action="ConfirmarTransaccionExpress" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Campos ocultos para enviar los datos -->
+                        <input type="hidden" asp-for="CuentaOrigenId" />
+                        <input type="hidden" asp-for="NumeroCuentaDestino" />
+                        <input type="hidden" asp-for="Monto" />
+
+                        <div class="d-flex justify-content-between gap-3 mt-4">
+                            <a asp-action="TransaccionExpress" class="btn btn-outline-artemis btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary btn-lg">
+                                <i class="bi bi-send-check-fill me-2"></i>Confirmar Envío
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
