@@ -1,2 +1,26 @@
-﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+﻿<!-- jQuery Validation -->
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+
+<!-- Mensajes de validación en español -->
+<script>
+    jQuery.extend(jQuery.validator.messages, {
+        required: "Este campo es obligatorio.",
+        remote: "Por favor, corrige este campo.",
+        email: "Por favor, ingresa un correo electrónico válido.",
+        url: "Por favor, ingresa una URL válida.",
+        date: "Por favor, ingresa una fecha válida.",
+        dateISO: "Por favor, ingresa una fecha válida (ISO).",
+        number: "Por favor, ingresa un número válido.",
+        digits: "Por favor, ingresa solo dígitos.",
+        creditcard: "Por favor, ingresa un número de tarjeta válido.",
+        equalTo: "Por favor, ingresa el mismo valor de nuevo.",
+        extension: "Por favor, ingresa un valor con una extensión válida.",
+        maxlength: jQuery.validator.format("Por favor, no ingreses más de {0} caracteres."),
+        minlength: jQuery.validator.format("Por favor, ingresa al menos {0} caracteres."),
+        rangelength: jQuery.validator.format("Por favor, ingresa un valor entre {0} y {1} caracteres de largo."),
+        range: jQuery.validator.format("Por favor, ingresa un valor entre {0} y {1}."),
+        max: jQuery.validator.format("Por favor, ingresa un valor menor o igual a {0}."),
+        min: jQuery.validator.format("Por favor, ingresa un valor mayor o igual a {0}.")
+    });
+</script>

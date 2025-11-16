@@ -20,4 +20,9 @@
     <ProjectReference Include="..\ArtemisBanking.Infrastructure\ArtemisBanking.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Admin\" />
+    <Folder Include="Views\Home\" />
+  </ItemGroup>
+
 </Project>
