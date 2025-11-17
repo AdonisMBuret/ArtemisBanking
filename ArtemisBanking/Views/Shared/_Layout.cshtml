@@ -4,191 +4,186 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Artemis Banking</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
-    <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="~/css/artemis-styles.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-artemis sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                <i class="bi bi-bank2"></i> Artemis Banking
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    @if (User.Identity?.IsAuthenticated == true)
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-bank2"></i> Artemis Banking
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    @if (User.Identity.IsAuthenticated)
                     {
                         @if (User.IsInRole("Administrador"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Admin")">
-                                    <i class="bi bi-speedometer2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Usuarios", "Admin")">
-                                    <i class="bi bi-people"></i> Usuarios
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Prestamos", "Admin")">
-                                    <i class="bi bi-cash-stack"></i> Préstamos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Tarjetas", "Admin")">
-                                    <i class="bi bi-credit-card"></i> Tarjetas
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Cuentas", "Admin")">
-                                    <i class="bi bi-piggy-bank"></i> Cuentas
-                                </a>
-                            </li>
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Usuarios">
+                                        <i class="bi bi-people"></i> Usuarios
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Prestamos">
+                                        <i class="bi bi-cash-coin"></i> Préstamos
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Tarjetas">
+                                        <i class="bi bi-credit-card"></i> Tarjetas
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Cuentas">
+                                        <i class="bi bi-piggy-bank"></i> Cuentas
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                        else if (User.IsInRole("Cajero"))
+                        {
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cajero" asp-action="Index">
+                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cajero" asp-action="Deposito">
+                                        <i class="bi bi-arrow-down-circle"></i> Depósito
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cajero" asp-action="Retiro">
+                                        <i class="bi bi-arrow-up-circle"></i> Retiro
+                                    </a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-wallet2"></i> Pagos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarTarjeta">Pagar Tarjeta</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarPrestamo">Pagar Préstamo</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cajero" asp-action="TransaccionTerceros">
+                                        <i class="bi bi-arrow-left-right"></i> Transacciones
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                        else if (User.IsInRole("Cliente"))
+                        {
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cliente" asp-action="Index">
+                                        <i class="bi bi-house"></i> Inicio
+                                    </a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-arrow-left-right"></i> Transacciones
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="TransaccionExpress">Express</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarTarjeta">Pagar Tarjeta</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarPrestamo">Pagar Préstamo</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarBeneficiario">Pagar Beneficiario</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cliente" asp-action="Beneficiarios">
+                                        <i class="bi bi-person-check"></i> Beneficiarios
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cliente" asp-action="AvanceEfectivo">
+                                        <i class="bi bi-cash-stack"></i> Avance
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cliente" asp-action="TransferirEntreCuentas">
+                                        <i class="bi bi-arrow-repeat"></i> Transferir
+                                    </a>
+                                </li>
+                            </ul>
                         }
 
-                        @if (User.IsInRole("Cajero"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Cajero")">
-                                    <i class="bi bi-speedometer2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Deposito", "Cajero")">
-                                    <i class="bi bi-plus-circle"></i> Depósito
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Retiro", "Cajero")">
-                                    <i class="bi bi-dash-circle"></i> Retiro
-                                </a>
-                            </li>
+                        <ul class="navbar-nav">
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="pagosCajero" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-currency-dollar"></i> Pagos
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="@Url.Action("PagarTarjeta", "Cajero")">Pagar Tarjeta</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("PagarPrestamo", "Cajero")">Pagar Préstamo</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <form method="post" asp-controller="Account" asp-action="Logout">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("TransaccionTerceros", "Cajero")">
-                                    <i class="bi bi-arrow-left-right"></i> Transacciones
-                                </a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Cliente"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Cliente")">
-                                    <i class="bi bi-house"></i> Inicio
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="transacciones" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-arrow-left-right"></i> Transacciones
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="@Url.Action("TransaccionExpress", "Cliente")">Express</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("PagarTarjeta", "Cliente")">Pagar Tarjeta</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("PagarPrestamo", "Cliente")">Pagar Préstamo</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("PagarBeneficiario", "Cliente")">Pagar Beneficiario</a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Beneficiarios", "Cliente")">
-                                    <i class="bi bi-people"></i> Beneficiarios
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("AvanceEfectivo", "Cliente")">
-                                    <i class="bi bi-cash-coin"></i> Avance
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("TransferirEntreCuentas", "Cliente")">
-                                    <i class="bi bi-shuffle"></i> Transferir
-                                </a>
-                            </li>
-                        }
-
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="nav-link btn btn-link">
-                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                </button>
-                            </form>
-                        </li>
+                        </ul>
                     }
-                </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <!-- Mensajes de Alerta -->
-    <div class="container mt-3">
+    <div class="container">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-artemis-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill"></i>
-                <strong>¡Éxito!</strong> @TempData["SuccessMessage"]
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-artemis-error alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>¡Error!</strong> @TempData["ErrorMessage"]
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
         @if (TempData["InfoMessage"] != null)
         {
-            <div class="alert alert-artemis-info alert-dismissible fade show" role="alert">
-                <i class="bi bi-info-circle-fill"></i>
-                <strong>Información:</strong> @TempData["InfoMessage"]
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle-fill"></i> @TempData["InfoMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
 
-    <!-- Contenido Principal -->
-    <main class="container">
-        @RenderBody()
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer-artemis text-center">
+    <footer class="border-top footer text-muted">
         <div class="container">
-            <p class="mb-0">
-                &copy; @DateTime.Now.Year Artemis Banking - Sistema de Banca en Línea
-            </p>
+            &copy; 2025 - Artemis Banking - Sistema Bancario Integral
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- jQuery (para validaciones) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

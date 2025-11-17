@@ -1,104 +1,117 @@
-﻿@model ArtemisBanking.Application.ViewModels.Account.LoginViewModel
-
+﻿@using ArtemisBanking.Application.ViewModels.Account
+@model LoginViewModel
 @{
     ViewData["Title"] = "Iniciar Sesión";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
 
-<!-- ==================== PÁGINA DE LOGIN ==================== -->
-<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="col-md-5 col-lg-4">
-        <!-- Tarjeta de login -->
-        <div class="card-artemis">
-            <!-- Encabezado con logo -->
-            <div class="card-artemis-header text-center py-4">
-                <i class="fas fa-university fa-3x mb-3"></i>
-                <h3 class="mb-0">Artemis Banking</h3>
-                <p class="mb-0 mt-2" style="font-size: 0.9rem; opacity: 0.9;">Sistema de Banca en Línea</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Artemis Banking</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="login-card">
+                    <div class="login-header">
+                        <i class="bi bi-bank2" style="font-size: 3rem;"></i>
+                        <h2 class="mt-2">Artemis Banking</h2>
+                        <p class="mb-0">Sistema Bancario Integral</p>
+                    </div>
+
+                    <div class="login-body">
+                        <form method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="NombreUsuario" class="form-label">
+                                    <i class="bi bi-person"></i> Usuario
+                                </label>
+                                <input asp-for="NombreUsuario" class="form-control form-control-lg" placeholder="Ingrese su usuario" />
+                                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Contrasena" class="form-label">
+                                    <i class="bi bi-lock"></i> Contraseña
+                                </label>
+                                <input asp-for="Contrasena" class="form-control form-control-lg" placeholder="Ingrese su contraseña" />
+                                <span asp-validation-for="Contrasena" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input asp-for="Recordarme" class="form-check-input" />
+                                <label asp-for="Recordarme" class="form-check-label">
+                                    Recordarme en este dispositivo
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-login btn-lg w-100 mb-3">
+                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                            </button>
+
+                            <div class="text-center">
+                                <a asp-action="OlvideContrasena" class="text-decoration-none">
+                                    <i class="bi bi-question-circle"></i> ¿Olvidó su contraseña?
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 text-white">
+                    <small>&copy; 2025 Artemis Banking. Todos los derechos reservados.</small>
+                </div>
             </div>
-
-            <!-- Cuerpo del formulario -->
-            <div class="card-artemis-body p-4">
-                <h5 class="text-center mb-4 text-primary-artemis">Iniciar Sesión</h5>
-
-                <!-- Formulario de login -->
-                <form asp-action="Login" method="post">
-                    <!-- Validación general de errores -->
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger-artemis" role="alert"></div>
-
-                    <!-- Campo: Nombre de Usuario -->
-                    <div class="mb-3">
-                        <label asp-for="NombreUsuario" class="form-label-artemis">
-                            <i class="fas fa-user me-2"></i>Nombre de Usuario
-                        </label>
-                        <input asp-for="NombreUsuario"
-                               class="form-control form-control-artemis"
-                               placeholder="Ingrese su usuario"
-                               autocomplete="username" />
-                        <span asp-validation-for="NombreUsuario" class="text-danger"></span>
-                    </div>
-
-                    <!-- Campo: Contraseña -->
-                    <div class="mb-3">
-                        <label asp-for="Contrasena" class="form-label-artemis">
-                            <i class="fas fa-lock me-2"></i>Contraseña
-                        </label>
-                        <input asp-for="Contrasena"
-                               class="form-control form-control-artemis"
-                               type="password"
-                               placeholder="Ingrese su contraseña"
-                               autocomplete="current-password" />
-                        <span asp-validation-for="Contrasena" class="text-danger"></span>
-                    </div>
-
-                    <!-- Checkbox: Recordarme -->
-                    <div class="mb-3 form-check">
-                        <input asp-for="Recordarme"
-                               class="form-check-input"
-                               type="checkbox" />
-                        <label asp-for="Recordarme" class="form-check-label">
-                            Recordarme en este dispositivo
-                        </label>
-                    </div>
-
-                    <!-- Botón de login -->
-                    <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-primary-artemis">
-                            <i class="fas fa-sign-in-alt me-2"></i>
-                            Iniciar Sesión
-                        </button>
-                    </div>
-
-                    <!-- Link para olvido de contraseña -->
-                    <div class="text-center">
-                        <a asp-action="OlvideContrasena" class="text-secondary-artemis text-decoration-none">
-                            <i class="fas fa-question-circle me-1"></i>
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Footer de la tarjeta -->
-            <div class="card-footer text-center py-3" style="background-color: var(--color-light); border-top: 1px solid var(--color-gray);">
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt me-1"></i>
-                    Conexión segura y cifrada
-                </small>
-            </div>
-        </div>
-
-        <!-- Mensaje informativo debajo del login -->
-        <div class="text-center mt-3">
-            <small class="text-muted">
-                <i class="fas fa-info-circle me-1"></i>
-                Usuarios de prueba creados por defecto en el sistema
-            </small>
         </div>
     </div>
-</div>
 
-<!-- ==================== SCRIPTS DE VALIDACIÓN ==================== -->
-@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-}
+</body>
+</html>

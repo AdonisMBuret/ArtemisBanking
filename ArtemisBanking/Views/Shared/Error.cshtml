@@ -1,0 +1,28 @@
+﻿@using ArtemisBanking.Application.Models
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="text-center">
+    <h1 class="text-danger">Error</h1>
+    <h2 class="text-danger">Ha ocurrido un error al procesar su solicitud.</h2>
+
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+
+    <h3>Posibles causas:</h3>
+    <ul class="text-start">
+        <li>La página que busca no existe</li>
+        <li>Su sesión ha expirado</li>
+        <li>No tiene permisos para acceder a este recurso</li>
+    </ul>
+
+    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+        <i class="bi bi-house"></i> Volver al Inicio
+    </a>
+</div>
