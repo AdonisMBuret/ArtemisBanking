@@ -1,18 +1,22 @@
-@model ArtemisBanking.Application.ViewModels.Prestamo.ConfigurarPrestamoViewModel
+Ôªø@model ArtemisBanking.Application.ViewModels.Prestamo.ConfigurarPrestamoViewModel
 
-@{ViewData["Title"] = "Asignar PrÈstamo - Paso 2";
+@{ViewData["Title"] = "Asignar Pr√©stamo - Paso 2";
+
+// Opciones para el plazo del pr√©stamo (intervalos de 6 meses)
 
 var opcionesPlazo = new List<SelectListItem>();
+
 
 for (int i = 6; i <= 60; i += 6)
 {
     opcionesPlazo.Add(new SelectListItem { Value = i.ToString(), Text = $"{i} meses" });
 }
-}<div class="container-artemis fade-in"><div class="row justify-content-center"><div class="col-md-8"><div class="card-artemis"><div class="card-header-artemis"><h3 class="mb-0">Configurar PrÈstamo</h3></div><div class="card-body"><!-- Formulario de ConfiguraciÛn --><form asp-action="ProcesarAsignacionPrestamo" method="post">@Html.AntiForgeryToken()                    <!-- CAMPO OCULTO (Debe estar presente) -->
-                    <input type="hidden" asp-for="ClienteId" />
+}
+
+<div class="container-artemis fade-in"><div class="row justify-content-center"><div class="col-md-8"><div class="card-artemis"><div class="card-header-artemis"><h3 class="mb-0">Configurar Pr√©stamo</h3></div><div class="card-body"><!-- Formulario de Configuraci√≥n --><form asp-action="ProcesarAsignacionPrestamo" method="post">@Html.AntiForgeryToken()                    <input type="hidden" asp-for="ClienteId" />
 
                     <!-- Mensaje de error general -->
-                    <div asp-validation-summary="All" class="alert alert-artemis-error" role="alert"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
 
                     <!-- Info del Cliente -->
                     <h5 class="text-artemis-secondary mb-3">Cliente Seleccionado</h5>
@@ -31,8 +35,8 @@ for (int i = 6; i <= 60; i += 6)
 
                     <hr class="my-4">
 
-                    <!-- ConfiguraciÛn del PrÈstamo -->
-                    <h5 class="text-artemis-secondary mb-3">Detalles del PrÈstamo</h5>
+                    <!-- Configuraci√≥n del Pr√©stamo -->
+                    <h5 class="text-artemis-secondary mb-3">Detalles del Pr√©stamo</h5>
                     <div class="mb-3">
                         <label asp-for="MontoCapital" class="form-label-artemis"></label>
                         <input asp-for="MontoCapital" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 100000.00" />
@@ -53,13 +57,13 @@ for (int i = 6; i <= 60; i += 6)
                         <span asp-validation-for="PlazoMeses" class="text-danger"></span>
                     </div>
 
-                    <!-- Botones de AcciÛn -->
+                    <!-- Botones de Acci√≥n -->
                     <div class="d-flex justify-content-between gap-2 mt-4">
                         <a asp-action="AsignarPrestamo" class="btn btn-outline-artemis">
                             <i class="bi bi-arrow-left-circle me-2"></i>Volver (Seleccionar Cliente)
                         </a>
                         <button type="submit" class="btn btn-artemis-primary">
-                            <i class="bi bi-check-circle-fill me-2"></i>Asignar PrÈstamo
+                            <i class="bi bi-check-circle-fill me-2"></i>Asignar Pr√©stamo
                         </button>
                     </div>
                 </form>
@@ -68,4 +72,5 @@ for (int i = 6; i <= 60; i += 6)
     </div>
 </div>
 </div>
+
 @section Scripts {<partial name="_ValidationScriptsPartial" />}

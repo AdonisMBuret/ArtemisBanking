@@ -78,11 +78,6 @@ namespace ArtemisBanking.Application.Mappings
                     opt => opt.MapFrom(src => src.CuentaAhorro.Usuario.Nombre))
                 .ForMember(dest => dest.ApellidoBeneficiario,
                     opt => opt.MapFrom(src => src.CuentaAhorro.Usuario.Apellido));
-
-            // ==================== MAPEOS DE DTOs (Application layer) ====================
-            // Estos son válidos porque ambos están en la misma capa
-            CreateMap<CrearUsuarioDTO, Usuario>();
-            CreateMap<ActualizarUsuarioDTO, Usuario>();
         }
     }
 }

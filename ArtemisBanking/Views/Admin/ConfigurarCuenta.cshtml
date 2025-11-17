@@ -1,69 +1,60 @@
-﻿@model ArtemisBanking.Application.ViewModels.CuentaAhorro.SeleccionarClienteCuentaViewModel
+﻿@model ArtemisBanking.Application.ViewModels.CuentaAhorro.ConfigurarCuentaViewModel
 @{
-    ViewData["Title"] = "Asignar Cuenta - Paso 1";
+    ViewData["Title"] = "Asignar Cuenta - Paso 2";
 }
 
 <div class="container-artemis fade-in">
-    <h2 class="text-artemis-primary mb-4">Asignar Cuenta Secundaria: Seleccionar Cliente</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0">Configurar Cuenta Secundaria</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de Configuración -->
+                    <form asp-action="ProcesarAsignacionCuenta" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ClienteId" />
 
-    <!-- Formulario para seleccionar cliente -->
-    <form asp-action="ConfigurarCuenta" method="post">
-        @Html.AntiForgeryToken()
+                        <!-- Mensaje de error general -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
 
-        <div class="card-artemis">
-            <div class="card-header-artemis">
-                <h5 class="mb-0">Clientes Activos</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Seleccione el cliente al que desea asignar una nueva cuenta de ahorro secundaria.</p>
+                        <!-- Info del Cliente -->
+                        <h5 class="text-artemis-secondary mb-3">Cliente Seleccionado</h5>
+                        <div class="bg-artemis-light p-3 rounded mb-4">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Nombre:</dt>
+                                <dd class="col-sm-8">@Model.NombreCliente</dd>
+                            </dl>
+                        </div>
 
-                <!-- (Opcional: Agregar campo de búsqueda por cédula si se necesita) -->
+                        <hr class="my-4">
 
-                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                    <table class="table table-artemis table-hover align-middle">
-                        <thead class="table-dark sticky-top">
-                            <tr>
-                                <th></th> <!-- Para el Radio Button -->
-                                <th>Cédula</th>
-                                <th>Nombre Completo</th>
-                                <th>Correo</th>
-                                <th>Deuda Total Actual</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Clientes == null || !Model.Clientes.Any())
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center">No hay clientes activos disponibles.</td>
-                                </tr>
-                            }
-                            else
-                            {
-                                @foreach (var cliente in Model.Clientes)
-                                {
-                                    <tr>
-                                        <td>
-                                            <input type="radio" name="clienteId" value="@cliente.Id" class="form-check-input" required />
-                                        </td>
-                                        <td>@cliente.Cedula</td>
-                                        <td>@cliente.NombreCompleto</td>
-                                        <td>@cliente.Correo</td>
-                                        <td class="fw-bold">@cliente.DeudaTotal.ToString("C2")</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                        <!-- Configuración de la Cuenta -->
+                        <h5 class="text-artemis-secondary mb-3">Detalles de la Cuenta</h5>
+                        <div class="mb-3">
+                            <label asp-for="BalanceInicial" class="form-label-artemis"></label>
+                            <input asp-for="BalanceInicial" class="form-control form-control-artemis" type="number" step="0.01" value="0.00" />
+                            <span asp-validation-for="BalanceInicial" class="text-danger"></span>
+                            <small class="form-text text-muted">Este campo es opcional y puede dejarse en 0.00.</small>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between gap-2 mt-4">
+                            <a asp-action="AsignarCuenta" class="btn btn-outline-artemis">
+                                <i class="bi bi-arrow-left-circle me-2"></i>Volver (Seleccionar Cliente)
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-check-circle-fill me-2"></i>Asignar Cuenta
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a asp-action="Cuentas" class="btn btn-outline-artemis">
-                    <i class="bi bi-arrow-left-circle me-2"></i>Volver al Listado
-                </a>
-                <button type="submit" class="btn btn-artemis-primary">
-                    Siguiente Paso<i class="bi bi-arrow-right-circle ms-2"></i>
-                </button>
-            </div>
         </div>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -14,8 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Admin\ConfigurarPrestamo.cshtml" />
-    <Content Remove="Views\Admin\Cuentas.cshtml" />
     <Content Remove="Views\Admin\EditarPrestamo.cshtml" />
   </ItemGroup>
 
@@ -34,8 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Views\Admin\ConfigurarPrestamo.cshtml" />
-    <None Include="Views\Admin\Cuentas.cshtml" />
     <None Include="Views\Admin\EditarPrestamo.cshtml" />
   </ItemGroup>
 
