@@ -2,14 +2,15 @@ using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Application.ViewModels;
-using ArtemisBanking.Application.ViewModels.Usuario;
+using ArtemisBanking.Application.ViewModels.CuentaAhorro;
 using ArtemisBanking.Application.ViewModels.Prestamo;
 using ArtemisBanking.Application.ViewModels.TarjetaCredito;
-using ArtemisBanking.Application.ViewModels.CuentaAhorro;
+using ArtemisBanking.Application.ViewModels.Usuario;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace ArtemisBanking.Web.Controllers
 {
@@ -69,7 +70,6 @@ namespace ArtemisBanking.Web.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-
 
         // ==================== DASHBOARD (HOME) ====================
         public async Task<IActionResult> Index()
@@ -147,7 +147,6 @@ namespace ArtemisBanking.Web.Controllers
 
             return View(viewModel);
         }
-
         /// <summary>
         /// Muestra el formulario para crear un nuevo usuario
         /// </summary>
@@ -865,7 +864,7 @@ namespace ArtemisBanking.Web.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
+        public async Task<IActionResult>ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -891,8 +890,8 @@ namespace ArtemisBanking.Web.Controllers
                     model.MontoCapital
                 );
 
-                // Si es alto riesgo, mostrar advertencia
-                if (riesgoResult.Exito && riesgoResult.Datos)
+                // ⭐ SI ES ALTO RIESGO, mostrar advertencia
+                if (true) // Forzar siempre advertencia para probar
                 {
                     var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(model.ClienteId);
                     var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
@@ -907,15 +906,13 @@ namespace ArtemisBanking.Web.Controllers
                         DeudaActual = deudaActual,
                         DeudaPromedio = deudaPromedio,
                         DeudaDespuesDelPrestamo = deudaActual + model.MontoCapital,
-                        MensajeAdvertencia = deudaActual > deudaPromedio
-                            ? "Este cliente se considera de alto riesgo, ya que su deuda actual supera el promedio del sistema"
-                            : "Asignar este préstamo convertirá al cliente en un cliente de alto riesgo, ya que su deuda superará el umbral promedio del sistema"
+                        MensajeAdvertencia = "TEST - Verificando que la vista funciona"
                     };
 
                     return View("AdvertenciaRiesgoPrestamo", advertenciaVM);
                 }
 
-                // Si no es alto riesgo, asignar directamente
+                // ⭐ SI NO ES ALTO RIESGO, asignar directamente
                 var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
 
                 if (resultado.Exito)
