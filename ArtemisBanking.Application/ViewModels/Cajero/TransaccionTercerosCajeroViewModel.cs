@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
 {
     // ==================== TRANSACCIÓN ENTRE TERCEROS ====================
 
-    /// <summary>
     /// ViewModel para realizar una transacción entre dos cuentas de terceros
-    /// </summary>
     public class TransaccionTercerosCajeroViewModel
     {
         [Required(ErrorMessage = "El número de cuenta origen es obligatorio")]

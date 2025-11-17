@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
 {
     // ==================== PAGO A PRÉSTAMO ====================
 
-    /// <summary>
     /// ViewModel para procesar un pago a préstamo
-    /// </summary>
     public class PagoPrestamoCajeroViewModel
     {
         [Required(ErrorMessage = "El número de cuenta origen es obligatorio")]

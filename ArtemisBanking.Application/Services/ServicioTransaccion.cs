@@ -4,11 +4,6 @@ using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -46,10 +41,10 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Realiza una transferencia entre dos cuentas
         /// Maneja toda la lógica: validaciones, débito, crédito, transacciones y correos
-        /// </summary>
+         
         public async Task<(bool exito, string mensaje)> RealizarTransferenciaAsync(
             int cuentaOrigenId,
             string numeroCuentaDestino,
@@ -147,10 +142,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Procesa un pago a una tarjeta de crédito
         /// Solo se paga hasta el monto de la deuda (no se puede pagar de más)
-        /// </summary>
+         
         public async Task<(bool exito, string mensaje, decimal montoPagado)> PagarTarjetaCreditoAsync(
             int cuentaOrigenId,
             int tarjetaId,
@@ -231,11 +226,11 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Procesa un pago a un préstamo
         /// Aplica el pago a las cuotas pendientes de forma secuencial
         /// Si sobra dinero después de pagar todas las cuotas, se devuelve a la cuenta
-        /// </summary>
+         
         public async Task<(bool exito, string mensaje, decimal montoAplicado)> PagarPrestamoAsync(
             int cuentaOrigenId,
             int prestamoId,
@@ -359,10 +354,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un avance de efectivo desde una tarjeta a una cuenta
         /// Se aplica un interés del 6.25% sobre el monto
-        /// </summary>
+         
         public async Task<(bool exito, string mensaje)> RealizarAvanceEfectivoAsync(
             int tarjetaId,
             int cuentaDestinoId,
@@ -456,28 +451,28 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Valida si una cuenta tiene fondos suficientes para una operación
-        /// </summary>
+         
         public async Task<bool> TieneFondosSuficientesAsync(int cuentaId, decimal monto)
         {
             var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(cuentaId);
             return cuenta != null && cuenta.EstaActiva && cuenta.Balance >= monto;
         }
 
-        /// <summary>
+         
         /// Calcula el crédito disponible de una tarjeta
-        /// </summary>
+         
         public async Task<decimal> CalcularCreditoDisponibleAsync(int tarjetaId)
         {
             var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(tarjetaId);
             return tarjeta?.CreditoDisponible ?? 0;
         }
 
-        /// <summary>
+         
         /// Realiza una transacción express (transferencia a cualquier cuenta)
         /// Este método es el que los controladores llamarán
-        /// </summary>
+         
         public async Task<ResultadoOperacion> RealizarTransaccionExpressAsync(TransaccionExpressDTO datos)
         {
             try
@@ -500,10 +495,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un pago a tarjeta desde el cliente
         /// Este método es el que los controladores llamarán
-        /// </summary>
+         
         public async Task<ResultadoOperacion> PagarTarjetaCreditoClienteAsync(PagoTarjetaClienteDTO datos)
         {
             try
@@ -526,10 +521,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un pago a préstamo desde el cliente
         /// Este método es el que los controladores llamarán
-        /// </summary>
+         
         public async Task<ResultadoOperacion> PagarPrestamoClienteAsync(PagoPrestamoClienteDTO datos)
         {
             try
@@ -552,10 +547,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un pago a un beneficiario
         /// Primero obtiene los datos del beneficiario y luego hace la transferencia
-        /// </summary>
+         
         public async Task<ResultadoOperacion> PagarBeneficiarioAsync(PagoBeneficiarioDTO datos)
         {
             try
@@ -588,10 +583,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un avance de efectivo desde tarjeta
         /// Este método es el que los controladores llamarán
-        /// </summary>
+         
         public async Task<ResultadoOperacion> RealizarAvanceEfectivoClienteAsync(AvanceEfectivoDTO datos)
         {
             try
@@ -614,10 +609,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene información de confirmación de una cuenta destino
         /// Se usa para mostrar al usuario a quién le va a transferir antes de confirmar
-        /// </summary>
+         
         public async Task<ResultadoOperacion<(string nombre, string apellido)>> ObtenerInfoCuentaDestinoAsync(string numeroCuenta)
         {
             try

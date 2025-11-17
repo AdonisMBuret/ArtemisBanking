@@ -1,11 +1,6 @@
 ﻿using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 
 namespace ArtemisBanking.Infrastructure.Repositories
@@ -16,10 +11,8 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// <summary>
         /// Busca una cuenta por su número único
         /// Incluye las relaciones con usuario y transacciones
-        /// </summary>
         public async Task<CuentaAhorro> ObtenerPorNumeroCuentaAsync(string numeroCuenta)
         {
             return await _context.CuentasAhorro
@@ -28,19 +21,15 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(c => c.NumeroCuenta == numeroCuenta);
         }
 
-        /// <summary>
         /// Obtiene la cuenta principal de un usuario
         /// Cada cliente tiene una cuenta principal
-        /// </summary>
         public async Task<CuentaAhorro> ObtenerCuentaPrincipalAsync(string usuarioId)
         {
             return await _context.CuentasAhorro
                 .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId && c.EsPrincipal);
         }
 
-        /// <summary>
         /// Obtiene todas las cuentas (principal y secundarias) de un usuario
-        /// </summary>
         public async Task<IEnumerable<CuentaAhorro>> ObtenerCuentasDeUsuarioAsync(string usuarioId)
         {
             return await _context.CuentasAhorro
@@ -51,9 +40,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
         /// Obtiene solo las cuentas activas de un usuario
-        /// </summary>
         public async Task<IEnumerable<CuentaAhorro>> ObtenerCuentasActivasDeUsuarioAsync(string usuarioId)
         {
             return await _context.CuentasAhorro
@@ -63,9 +50,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
         /// Obtiene cuentas paginadas con filtros opcionales
-        /// </summary>
         public async Task<(IEnumerable<CuentaAhorro> cuentas, int total)> ObtenerCuentasPaginadasAsync(
             int pagina,
             int tamano,
@@ -106,10 +91,8 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (cuentas, total);
         }
 
-        /// <summary>
         /// Genera un número de cuenta único de 9 dígitos
         /// Verifica que no exista ni en cuentas ni en préstamos
-        /// </summary>
         public async Task<string> GenerarNumeroCuentaUnicoAsync()
         {
             string numeroCuenta;
@@ -129,9 +112,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return numeroCuenta;
         }
 
-        /// <summary>
         /// Verifica si un número de cuenta ya existe
-        /// </summary>
         public async Task<bool> ExisteNumeroCuentaAsync(string numeroCuenta)
         {
             return await _context.CuentasAhorro

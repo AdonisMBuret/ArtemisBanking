@@ -6,11 +6,6 @@ using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -50,11 +45,11 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Crea un nuevo usuario en el sistema
         /// Si es cliente, también crea su cuenta de ahorro principal con el monto inicial
         /// Envía correo de confirmación con token para activar la cuenta
-        /// </summary>
+         
         public async Task<ResultadoOperacion<UsuarioDTO>> CrearUsuarioAsync(CrearUsuarioDTO datos)
         {
             try
@@ -149,11 +144,11 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Actualiza los datos de un usuario existente
         /// Si es cliente y hay monto adicional, lo suma a la cuenta principal
         /// Permite cambiar contraseña opcionalmente
-        /// </summary>
+         
         public async Task<ResultadoOperacion> ActualizarUsuarioAsync(ActualizarUsuarioDTO datos)
         {
             try
@@ -234,10 +229,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Activa o desactiva un usuario
         /// El administrador logueado NO puede cambiar su propio estado
-        /// </summary>
+         
         public async Task<ResultadoOperacion> CambiarEstadoAsync(string usuarioId, string usuarioActualId)
         {
             try
@@ -272,10 +267,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene los indicadores para el dashboard del administrador
         /// Incluye estadísticas de transacciones, clientes y productos financieros
-        /// </summary>
+         
         public async Task<ResultadoOperacion<DashboardAdminDTO>> ObtenerDashboardAdminAsync()
         {
             try
@@ -316,10 +311,10 @@ namespace ArtemisBanking.Application.Services
         }
 
 
-        /// <summary>
+         
         /// Obtiene el dashboard del cajero con las estadísticas del día
         /// Este método se usa en el Home del cajero
-        /// </summary>
+         
         public async Task<ResultadoOperacion<DashboardCajeroDTO>> ObtenerDashboardCajeroAsync(string cajeroId)
         {
             try
@@ -348,10 +343,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene todos los clientes activos que NO tienen préstamo activo
         /// Se usa al asignar nuevos préstamos (un cliente solo puede tener uno a la vez)
-        /// </summary>
+         
         public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesSinPrestamoActivoAsync()
         {
             try
@@ -393,10 +388,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene todos los clientes activos del sistema
         /// Se usa para asignar tarjetas y cuentas de ahorro secundarias
-        /// </summary>
+         
         public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesActivosAsync()
         {
             try
@@ -425,10 +420,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Verifica si un nombre de usuario ya existe
         /// Usado en validaciones de formularios (Ajax)
-        /// </summary>
+         
         public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario, string usuarioIdExcluir = null)
         {
             try
@@ -451,10 +446,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Verifica si un correo ya existe
         /// Usado en validaciones de formularios (Ajax)
-        /// </summary>
+         
         public async Task<bool> ExisteCorreoAsync(string correo, string usuarioIdExcluir = null)
         {
             try
@@ -477,10 +472,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Cuenta cuántos usuarios activos hay del rol especificado
         /// Usado para estadísticas y dashboards
-        /// </summary>
+         
         public async Task<int> ContarUsuariosActivosPorRolAsync(string rol)
         {
             try
@@ -496,10 +491,9 @@ namespace ArtemisBanking.Application.Services
         }
 
 
-        // <summary>
         /// Obtiene un usuario por su ID con toda su información
         /// Se usa para ver detalles de un usuario específico
-        /// </summary>
+         
         public async Task<ResultadoOperacion<UsuarioDTO>> ObtenerUsuarioPorIdAsync(string usuarioId)
         {
             try
@@ -539,10 +533,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene un listado paginado de usuarios
         /// Permite filtrar por rol y excluir al usuario actual de la lista
-        /// </summary>
+         
         public async Task<ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>> ObtenerUsuariosPaginadosAsync(
             int pagina,
             int tamano,
@@ -598,7 +592,5 @@ namespace ArtemisBanking.Application.Services
                 return ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>.Fallo("Error al obtener los usuarios");
             }
         }
-
-
     }
 }

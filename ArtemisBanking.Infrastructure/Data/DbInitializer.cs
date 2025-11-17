@@ -6,17 +6,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// <summary>
+    
     /// Clase que inicializa la base de datos con datos por defecto
     /// Se ejecuta al iniciar la aplicación
     /// Crea los roles y usuarios de prueba para poder empezar a usar el sistema
-    /// </summary>
     public static class DbInitializer
     {
-        /// <summary>
         /// Método principal que inicializa todo
         /// Se llama desde Program.cs al iniciar la aplicación
-        /// </summary>
         public static async Task InicializarAsync(IServiceProvider serviceProvider)
         {
             // Obtener los servicios necesarios
@@ -34,9 +31,7 @@ namespace ArtemisBanking.Infrastructure.Data
             await CrearUsuariosPorDefectoAsync(userManager, context);
         }
 
-        /// <summary>
         /// Crea los 3 roles del sistema si no existen
-        /// </summary>
         private static async Task CrearRolesAsync(RoleManager<IdentityRole> roleManager)
         {
             // Lista de roles que necesita el sistema
@@ -58,10 +53,8 @@ namespace ArtemisBanking.Infrastructure.Data
             }
         }
 
-        /// <summary>
         /// Crea 3 usuarios de prueba (uno de cada tipo) si no existen
         /// Esto nos permite probar el sistema sin tener que registrar usuarios manualmente
-        /// </summary>
         private static async Task CrearUsuariosPorDefectoAsync(
             UserManager<Usuario> userManager, 
             ArtemisBankingDbContext context)

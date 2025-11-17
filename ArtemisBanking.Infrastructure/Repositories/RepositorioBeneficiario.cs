@@ -1,11 +1,6 @@
 ﻿using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 
 namespace ArtemisBanking.Infrastructure.Repositories
@@ -16,9 +11,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// <summary>
         /// Obtiene todos los beneficiarios de un usuario con la información de la cuenta
-        /// </summary>
         public async Task<IEnumerable<Beneficiario>> ObtenerBeneficiariosDeUsuarioAsync(string usuarioId)
         {
             return await _context.Beneficiarios
@@ -29,9 +22,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
         /// Verifica si un usuario ya tiene registrado un beneficiario con ese número de cuenta
-        /// </summary>
         public async Task<bool> ExisteBeneficiarioAsync(string usuarioId, string numeroCuenta)
         {
             return await _context.Beneficiarios

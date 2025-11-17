@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
-    /// <summary>
     /// ViewModel para cada usuario en el listado
-    /// </summary>
     public class UsuarioListaItemViewModel
     {
         public string Id { get; set; }

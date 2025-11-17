@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
     // ==================== ADVERTENCIA DE RIESGO ====================
 
-    /// <summary>
     /// ViewModel para mostrar advertencia cuando el cliente es de alto riesgo
-    /// </summary>
     public class AdvertenciaRiesgoViewModel
     {
         public string ClienteId { get; set; }

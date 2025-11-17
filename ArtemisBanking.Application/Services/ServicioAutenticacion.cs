@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace ArtemisBanking.Application.Services
 {
-    /// <summary>
+     
     /// Servicio que maneja toda la lógica de autenticación
     /// Aquí va TODO lo relacionado con login, logout, confirmación de cuenta, etc.
     /// Los controladores SOLO llaman a estos métodos, sin lógica propia
-    /// </summary>
+     
     public class ServicioAutenticacion : IServicioAutenticacion
     {
         // Dependencias que necesitamos para trabajar con usuarios
@@ -30,11 +30,10 @@ namespace ArtemisBanking.Application.Services
             _servicioCorreo = servicioCorreo;
             _logger = logger;
         }
-
-        /// <summary>
+                 
         /// Maneja el proceso completo de login
         /// Valida credenciales, estado de cuenta y retorna el rol para redireccionar
-        /// </summary>
+         
         public async Task<ResultadoOperacion<string>> LoginAsync(
             string nombreUsuario,
             string contrasena,
@@ -99,9 +98,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Cierra la sesión del usuario actual
-        /// </summary>
+         
         public async Task<ResultadoOperacion> LogoutAsync()
         {
             try
@@ -117,9 +116,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Confirma la cuenta del usuario usando el token enviado por correo
-        /// </summary>
+         
         public async Task<ResultadoOperacion> ConfirmarCuentaAsync(string usuarioId, string token)
         {
             try
@@ -155,10 +154,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Solicita el reseteo de contraseña
         /// Desactiva al usuario temporalmente y envía el token por correo
-        /// </summary>
+         
         public async Task<ResultadoOperacion<string>> SolicitarReseteoContrasenaAsync(string nombreUsuario)
         {
             try
@@ -199,10 +198,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Restablece la contraseña del usuario usando el token
         /// Reactiva al usuario una vez cambiada la contraseña
-        /// </summary>
+         
         public async Task<ResultadoOperacion> RestablecerContrasenaAsync(
             string usuarioId,
             string token,
@@ -243,9 +242,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene el rol del usuario para redirigir al home correcto
-        /// </summary>
+         
         public async Task<string> ObtenerRolUsuarioAsync(string usuarioId)
         {
             try
@@ -263,9 +262,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Verifica si un usuario está autenticado y activo
-        /// </summary>
+         
         public async Task<bool> EstaAutenticadoAsync(string usuarioId)
         {
             try

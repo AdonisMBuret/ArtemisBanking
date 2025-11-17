@@ -1,13 +1,9 @@
-using System.Collections.Generic;
-
 
 namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
 {
     // ==================== LISTADO DE TARJETAS ====================
 
-    /// <summary>
     /// ViewModel para el listado de tarjetas de crédito
-    /// </summary>
     public class ListaTarjetasViewModel
     {
         public IEnumerable<TarjetaListaItemViewModel> Tarjetas { get; set; }

@@ -5,9 +5,7 @@ namespace ArtemisBanking.Application.ViewModels.Account
    
 // ==================== CONFIRMACIÓN DE CUENTA ====================
 
-    /// <summary>
     /// ViewModel para confirmar la cuenta con el token enviado por correo
-    /// </summary>
     public class ConfirmarCuentaViewModel
     {
         [Required(ErrorMessage = "El ID de usuario es obligatorio")]

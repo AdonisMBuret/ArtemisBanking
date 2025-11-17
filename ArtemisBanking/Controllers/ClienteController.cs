@@ -150,11 +150,10 @@ namespace ArtemisBanking.Web.Controllers
         }
 
         // ==================== DETALLES DE PRODUCTOS ====================
-
-        /// <summary>
+                 
         /// Muestra el detalle de una cuenta de ahorro
         /// Lista todas las transacciones de esa cuenta ordenadas de la más reciente a la más antigua
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
@@ -204,10 +203,10 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el detalle de un préstamo
         /// Lista la tabla de amortización con todas las cuotas
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
@@ -254,10 +253,10 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el detalle de una tarjeta de crédito
         /// Lista todos los consumos realizados con esa tarjeta
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetalleTarjeta(int id)
         {
@@ -308,11 +307,11 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== GESTIÓN DE BENEFICIARIOS ====================
 
-        /// <summary>
+         
         /// Muestra el listado de beneficiarios del cliente
         /// Un beneficiario es una cuenta a la que el cliente transfiere con frecuencia
         /// Esto evita tener que escribir el número de cuenta cada vez
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Beneficiarios()
         {
@@ -357,11 +356,11 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Agrega un nuevo beneficiario
         /// El cliente solo necesita ingresar el número de cuenta
         /// El sistema busca a quién pertenece y lo agrega a la lista
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarBeneficiario(AgregarBeneficiarioViewModel model)
@@ -404,10 +403,10 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Elimina un beneficiario de la lista
         /// Solo se puede eliminar si le pertenece al cliente logueado
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarBeneficiario(int id)
@@ -439,11 +438,11 @@ namespace ArtemisBanking.Web.Controllers
         }
 
 
-        /// <summary>
+         
         /// Muestra el formulario para hacer una transacción express
         /// Una transacción express es transferir dinero a cualquier cuenta
         /// sin necesidad de tenerla registrada como beneficiario
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> TransaccionExpress()
         {
@@ -455,10 +454,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa la transacción express
         /// Primero valida y luego muestra una confirmación con el nombre del destinatario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransaccionExpress(TransaccionExpressViewModel model)
@@ -503,9 +502,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Confirma y ejecuta la transacción express
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarTransaccionExpress(ConfirmarTransaccionViewModel model)
@@ -549,10 +548,10 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== PAGO A TARJETA DE CRÉDITO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para pagar una tarjeta de crédito
         /// El cliente selecciona la tarjeta y la cuenta desde donde pagará
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> PagarTarjeta()
         {
@@ -565,10 +564,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa el pago a tarjeta de crédito
         /// IMPORTANTE: Si el monto es mayor a la deuda, solo se paga hasta la deuda
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarTarjeta(PagoTarjetaViewModel model)
@@ -623,10 +622,10 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== PAGO A PRÉSTAMO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para pagar un préstamo
         /// El cliente selecciona el préstamo y la cuenta desde donde pagará
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> PagarPrestamo()
         {
@@ -639,11 +638,11 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa el pago a préstamo
         /// El pago se aplica a las cuotas de forma secuencial
         /// Si sobra dinero, se devuelve a la cuenta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarPrestamo(PagoPrestamoViewModel model)
@@ -695,10 +694,10 @@ namespace ArtemisBanking.Web.Controllers
         // ==================== PAGO A BENEFICIARIO (PARTE 4/5) ====================
         // Agregar estos métodos al ClienteController DESPUÉS de PagarPrestamo
 
-        /// <summary>
+         
         /// Muestra el formulario para pagar a un beneficiario
         /// Es similar a la transacción express pero usando un beneficiario registrado
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> PagarBeneficiario()
         {
@@ -711,10 +710,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa el pago a beneficiario
         /// Primero valida y luego muestra confirmación con el nombre del beneficiario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarBeneficiario(PagoBeneficiarioViewModel model)
@@ -770,9 +769,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Confirma y ejecuta el pago a beneficiario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarPagoBeneficiario(ConfirmarTransaccionViewModel model)
@@ -812,11 +811,11 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== AVANCE DE EFECTIVO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para hacer un avance de efectivo
         /// Un avance de efectivo toma dinero de la tarjeta y lo deposita en una cuenta
         /// Se cobra un interés del 6.25% sobre el monto
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> AvanceEfectivo()
         {
@@ -829,11 +828,11 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa el avance de efectivo
         /// Valida que no exceda el crédito disponible
         /// Aplica un interés del 6.25%
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AvanceEfectivo(AvanceEfectivoViewModel model)
@@ -889,10 +888,10 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== TRANSFERENCIA ENTRE CUENTAS PROPIAS ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para transferir entre cuentas propias
         /// El cliente puede mover dinero entre su cuenta principal y secundarias
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> TransferirEntreCuentas()
         {
@@ -904,10 +903,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa la transferencia entre cuentas propias
         /// Valida que ambas cuentas sean del mismo cliente
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransferirEntreCuentas(TransferenciaEntreCuentasViewModel model)
@@ -960,9 +959,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== MÉTODOS HELPER PRIVADOS ====================
 
-        /// <summary>
+         
         /// Obtiene las cuentas activas del usuario para poblar selectores
-        /// </summary>
+         
         private async Task<IEnumerable<SelectListItem>> ObtenerCuentasActivasSelectAsync()
         {
             try
@@ -983,9 +982,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Obtiene las tarjetas activas del usuario para poblar selectores
-        /// </summary>
+         
         private async Task<IEnumerable<SelectListItem>> ObtenerTarjetasActivasSelectAsync()
         {
             try
@@ -1006,9 +1005,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Obtiene los préstamos activos del usuario para poblar selectores
-        /// </summary>
+         
         private async Task<IEnumerable<SelectListItem>> ObtenerPrestamosActivosSelectAsync()
         {
             try
@@ -1030,9 +1029,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Obtiene los beneficiarios del usuario para poblar selectores
-        /// </summary>
+         
         private async Task<IEnumerable<SelectListItem>> ObtenerBeneficiariosSelectAsync()
         {
             try
@@ -1058,9 +1057,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Calcula el monto pendiente de un préstamo sumando las cuotas no pagadas
-        /// </summary>
+         
         private decimal CalcularMontoPendiente(Prestamo prestamo)
         {
             if (prestamo?.TablaAmortizacion == null)

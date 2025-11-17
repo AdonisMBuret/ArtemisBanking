@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
+     
     /// Controlador para manejar todo lo relacionado con autenticación
     /// Solo recibe datos, llama al servicio y retorna vistas
-    /// NO tiene lógica de negocio
-    /// </summary>
+     
     public class AccountController : Controller
     {
         // Servicio que tiene TODA la lógica de autenticación
@@ -27,10 +26,10 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== LOGIN ====================
 
-        /// <summary>
+         
         /// Muestra el formulario de login
         /// Si el usuario ya está logueado, lo redirige a su home
-        /// </summary>
+         
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
@@ -44,9 +43,9 @@ namespace ArtemisBanking.Web.Controllers
             return View();
         }
 
-        /// <summary>
+         
         /// Procesa el formulario de login
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
@@ -96,9 +95,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== LOGOUT ====================
 
-        /// <summary>
+         
         /// Cierra la sesión del usuario y lo redirige al login
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize] // Solo usuarios autenticados pueden hacer logout
@@ -112,9 +111,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== CONFIRMAR CUENTA ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para confirmar cuenta con token
-        /// </summary>
+         
         [HttpGet]
         public IActionResult ConfirmarCuenta(string userId = null, string token = null)
         {
@@ -128,9 +127,9 @@ namespace ArtemisBanking.Web.Controllers
             return View(model);
         }
 
-        /// <summary>
+         
         /// Procesa la confirmación de cuenta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarCuenta(ConfirmarCuentaViewModel model)
@@ -159,19 +158,19 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== RESETEO DE CONTRASEÑA ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para solicitar reseteo de contraseña
-        /// </summary>
+         
         [HttpGet]
         public IActionResult OlvideContrasena()
         {
             return View();
         }
 
-        /// <summary>
+         
         /// Procesa la solicitud de reseteo de contraseña
         /// Desactiva al usuario y envía correo con token
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OlvideContrasena(OlvideContrasenaViewModel model)
@@ -190,9 +189,9 @@ namespace ArtemisBanking.Web.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        /// <summary>
+         
         /// Muestra el formulario para restablecer contraseña con token
-        /// </summary>
+         
         [HttpGet]
         public IActionResult RestablecerContrasena(string userId = null, string token = null)
         {
@@ -211,10 +210,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(model);
         }
 
-        /// <summary>
+         
         /// Procesa el restablecimiento de contraseña
         /// Cambia la contraseña y reactiva al usuario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestablecerContrasena(RestablecerContrasenaViewModel model)
@@ -255,9 +254,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== ACCESO DENEGADO ====================
 
-        /// <summary>
+         
         /// Página que se muestra cuando un usuario intenta acceder a una sección no autorizada
-        /// </summary>
+         
         [HttpGet]
         public IActionResult AccesoDenegado()
         {

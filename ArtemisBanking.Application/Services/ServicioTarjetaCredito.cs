@@ -5,11 +5,6 @@ using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -38,10 +33,10 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Asigna una nueva tarjeta de crédito a un cliente
         /// Genera número único de 16 dígitos, CVC cifrado y fecha de expiración
-        /// </summary>
+         
         public async Task<ResultadoOperacion<TarjetaCreditoDTO>> AsignarTarjetaAsync(AsignarTarjetaDTO datos)
         {
             try
@@ -101,11 +96,11 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Actualiza el límite de crédito de una tarjeta
         /// Valida que el nuevo límite no sea menor a la deuda actual
         /// Envía correo de notificación al cliente
-        /// </summary>
+         
         public async Task<ResultadoOperacion> ActualizarLimiteAsync(ActualizarLimiteTarjetaDTO datos)
         {
             try
@@ -162,11 +157,11 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Cancela una tarjeta de crédito
         /// Solo se puede cancelar si NO tiene deuda pendiente
         /// Una vez cancelada, no se puede usar para consumos o pagos
-        /// </summary>
+         
         public async Task<ResultadoOperacion> CancelarTarjetaAsync(int tarjetaId)
         {
             try
@@ -207,9 +202,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene una tarjeta por su ID con todas sus relaciones (cliente, consumos)
-        /// </summary>
+         
         public async Task<ResultadoOperacion<TarjetaCreditoDTO>> ObtenerTarjetaPorIdAsync(int tarjetaId)
         {
             try

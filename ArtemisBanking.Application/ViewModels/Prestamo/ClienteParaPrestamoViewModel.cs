@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    /// <summary>
     /// ViewModel para cada cliente en el listado de selección
-    /// </summary>
     public class ClienteParaPrestamoViewModel
     {
         public string Id { get; set; }

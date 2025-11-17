@@ -3,9 +3,7 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
     // ==================== LISTADO DE PRÉSTAMOS ====================
 
-    /// <summary>
     /// ViewModel para el listado paginado de préstamos
-    /// </summary>
     public class ListaPrestamosViewModel
     {
         public IEnumerable<PrestamoListaItemViewModel> Prestamos { get; set; }

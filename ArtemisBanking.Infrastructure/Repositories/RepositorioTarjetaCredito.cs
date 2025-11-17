@@ -1,11 +1,6 @@
 ﻿using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 
 namespace ArtemisBanking.Infrastructure.Repositories
@@ -16,9 +11,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// <summary>
+        
         /// Busca una tarjeta por su número de 16 dígitos
-        /// </summary>
+         
         public async Task<TarjetaCredito> ObtenerPorNumeroTarjetaAsync(string numeroTarjeta)
         {
             return await _context.TarjetasCredito
@@ -27,9 +22,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.NumeroTarjeta == numeroTarjeta);
         }
 
-        /// <summary>
+         
         /// Obtiene todas las tarjetas de un usuario
-        /// </summary>
+         
         public async Task<IEnumerable<TarjetaCredito>> ObtenerTarjetasDeUsuarioAsync(string usuarioId)
         {
             return await _context.TarjetasCredito
@@ -40,9 +35,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
+         
         /// Obtiene solo las tarjetas activas de un usuario
-        /// </summary>
+         
         public async Task<IEnumerable<TarjetaCredito>> ObtenerTarjetasActivasDeUsuarioAsync(string usuarioId)
         {
             return await _context.TarjetasCredito
@@ -51,9 +46,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
+         
         /// Obtiene tarjetas paginadas con filtros opcionales
-        /// </summary>
+         
         public async Task<(IEnumerable<TarjetaCredito> tarjetas, int total)> ObtenerTarjetasPaginadasAsync(
             int pagina,
             int tamano,
@@ -87,9 +82,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (tarjetas, total);
         }
 
-        /// <summary>
+         
         /// Genera un número de tarjeta único de 16 dígitos
-        /// </summary>
+         
         public async Task<string> GenerarNumeroTarjetaUnicoAsync()
         {
             string numeroTarjeta;
@@ -108,18 +103,18 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return numeroTarjeta;
         }
 
-        /// <summary>
+         
         /// Verifica si un número de tarjeta ya existe
-        /// </summary>
+         
         public async Task<bool> ExisteNumeroTarjetaAsync(string numeroTarjeta)
         {
             return await _context.TarjetasCredito
                 .AnyAsync(t => t.NumeroTarjeta == numeroTarjeta);
         }
 
-        /// <summary>
+         
         /// Cuenta cuántas tarjetas activas hay en total
-        /// </summary>
+         
         public async Task<int> ContarTarjetasActivasAsync()
         {
             return await _context.TarjetasCredito

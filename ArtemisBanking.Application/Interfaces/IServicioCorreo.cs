@@ -1,9 +1,8 @@
+
 namespace ArtemisBanking.Application.Interfaces
 {
-    /// <summary>
     /// Interfaz para el servicio de correo electrónico
     /// Define todos los métodos para enviar notificaciones por email
-    /// </summary>
     public interface IServicioCorreo
     {
        Task EnviarCorreoConfirmacionAsync(string correo, string nombreUsuario, string token);

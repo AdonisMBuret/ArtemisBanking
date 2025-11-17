@@ -14,18 +14,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArtemisBanking.Infrastructure
 {
-    /// <summary>
+     
     /// Clase de extensión para configurar todos los servicios de infraestructura
     /// Aquí solo van servicios que interactúan con recursos externos:
     /// - Base de datos (DbContext, Repositorios)
     /// - Servicios externos (Correo, SMS, etc.)
     /// - Servicios de cifrado y seguridad
-    /// </summary>
+     
     public static class DependencyInjection
     {
-        /// <summary>
+         
         /// Configura todos los servicios de infraestructura
-        /// </summary>
+         
         public static IServiceCollection AgregarInfraestructura(
             this IServiceCollection services,
             IConfiguration configuration)
@@ -118,10 +118,10 @@ namespace ArtemisBanking.Infrastructure
             return services;
         }
 
-        /// <summary>
+         
         /// Configura los jobs recurrentes de Hangfire
         /// Se llama desde Program.cs después de construir la aplicación
-        /// </summary>
+         
         public static void ConfigurarJobsRecurrentes()
         {
             // Job para actualizar cuotas atrasadas - se ejecuta todos los días a las 00:01

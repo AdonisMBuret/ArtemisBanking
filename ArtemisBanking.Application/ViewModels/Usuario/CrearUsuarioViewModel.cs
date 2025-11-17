@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Usuario
 {
     // ==================== CREAR USUARIO ====================
 
-    /// <summary>
     /// ViewModel para crear un nuevo usuario
-    /// </summary>
     public class CrearUsuarioViewModel
     {
         [Required(ErrorMessage = "El nombre es obligatorio")]

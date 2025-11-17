@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
 {
     // ==================== RETIRO ====================
 
-    /// <summary>
     /// ViewModel para realizar un retiro de una cuenta
-    /// </summary>
     public class RetiroCajeroViewModel
     {
         [Required(ErrorMessage = "El número de cuenta origen es obligatorio")]

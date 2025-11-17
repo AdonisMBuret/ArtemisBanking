@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Account
 {
     // ==================== RESTABLECER CONTRASEÑA ====================
 
-    /// <summary>
     /// ViewModel para restablecer la contraseña con el token recibido
-    /// </summary>
     public class RestablecerContrasenaViewModel
     {
         [Required]

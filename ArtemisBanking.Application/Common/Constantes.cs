@@ -1,10 +1,8 @@
 ﻿
 namespace ArtemisBanking.Application.Common
 {
-    /// <summary>
     /// Clase que contiene todas las constantes usadas en el sistema
     /// Esto nos ayuda a no repetir valores en todo el código
-    /// </summary>
     public static class Constantes
     {
         // ==================== ROLES DEL SISTEMA ====================

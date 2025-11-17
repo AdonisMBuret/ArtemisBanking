@@ -1,11 +1,6 @@
 ﻿using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 
 namespace ArtemisBanking.Infrastructure.Repositories
@@ -16,9 +11,8 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// <summary>
         /// Obtiene un préstamo por su número, incluyendo toda su información
-        /// </summary>
+         
         public async Task<Prestamo> ObtenerPorNumeroPrestamoAsync(string numeroPrestamo)
         {
             return await _context.Prestamos
@@ -28,10 +22,10 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.NumeroPrestamo == numeroPrestamo);
         }
 
-        /// <summary>
+         
         /// Obtiene el préstamo activo de un usuario
         /// Un cliente solo puede tener un préstamo activo a la vez
-        /// </summary>
+         
         public async Task<Prestamo> ObtenerPrestamoActivoDeUsuarioAsync(string usuarioId)
         {
             return await _context.Prestamos
@@ -39,9 +33,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.ClienteId == usuarioId && p.EstaActivo);
         }
 
-        /// <summary>
+         
         /// Obtiene todos los préstamos de un usuario (activos y completados)
-        /// </summary>
+         
         public async Task<IEnumerable<Prestamo>> ObtenerPrestamosDeUsuarioAsync(string usuarioId)
         {
             return await _context.Prestamos
@@ -52,9 +46,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
+         
         /// Obtiene préstamos paginados con filtros opcionales
-        /// </summary>
+         
         public async Task<(IEnumerable<Prestamo> prestamos, int total)> ObtenerPrestamosPaginadosAsync(
             int pagina,
             int tamano,
@@ -89,10 +83,10 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (prestamos, total);
         }
 
-        /// <summary>
+         
         /// Calcula la deuda promedio de todos los clientes
         /// Suma préstamos pendientes + deudas de tarjetas / número de clientes
-        /// </summary>
+         
         public async Task<decimal> CalcularDeudaPromedioAsync()
         {
             // Obtener todos los clientes que tienen productos financieros
@@ -126,10 +120,10 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return deudaTotal / clientesConProductos.Count;
         }
 
-        /// <summary>
+         
         /// Calcula la deuda total de un cliente específico
         /// Incluye préstamos activos y tarjetas de crédito
-        /// </summary>
+         
         public async Task<decimal> CalcularDeudaTotalClienteAsync(string usuarioId)
         {
             // Deuda de préstamos activos (cuotas pendientes)
@@ -147,10 +141,10 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return deudaPrestamos + deudaTarjetas;
         }
 
-        /// <summary>
+         
         /// Genera un número de préstamo único de 9 dígitos
         /// Verifica que no exista ni en préstamos ni en cuentas
-        /// </summary>
+         
         public async Task<string> GenerarNumeroPrestamoUnicoAsync()
         {
             string numeroPrestamo;
@@ -170,18 +164,18 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return numeroPrestamo;
         }
 
-        /// <summary>
+         
         /// Verifica si un cliente tiene un préstamo activo
-        /// </summary>
+         
         public async Task<bool> TienePrestamoActivoAsync(string usuarioId)
         {
             return await _context.Prestamos
                 .AnyAsync(p => p.ClienteId == usuarioId && p.EstaActivo);
         }
 
-        /// <summary>
+         
         /// Cuenta cuántos préstamos activos hay en total
-        /// </summary>
+         
         public async Task<int> ContarPrestamosActivosAsync()
         {
             return await _context.Prestamos

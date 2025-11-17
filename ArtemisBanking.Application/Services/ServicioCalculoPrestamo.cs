@@ -1,18 +1,16 @@
 ﻿using ArtemisBanking.Application.Interfaces;
-using System;
-using System.Collections.Generic;
 
 namespace ArtemisBanking.Application.Services
 {
-    /// <summary>
+     
     /// Servicio para cálculos del sistema francés de amortización
-    /// </summary>
+     
     public class ServicioCalculoPrestamo : IServicioCalculoPrestamo
     {
-        /// <summary>
+         
         /// Calcula la cuota mensual fija usando el sistema francés
         /// Fórmula: C = P * (r * (1 + r)^n) / ((1 + r)^n - 1)
-        /// </summary>
+         
         public decimal CalcularCuotaMensual(decimal capital, decimal tasaInteresAnual, int plazoMeses)
         {
             // Convertir tasa anual a mensual (dividir entre 12 y entre 100)
@@ -28,10 +26,10 @@ namespace ArtemisBanking.Application.Services
             return Math.Round((decimal)cuota, 2);
         }
 
-        /// <summary>
+         
         /// Genera la tabla de amortización completa
         /// Retorna una lista de tuplas con fecha de pago y monto de cuota
-        /// </summary>
+         
         public List<(DateTime fechaPago, decimal montoCuota)> GenerarTablaAmortizacion(
             DateTime fechaInicio,
             decimal capital,
@@ -52,10 +50,10 @@ namespace ArtemisBanking.Application.Services
             return tabla;
         }
 
-        /// <summary>
+         
         /// Recalcula las cuotas futuras cuando cambia la tasa de interés
         /// No implementado completamente (requiere cálculo más complejo del capital pendiente)
-        /// </summary>
+         
         public List<(int cuotaId, decimal nuevoMonto)> RecalcularCuotasConNuevaTasa(
             decimal capitalPendiente,
             decimal nuevaTasa,

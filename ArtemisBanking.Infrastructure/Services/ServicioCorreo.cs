@@ -1,15 +1,13 @@
 ﻿using ArtemisBanking.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Infrastructure.Services
 {
-    /// <summary>
+     
     /// Servicio para envío de correos electrónicos mediante SMTP de Gmail
-    /// </summary>
+     
     public class ServicioCorreo : IServicioCorreo
     {
         private readonly IConfiguration _configuration;
@@ -33,9 +31,9 @@ namespace ArtemisBanking.Infrastructure.Services
             _fromName = _configuration["EmailSettings:FromName"];
         }
 
-        /// <summary>
+         
         /// Método privado para enviar correos
-        /// </summary>
+         
         private async Task EnviarCorreoAsync(string destinatario, string asunto, string cuerpo)
         {
             try

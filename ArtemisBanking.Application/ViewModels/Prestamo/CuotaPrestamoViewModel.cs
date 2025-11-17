@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    /// <summary>
     /// ViewModel para cada cuota en la tabla de amortización
-    /// </summary>
     public class CuotaPrestamoViewModel
     {
         [Display(Name = "Fecha de Pago")]

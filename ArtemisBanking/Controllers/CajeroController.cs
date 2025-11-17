@@ -37,14 +37,14 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== HOME (DASHBOARD DEL CAJERO) ====================
 
-        /// <summary>
+         
         /// Página principal del cajero - muestra estadísticas del día
         /// Aquí el cajero puede ver:
         /// - Cuántas transacciones hizo hoy
         /// - Cuántos pagos procesó hoy
         /// - Cuántos depósitos hizo hoy
         /// - Cuántos retiros hizo hoy
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -70,12 +70,12 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== DEPÓSITO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para realizar un depósito
         /// El cajero debe ingresar:
         /// - Número de cuenta destino (a quién le va a depositar)
         /// - Monto a depositar
-        /// </summary>
+         
         [HttpGet]
         public IActionResult Deposito()
         {
@@ -83,10 +83,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(new DepositoCajeroViewModel());
         }
 
-        /// <summary>
+         
         /// Procesa el depósito (POST del formulario)
         /// Primero valida los datos y luego muestra una pantalla de confirmación
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken] // Protección contra ataques CSRF
         public async Task<IActionResult> Deposito(DepositoCajeroViewModel model)
@@ -134,12 +134,12 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== RETIRO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para realizar un retiro
         /// El cajero debe ingresar:
         /// - Número de cuenta origen (de quién se va a retirar)
         /// - Monto a retirar
-        /// </summary>
+         
         [HttpGet]
         public IActionResult Retiro()
         {
@@ -147,10 +147,10 @@ namespace ArtemisBanking.Web.Controllers
             return View(new RetiroCajeroViewModel());
         }
 
-        /// <summary>
+         
         /// Procesa el retiro (POST del formulario)
         /// Valida que la cuenta exista y tenga fondos suficientes
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Retiro(RetiroCajeroViewModel model)
@@ -193,24 +193,24 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== PAGO A TARJETA DE CRÉDITO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para realizar un pago a tarjeta de crédito
         /// El cajero debe ingresar:
         /// - Número de cuenta origen (de dónde se toma el dinero)
         /// - Número de tarjeta (16 dígitos)
         /// - Monto a pagar
-        /// </summary>
+         
         [HttpGet]
         public IActionResult PagarTarjeta()
         {
             return View(new PagoTarjetaCajeroViewModel());
         }
 
-        /// <summary>
+         
         /// Procesa el pago a tarjeta de crédito
         /// IMPORTANTE: Si el monto es mayor a la deuda, solo se paga hasta la deuda
         /// No se puede pagar de más a una tarjeta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarTarjeta(PagoTarjetaCajeroViewModel model)
@@ -258,24 +258,24 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== PAGO A PRÉSTAMO ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para realizar un pago a préstamo
         /// El cajero debe ingresar:
         /// - Número de cuenta origen (de dónde se toma el dinero)
         /// - Número de préstamo (9 dígitos)
         /// - Monto a pagar
-        /// </summary>
+         
         [HttpGet]
         public IActionResult PagarPrestamo()
         {
             return View(new PagoPrestamoCajeroViewModel());
         }
 
-        /// <summary>
+         
         /// Procesa el pago a préstamo
         /// IMPORTANTE: El pago se aplica a las cuotas de forma secuencial
         /// Si sobra dinero después de pagar todas las cuotas, se devuelve a la cuenta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarPrestamo(PagoPrestamoCajeroViewModel model)
@@ -327,24 +327,24 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== TRANSACCIÓN ENTRE CUENTAS DE TERCEROS ====================
 
-        /// <summary>
+         
         /// Muestra el formulario para realizar una transacción entre dos cuentas
         /// (ambas cuentas son de clientes diferentes)
         /// El cajero debe ingresar:
         /// - Número de cuenta origen (de quién se toma el dinero)
         /// - Número de cuenta destino (a quién se le envía)
         /// - Monto a transferir
-        /// </summary>
+         
         [HttpGet]
         public IActionResult TransaccionTerceros()
         {
             return View(new TransaccionTercerosCajeroViewModel());
         }
 
-        /// <summary>
+         
         /// Procesa la transacción entre terceros
         /// Es como una transferencia pero hecha por el cajero entre dos clientes
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransaccionTerceros(TransaccionTercerosCajeroViewModel model)

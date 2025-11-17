@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// <summary>
     /// Configuración de la entidad Beneficiario 
-    /// </summary>
     public class BeneficiarioConfiguration : IEntityTypeConfiguration<Beneficiario>
     {
         public void Configure(EntityTypeBuilder<Beneficiario> builder)

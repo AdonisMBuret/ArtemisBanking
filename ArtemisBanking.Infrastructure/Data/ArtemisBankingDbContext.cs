@@ -4,11 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// <summary>
     /// Contexto de base de datos de la aplicación
     /// Es como el "puente" entre nuestro código C# y la base de datos SQL Server
     /// Hereda de IdentityDbContext para poder usar el sistema de usuarios de ASP.NET Identity
-    /// </summary>
     public class ArtemisBankingDbContext : IdentityDbContext<Usuario>
     {
         // Constructor que recibe las opciones de configuración
@@ -41,10 +39,8 @@ namespace ArtemisBanking.Infrastructure.Data
         // Tabla de beneficiarios de los clientes
         public DbSet<Beneficiario> Beneficiarios { get; set; }
 
-        /// <summary>
         /// Método que se ejecuta cuando Entity Framework está creando el modelo de la base de datos
         /// Aquí configuramos las relaciones entre tablas, índices, restricciones, etc.
-        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Llamar al método base para que Identity configure sus tablas

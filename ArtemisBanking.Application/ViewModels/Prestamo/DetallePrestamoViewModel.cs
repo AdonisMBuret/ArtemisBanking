@@ -4,10 +4,8 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
     // ==================== DETALLE DE PRÉSTAMO ====================
 
-    /// <summary>
     /// ViewModel para mostrar el detalle completo de un préstamo
     /// Incluye la tabla de amortización con todas las cuotas
-    /// </summary>
     public class DetallePrestamoViewModel
     {
         public int Id { get; set; }

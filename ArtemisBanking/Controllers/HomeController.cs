@@ -5,12 +5,12 @@ using System.Diagnostics;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
+     
     /// Controlador principal que maneja:
     /// - Redirección al home correcto según el rol
     /// - Página de errores
     /// - Página principal del sitio (si no está logueado)
-    /// </summary>
+     
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -20,11 +20,11 @@ namespace ArtemisBanking.Web.Controllers
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Página principal - redirige según el estado de autenticación
         /// Si está logueado: redirige a su home según rol
         /// Si no está logueado: redirige al login
-        /// </summary>
+         
         public IActionResult Index()
         {
             // Si el usuario está autenticado, redirigir según su rol
@@ -49,18 +49,18 @@ namespace ArtemisBanking.Web.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        /// <summary>
+         
         /// Página de privacidad (opcional)
-        /// </summary>
+         
         public IActionResult Privacy()
         {
             return View();
         }
 
-        /// <summary>
+         
         /// Página de error genérica
         /// Se muestra cuando hay algún error no controlado en la aplicación
-        /// </summary>
+         
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -74,9 +74,9 @@ namespace ArtemisBanking.Web.Controllers
             });
         }
 
-        /// <summary>
+         
         /// Página de error 404 - Página no encontrada
-        /// </summary>
+         
         [Route("/Error/404")]
         public IActionResult Error404()
         {
@@ -84,9 +84,9 @@ namespace ArtemisBanking.Web.Controllers
             return View();
         }
 
-        /// <summary>
+         
         /// Página de error 500 - Error del servidor
-        /// </summary>
+         
         [Route("/Error/500")]
         public IActionResult Error500()
         {

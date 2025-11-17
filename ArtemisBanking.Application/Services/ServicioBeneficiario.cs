@@ -4,11 +4,6 @@ using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -31,10 +26,9 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Agrega un nuevo beneficiario para el usuario
         /// Primero valida que la cuenta existe y que no esté ya registrada como beneficiario
-        /// </summary>
         public async Task<ResultadoOperacion> AgregarBeneficiarioAsync(string usuarioId, string numeroCuenta)
         {
             try
@@ -84,10 +78,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Elimina un beneficiario del usuario
         /// Valida que el beneficiario pertenezca al usuario antes de eliminarlo
-        /// </summary>
         public async Task<ResultadoOperacion> EliminarBeneficiarioAsync(int beneficiarioId, string usuarioId)
         {
             try
@@ -121,10 +114,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene todos los beneficiarios de un usuario
         /// Los retorna con la información de nombre y apellido del beneficiario
-        /// </summary>
         public async Task<ResultadoOperacion<IEnumerable<BeneficiarioDTO>>> ObtenerBeneficiariosAsync(string usuarioId)
         {
             try

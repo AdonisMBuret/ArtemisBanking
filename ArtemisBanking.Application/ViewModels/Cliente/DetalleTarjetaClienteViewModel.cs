@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
 {
     // ==================== DETALLE DE TARJETA ====================
 
-    /// <summary>
     /// ViewModel para mostrar el detalle de una tarjeta con todos sus consumos
-    /// </summary>
     public class DetalleTarjetaClienteViewModel
     {
         public int Id { get; set; }

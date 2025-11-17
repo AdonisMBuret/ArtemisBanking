@@ -5,16 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArtemisBanking.Application
 {
-    /// <summary>
+     
     /// Clase de extensión para configurar los servicios de la capa de aplicación
     /// Aquí registramos todos los servicios que contienen la lógica de negocio
-    /// </summary>
+     
     public static class DependencyInjection
     {
-        /// <summary>
+         
         /// Método que agrega todos los servicios de aplicación al contenedor de DI
         /// Se llama desde Program.cs en la capa Web
-        /// </summary>
+         
         public static IServiceCollection AgregarAplicacion(this IServiceCollection services)
         {
             // ==================== AUTOMAPPER ====================
@@ -51,6 +51,5 @@ namespace ArtemisBanking.Application
 
             return services;
         }
-
     }
 }

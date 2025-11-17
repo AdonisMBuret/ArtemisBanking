@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels
 {
     // ==================== DASHBOARD ADMIN ====================
 
-    /// <summary>
     /// ViewModel para mostrar los indicadores en el dashboard del administrador
-    /// </summary>
     public class DashboardAdminViewModel
     {
         [Display(Name = "Total de Transacciones")]

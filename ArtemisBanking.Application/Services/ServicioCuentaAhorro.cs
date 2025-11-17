@@ -6,11 +6,6 @@ using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -36,10 +31,10 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Crea una cuenta de ahorro secundaria para un cliente
         /// Genera un número único de 9 dígitos y la marca como no principal
-        /// </summary>
+         
         public async Task<ResultadoOperacion<CuentaAhorroDTO>> CrearCuentaSecundariaAsync(CrearCuentaSecundariaDTO datos)
         {
             try
@@ -87,11 +82,11 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Cancela una cuenta secundaria
         /// Si tiene fondos, los transfiere automáticamente a la cuenta principal
         /// Las cuentas principales NO se pueden cancelar
-        /// </summary>
+         
         public async Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId)
         {
             try
@@ -154,10 +149,10 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Transfiere dinero entre las cuentas propias del cliente
         /// Valida que ambas cuentas pertenezcan al mismo usuario y que haya fondos suficientes
-        /// </summary>
+         
         public async Task<ResultadoOperacion> TransferirEntreCuentasPropiasAsync(TransferirEntrePropiasDTO datos)
         {
             try
@@ -243,9 +238,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene una cuenta por su ID con todas sus relaciones (usuario, transacciones)
-        /// </summary>
+         
         public async Task<ResultadoOperacion<CuentaAhorroDTO>> ObtenerCuentaPorIdAsync(int cuentaId)
         {
             try

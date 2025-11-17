@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// <summary>
     /// Configuración de la entidad ConsumoTarjeta
-    /// </summary>
     public class ConsumoTarjetaConfiguration : IEntityTypeConfiguration<ConsumoTarjeta>
     {
         public void Configure(EntityTypeBuilder<ConsumoTarjeta> builder)

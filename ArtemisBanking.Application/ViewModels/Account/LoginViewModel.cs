@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Account
 {
     // ==================== LOGIN ====================
 
-    /// <summary>
     /// ViewModel para el formulario de inicio de sesión
-    /// </summary>
     public class LoginViewModel
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]

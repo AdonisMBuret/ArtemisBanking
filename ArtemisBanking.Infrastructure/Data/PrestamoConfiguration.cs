@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// <summary>
     /// Configuración de la entidad Prestamo
-    /// </summary>
     public class PrestamoConfiguration : IEntityTypeConfiguration<Prestamo>
     {
         public void Configure(EntityTypeBuilder<Prestamo> builder)

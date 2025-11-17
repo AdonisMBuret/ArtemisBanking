@@ -4,10 +4,8 @@ namespace ArtemisBanking.Application.ViewModels
 {
     // ==================== DASHBOARD DEL CAJERO ====================
 
-    /// <summary>
     /// ViewModel para el dashboard del cajero
     /// Muestra las estadísticas del día actual
-    /// </summary>
     public class DashboardCajeroViewModel
     {
         [Display(Name = "Transacciones del Día")]

@@ -10,14 +10,13 @@ using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
+     
     /// Controlador para todas las funcionalidades del Administrador
     /// Solo accesible para usuarios con rol "Administrador"
-    /// </summary>
+     
     [Authorize(Policy = "SoloAdministrador")]
     public class AdminController : Controller
     {
@@ -103,9 +102,9 @@ namespace ArtemisBanking.Web.Controllers
 
        // ==================== GESTIÓN DE USUARIOS ====================
 
-        /// <summary>
+         
         /// Lista paginada de usuarios con filtros
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Usuarios(int pagina = 1, string filtroRol = null)
         {
@@ -147,18 +146,18 @@ namespace ArtemisBanking.Web.Controllers
 
             return View(viewModel);
         }
-        /// <summary>
+         
         /// Muestra el formulario para crear un nuevo usuario
-        /// </summary>
+         
         [HttpGet]
         public IActionResult CrearUsuario()
         {
             return View();
         }
 
-        /// <summary>
+         
         /// Procesa la creación de un nuevo usuario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearUsuario(CrearUsuarioViewModel model)
@@ -185,9 +184,9 @@ namespace ArtemisBanking.Web.Controllers
             return View(model);
         }
 
-        /// <summary>
+         
         /// Muestra el formulario para editar un usuario
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> EditarUsuario(string id)
         {
@@ -225,9 +224,9 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
+         
         /// Procesa la edición de un usuario
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarUsuario(EditarUsuarioViewModel model)
@@ -254,9 +253,9 @@ namespace ArtemisBanking.Web.Controllers
             return View(model);
         }
 
-        /// <summary>
+         
         /// Cambia el estado de un usuario (activar/desactivar)
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstadoUsuario(string id)
@@ -281,9 +280,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== MÉTODOS AJAX PARA VALIDACIONES ====================
 
-        /// <summary>
+         
         /// Verifica si un nombre de usuario ya existe (AJAX)
-        /// </summary>
+         
         [HttpGet]
         public async Task<JsonResult> VerificarNombreUsuario(string nombreUsuario, string idExcluir = null)
         {
@@ -291,9 +290,9 @@ namespace ArtemisBanking.Web.Controllers
             return Json(!existe); // Retornar true si NO existe (para la validación)
         }
 
-        /// <summary>
+         
         /// Verifica si un correo ya existe (AJAX)
-        /// </summary>
+         
         [HttpGet]
         public async Task<JsonResult> VerificarCorreo(string correo, string idExcluir = null)
         {
@@ -305,10 +304,10 @@ namespace ArtemisBanking.Web.Controllers
         // ==================== GESTIÓN DE PRÉSTAMOS (COMPLETA) ====================
         // Esta sección va DESPUÉS de la gestión de usuarios en tu AdminController
 
-        /// <summary>
+         
         /// Lista paginada de préstamos con filtros
         /// Muestra todos los préstamos del sistema ordenados del más reciente al más antiguo
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Prestamos(int pagina = 1, string cedula = null, bool? estado = null)
         {
@@ -360,10 +359,10 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el detalle de un préstamo (tabla de amortización completa)
         /// Aquí se ven todas las cuotas: cuáles están pagadas, cuáles no, cuáles atrasadas
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
@@ -413,11 +412,11 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el formulario para editar la tasa de interés de un préstamo
         /// Solo se pueden editar préstamos activos
         /// Al cambiar la tasa, se recalculan las cuotas futuras
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> EditarPrestamo(int id)
         {
@@ -456,11 +455,11 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Procesa la actualización de la tasa de interés
         /// Recalcula todas las cuotas futuras (las que no se han pagado)
         /// Las cuotas ya pagadas NO se modifican
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPrestamo(EditarPrestamoViewModel model)
@@ -508,10 +507,10 @@ namespace ArtemisBanking.Web.Controllers
         // ==================== GESTIÓN DE TARJETAS DE CRÉDITO (COMPLETA) ====================
         // Esta sección va DESPUÉS de la gestión de préstamos en tu AdminController
 
-        /// <summary>
+         
         /// Lista paginada de tarjetas de crédito con filtros
         /// Muestra todas las tarjetas del sistema ordenadas de la más reciente a la más antigua
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Tarjetas(int pagina = 1, string cedula = null, bool? estado = null)
         {
@@ -561,9 +560,9 @@ namespace ArtemisBanking.Web.Controllers
         // Los métodos AsignarTarjeta, ConfigurarTarjeta, etc. ya los tienes implementados
         // DetalleTarjeta ya está implementado también
 
-        /// <summary>
+         
         /// Muestra el detalle de una tarjeta con todos sus consumos
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetalleTarjeta(int id)
         {
@@ -617,10 +616,10 @@ namespace ArtemisBanking.Web.Controllers
         // ==================== GESTIÓN DE CUENTAS DE AHORRO (COMPLETA) ====================
         // Esta sección va DESPUÉS de la gestión de tarjetas en tu AdminController
 
-        /// <summary>
+         
         /// Lista paginada de cuentas de ahorro con filtros
         /// Muestra todas las cuentas (principales y secundarias) ordenadas de la más reciente a la más antigua
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> Cuentas(
             int pagina = 1,
@@ -675,10 +674,10 @@ namespace ArtemisBanking.Web.Controllers
 
         // Los métodos AsignarCuenta, ConfigurarCuenta, etc. ya los tienes implementados
 
-        /// <summary>
+         
         /// Muestra el detalle de una cuenta con todas sus transacciones
         /// Aquí se ven todos los movimientos: depósitos, retiros, transferencias, pagos, etc.
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
@@ -730,11 +729,11 @@ namespace ArtemisBanking.Web.Controllers
         // CancelarCuenta ya lo tienes implementado
         // ConfirmarCancelacionCuenta ya lo tienes implementado, solo necesita este ajuste:
 
-        /// <summary>
+         
         /// Procesa la cancelación de una cuenta secundaria
         /// Si tiene fondos, los transfiere a la cuenta principal automáticamente
         /// Las cuentas principales NO se pueden cancelar
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarCancelacionCuenta(int id)
@@ -770,9 +769,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== ASIGNACIÓN DE PRÉSTAMOS (COMPLETO) ====================
 
-        /// <summary>
+         
         /// Muestra el listado de clientes para asignar préstamo
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> AsignarPrestamo()
         {
@@ -813,9 +812,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el formulario para configurar el préstamo
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfigurarPrestamo(string clienteId)
@@ -859,9 +858,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Procesa la asignación del préstamo
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult>ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
@@ -932,9 +931,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Confirma la asignación de préstamo para cliente de alto riesgo
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarPrestamoAltoRiesgo(AdvertenciaRiesgoViewModel model)
@@ -975,9 +974,9 @@ namespace ArtemisBanking.Web.Controllers
 
         // ==================== ASIGNACIÓN DE TARJETAS ====================
 
-        /// <summary>
+         
         /// Muestra el listado de clientes para asignar tarjeta
-        /// </summary>
+         
         [HttpGet]
         public async Task<IActionResult> AsignarTarjeta()
         {
@@ -1016,9 +1015,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Muestra el formulario para configurar la tarjeta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfigurarTarjeta(string clienteId)
@@ -1055,9 +1054,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+         
         /// Procesa la asignación de la tarjeta
-        /// </summary>
+         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcesarAsignacionTarjeta(ConfigurarTarjetaViewModel model)
@@ -1373,5 +1372,4 @@ namespace ArtemisBanking.Web.Controllers
         }
 
     }
-
 }

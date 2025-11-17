@@ -3,8 +3,7 @@
 namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
 {
     // ==================== EDITAR TARJETA ====================
-
-    public class EditarTarjetaViewModel
+        public class EditarTarjetaViewModel
     {
         public int Id { get; set; }
 

@@ -3,9 +3,7 @@
 namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
 {
     // ==================== CLIENTE PARA TARJETA ====================
-    /// <summary>
     /// ViewModel que representa la información básica de un cliente para asignarle una tarjeta de crédito
-    /// </summary>
 }
 public class ClienteParaTarjetaViewModel
 {

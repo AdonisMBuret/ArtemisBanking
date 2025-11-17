@@ -1,12 +1,9 @@
 
-
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
     // ==================== LISTADO DE USUARIOS ====================
 
-    /// <summary>
     /// ViewModel para el listado paginado de usuarios
-    /// </summary>
     public class ListaUsuariosViewModel
     {
         public IEnumerable<UsuarioListaItemViewModel> Usuarios { get; set; }
@@ -15,6 +12,5 @@ namespace ArtemisBanking.Application.ViewModels.Usuario
         public int TotalRegistros { get; set; }
         public string FiltroRol { get; set; }
     }
-
 }
 

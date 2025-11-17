@@ -4,11 +4,6 @@ using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -40,9 +35,9 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+         
         /// Realiza un depósito a una cuenta de ahorro
-        /// </summary>
+         
         public async Task<ResultadoOperacion> RealizarDepositoAsync(DepositoCajeroDTO datos)
         {
             try
@@ -104,9 +99,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza un retiro de una cuenta de ahorro
-        /// </summary>
+         
         public async Task<ResultadoOperacion> RealizarRetiroAsync(RetiroCajeroDTO datos)
         {
             try
@@ -174,9 +169,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Procesa un pago a tarjeta de crédito
-        /// </summary>
+         
         public async Task<ResultadoOperacion> PagarTarjetaCreditoAsync(PagoTarjetaCajeroDTO datos)
         {
             try
@@ -263,9 +258,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Procesa un pago a un préstamo
-        /// </summary>
+         
         public async Task<ResultadoOperacion> PagarPrestamoAsync(PagoPrestamoCajeroDTO datos)
         {
             try
@@ -389,9 +384,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Realiza una transacción entre dos cuentas de terceros
-        /// </summary>
+         
         public async Task<ResultadoOperacion> TransaccionEntreTercerosAsync(TransaccionTercerosCajeroDTO datos)
         {
             try
@@ -492,9 +487,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+         
         /// Obtiene el dashboard del cajero con las estadísticas del día
-        /// </summary>
+         
         public async Task<ResultadoOperacion<DashboardCajeroDTO>> ObtenerDashboardAsync(string cajeroId)
         {
             try

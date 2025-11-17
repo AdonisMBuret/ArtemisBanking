@@ -4,9 +4,7 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
 {
     // ==================== DEPÓSITO ====================
 
-    /// <summary>
     /// ViewModel para realizar un depósito a una cuenta
-    /// </summary>
     public class DepositoCajeroViewModel
     {
         [Required(ErrorMessage = "El número de cuenta destino es obligatorio")]

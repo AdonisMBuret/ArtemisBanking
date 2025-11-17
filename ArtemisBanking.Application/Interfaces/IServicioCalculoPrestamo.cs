@@ -1,9 +1,8 @@
+
 namespace ArtemisBanking.Application.Interfaces
 {
-    /// <summary>
     /// Interfaz para el servicio de cálculos de préstamos
     /// Define los métodos para calcular cuotas usando el sistema francés de amortización
-    /// </summary>
     public interface IServicioCalculoPrestamo
     {
         // Calcular cuota mensual usando el sistema francés
