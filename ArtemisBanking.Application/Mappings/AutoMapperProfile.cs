@@ -19,7 +19,7 @@ namespace ArtemisBanking.Application.Mappings
                 .ForMember(dest => dest.NombreUsuario,
                     opt => opt.MapFrom(src => src.UserName));
 
-            // ==================== MAPEOS DE VIEWMODEL <-> DTO (¡AQUÍ!) ====================
+            // ==================== MAPEOS DE VIEWMODEL <-> DTO  ====================
 
             
             CreateMap<DashboardCajeroDTO, DashboardCajeroViewModel>();

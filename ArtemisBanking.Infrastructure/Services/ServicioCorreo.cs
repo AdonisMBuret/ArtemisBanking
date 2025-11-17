@@ -26,7 +26,7 @@ namespace ArtemisBanking.Infrastructure.Services
 
             // Leer configuración de SMTP desde appsettings.json
             _smtpHost = _configuration["EmailSettings:SmtpHost"];
-            _smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            _smtpPort = _configuration.GetValue<int>("EmailSettings:SmtpPort");
             _smtpUsername = _configuration["EmailSettings:SmtpUsername"];
             _smtpPassword = _configuration["EmailSettings:SmtpPassword"];
             _fromEmail = _configuration["EmailSettings:FromEmail"];
