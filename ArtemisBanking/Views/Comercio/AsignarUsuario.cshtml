@@ -1,0 +1,111 @@
+@model ArtemisBanking.Application.ViewModels.Comercio.AsignarUsuarioComercioViewModel
+@{
+    ViewData["Title"] = "Asignar Usuario al Comercio";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus"></i> Crear Usuario para Comercio
+                    </h3>
+                </div>
+                <div class="card-body">
+                    
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-artemis-error">
+                            <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <!-- Información del Comercio -->
+                    <div class="alert alert-artemis-info mb-4">
+                        <h5 class="mb-2"><i class="bi bi-shop"></i> Comercio:</h5>
+                        <p class="mb-1"><strong>@Model.NombreComercio</strong></p>
+                        <p class="mb-0">RNC: @Model.RNC</p>
+                    </div>
+
+                    <form asp-action="AsignarUsuario" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ComercioId" />
+                        <input type="hidden" asp-for="NombreComercio" />
+                        <input type="hidden" asp-for="RNC" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error"></div>
+
+                        <h5 class="text-artemis-secondary mb-3">Datos Personales</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Nombre" class="form-label-artemis"></label>
+                                <input asp-for="Nombre" class="form-control" placeholder="Ej: Juan" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Apellido" class="form-label-artemis"></label>
+                                <input asp-for="Apellido" class="form-control" placeholder="Ej: Pérez" />
+                                <span asp-validation-for="Apellido" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Cedula" class="form-label-artemis"></label>
+                            <input asp-for="Cedula" class="form-control" placeholder="Ej: 00112345678" maxlength="11" />
+                            <span asp-validation-for="Cedula" class="text-danger"></span>
+                            <small class="text-muted">11 dígitos sin guiones</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="text-artemis-secondary mb-3">Datos de Acceso</h5>
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label-artemis"></label>
+                            <input asp-for="Correo" class="form-control" type="email" placeholder="Ej: comercio@correo.com" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NombreUsuario" class="form-label-artemis"></label>
+                            <input asp-for="NombreUsuario" class="form-control" placeholder="Ej: comercio_economia" />
+                            <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Contrasena" class="form-label-artemis"></label>
+                                <input asp-for="Contrasena" class="form-control" type="password" />
+                                <span asp-validation-for="Contrasena" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ConfirmarContrasena" class="form-label-artemis"></label>
+                                <input asp-for="ConfirmarContrasena" class="form-control" type="password" />
+                                <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-artemis-warning">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Nota:</strong> El usuario recibirá un correo de confirmación. 
+                            Debe confirmar su cuenta antes de poder iniciar sesión.
+                        </div>
+
+                        <div class="d-flex justify-content-between gap-2 mt-4">
+                            <a asp-action="Detalle" asp-route-id="@Model.ComercioId" class="btn btn-outline-artemis">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-person-plus"></i> Crear Usuario y Asociar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

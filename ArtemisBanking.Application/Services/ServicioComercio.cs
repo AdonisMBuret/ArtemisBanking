@@ -3,6 +3,7 @@ using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -12,17 +13,20 @@ namespace ArtemisBanking.Application.Services
         private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
         private readonly IMapper _mapper;
+        private readonly ILogger<ServicioComercio> _logger;
 
         public ServicioComercio(
             IRepositorioComercio repositorioComercio,
             IRepositorioUsuario repositorioUsuario,
             IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<ServicioComercio> logger)
         {
             _repositorioComercio = repositorioComercio;
             _repositorioUsuario = repositorioUsuario;
             _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<PaginatedResponseDTO<ComercioResponseDTO>> ObtenerComerciosPaginadosAsync(int page = 1, int pageSize = 20)
@@ -104,32 +108,52 @@ namespace ArtemisBanking.Application.Services
 
         public async Task<ComercioResponseDTO> CrearComercioAsync(CrearComercioRequestDTO request)
         {
-            // Verificar que el RNC no exista
-            var comercioExistente = await _repositorioComercio.ObtenerPorRNCAsync(request.RNC);
-            if (comercioExistente != null)
+            // ? LOGGING
+            _logger.LogInformation($"=== SERVICIO: Creando comercio ===");
+            _logger.LogInformation($"Nombre: {request.Nombre}, RNC: {request.RNC}");
+            
+            try
             {
-                throw new InvalidOperationException("Ya existe un comercio con este RNC");
+                // Verificar que el RNC no exista
+                var comercioExistente = await _repositorioComercio.ObtenerPorRNCAsync(request.RNC);
+                if (comercioExistente != null)
+                {
+                    _logger.LogWarning($"RNC {request.RNC} ya existe");
+                    throw new InvalidOperationException("Ya existe un comercio con este RNC");
+                }
+
+                _logger.LogInformation("RNC validado, creando comercio...");
+
+                var nuevoComercio = new Comercio
+                {
+                    Nombre = request.Nombre,
+                    RNC = request.RNC,
+                    EstaActivo = true,
+                    FechaCreacion = DateTime.Now
+                };
+
+                _logger.LogInformation("Agregando comercio al repositorio...");
+                await _repositorioComercio.AgregarAsync(nuevoComercio);
+                
+                _logger.LogInformation("Guardando cambios...");
+                await _repositorioComercio.GuardarCambiosAsync();
+
+                _logger.LogInformation($"Comercio creado exitosamente con ID: {nuevoComercio.Id}");
+
+                return new ComercioResponseDTO
+                {
+                    Id = nuevoComercio.Id,
+                    Nombre = nuevoComercio.Nombre,
+                    RNC = nuevoComercio.RNC,
+                    EstaActivo = nuevoComercio.EstaActivo,
+                    FechaCreacion = nuevoComercio.FechaCreacion
+                };
             }
-
-            var nuevoComercio = new Comercio
+            catch (Exception ex)
             {
-                Nombre = request.Nombre,
-                RNC = request.RNC,
-                EstaActivo = true,
-                FechaCreacion = DateTime.Now
-            };
-
-            await _repositorioComercio.AgregarAsync(nuevoComercio);
-            await _repositorioComercio.GuardarCambiosAsync();
-
-            return new ComercioResponseDTO
-            {
-                Id = nuevoComercio.Id,
-                Nombre = nuevoComercio.Nombre,
-                RNC = nuevoComercio.RNC,
-                EstaActivo = nuevoComercio.EstaActivo,
-                FechaCreacion = nuevoComercio.FechaCreacion
-            };
+                _logger.LogError(ex, "Error al crear comercio");
+                throw;
+            }
         }
 
         public async Task<bool> ActualizarComercioAsync(int id, ActualizarComercioRequestDTO request)

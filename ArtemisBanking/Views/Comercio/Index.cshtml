@@ -13,6 +13,22 @@
         </a>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-artemis-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-artemis-error alert-dismissible fade show">
+            <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     @if (Model.Comercios == null || !Model.Comercios.Any())
     {
         <div class="alert alert-artemis-info">
@@ -22,7 +38,7 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-artemis">
+            <table class="table table-artemis table-hover">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -37,27 +53,27 @@
                     @foreach (var comercio in Model.Comercios)
                     {
                         <tr>
-                            <td>@comercio.Nombre</td>
+                            <td><strong>@comercio.Nombre</strong></td>
                             <td>@comercio.RNC</td>
                             <td>@comercio.FechaCreacion.ToString("dd/MM/yyyy")</td>
                             <td>
                                 @if (comercio.EstaActivo)
                                 {
-                                    <span class="badge-success">Activo</span>
+                                    <span class="badge-artemis-success">Activo</span>
                                 }
                                 else
                                 {
-                                    <span class="badge-danger">Inactivo</span>
+                                    <span class="badge-artemis-danger">Inactivo</span>
                                 }
                             </td>
                             <td>
                                 @if (comercio.TieneUsuario)
                                 {
-                                    <span class="badge-success">Sí</span>
+                                    <span class="badge-artemis-success"><i class="bi bi-check-circle"></i> Sí</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">No</span>
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> No</span>
                                 }
                             </td>
                             <td>
@@ -69,11 +85,19 @@
                                    class="btn btn-sm btn-artemis-secondary me-1" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                @if (!comercio.TieneUsuario)
+                                {
+                                    <a asp-action="AsignarUsuario" asp-route-id="@comercio.Id" 
+                                       class="btn btn-sm btn-artemis-primary me-1" title="Asignar Usuario">
+                                        <i class="bi bi-person-plus"></i>
+                                    </a>
+                                }
                                 <form asp-action="CambiarEstado" asp-route-id="@comercio.Id" 
-                                      method="post" class="d-inline">
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('@(comercio.EstaActivo ? "¿Desactivar" : "¿Activar") este comercio?');">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" 
-                                            class="btn btn-sm @(comercio.EstaActivo ? "btn-danger" : "btn-success")"
+                                            class="btn btn-sm @(comercio.EstaActivo ? "btn-outline-danger" : "btn-outline-success")"
                                             title="@(comercio.EstaActivo ? "Desactivar" : "Activar")">
                                         <i class="bi bi-@(comercio.EstaActivo ? "x-circle" : "check-circle")"></i>
                                     </button>
@@ -87,14 +111,22 @@
 
         @if (Model.TotalPaginas > 1)
         {
-            <nav>
+            <nav class="mt-4">
                 <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                    </li>
+                    
                     @for (int i = 1; i <= Model.TotalPaginas; i++)
                     {
                         <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
                             <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
                         </li>
                     }
+                    
+                    <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                    </li>
                 </ul>
             </nav>
         }

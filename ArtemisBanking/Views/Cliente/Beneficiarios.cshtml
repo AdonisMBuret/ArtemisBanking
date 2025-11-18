@@ -1,13 +1,28 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cliente.ListaBeneficiariosViewModel
 @{
     ViewData["Title"] = "Beneficiarios";
-    var agregarModel = new ArtemisBanking.Application.ViewModels.Cliente.AgregarBeneficiarioViewModel();
 }
 
 <div class="container-artemis fade-in">
     <h2 class="mb-4">
         <i class="bi bi-person-check"></i> Mis Beneficiarios
     </h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-artemis-error alert-dismissible fade show">
+            <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-artemis-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <div class="row">
         <!-- Formulario Agregar -->
@@ -20,10 +35,15 @@
                     <form asp-action="AgregarBeneficiario" method="post">
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
-                            <label class="form-label-artemis">Número de Cuenta</label>
-                            <input asp-for="@agregarModel.NumeroCuenta" class="form-control" 
-                                   placeholder="123456789" maxlength="9" />
-                            <span asp-validation-for="@agregarModel.NumeroCuenta" class="text-danger"></span>
+                            <label for="NumeroCuenta" class="form-label-artemis">Número de Cuenta</label>
+                            <input type="text" 
+                                   id="NumeroCuenta" 
+                                   name="NumeroCuenta" 
+                                   class="form-control" 
+                                   placeholder="123456789" 
+                                   maxlength="9"
+                                   pattern="[0-9]{9}"
+                                   required />
                             <small class="text-muted">9 dígitos</small>
                         </div>
                         <button type="submit" class="btn btn-artemis-primary w-100">

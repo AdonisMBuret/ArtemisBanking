@@ -5,7 +5,8 @@ using System.Diagnostics;
 
 namespace ArtemisBanking.Web.Controllers
 {
-     //hice push
+     //hice push 2 para ti <3 soy retrasado
+
     /// Controlador principal que maneja:
     /// - Redirección al home correcto según el rol
     /// - Página de errores
