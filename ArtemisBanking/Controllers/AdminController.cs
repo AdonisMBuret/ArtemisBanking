@@ -863,7 +863,7 @@ namespace ArtemisBanking.Web.Controllers
          
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult>ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
+        public async Task<IActionResult> ProcesarAsignacionPrestamo(ConfigurarPrestamoViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -890,7 +890,7 @@ namespace ArtemisBanking.Web.Controllers
                 );
 
                 // ⭐ SI ES ALTO RIESGO, mostrar advertencia
-                if (true) // Forzar siempre advertencia para probar
+                if (riesgoResult.Datos) // Ahora verificamos el resultado real
                 {
                     var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(model.ClienteId);
                     var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
@@ -905,7 +905,7 @@ namespace ArtemisBanking.Web.Controllers
                         DeudaActual = deudaActual,
                         DeudaPromedio = deudaPromedio,
                         DeudaDespuesDelPrestamo = deudaActual + model.MontoCapital,
-                        MensajeAdvertencia = "TEST - Verificando que la vista funciona"
+                        MensajeAdvertencia = "Este cliente tiene un nivel de riesgo alto. Revise cuidadosamente antes de continuar."
                     };
 
                     return View("AdvertenciaRiesgoPrestamo", advertenciaVM);

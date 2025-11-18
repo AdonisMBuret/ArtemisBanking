@@ -11,6 +11,16 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
+        /// Obtiene una tarjeta por ID con todas sus relaciones
+        /// Sobrescribe el método base para incluir Cliente y Consumos
+        public override async Task<TarjetaCredito> ObtenerPorIdAsync(int id)
+        {
+            return await _context.TarjetasCredito
+                .Include(t => t.Cliente)
+                .Include(t => t.Consumos)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
         
         /// Busca una tarjeta por su número de 16 dígitos
          

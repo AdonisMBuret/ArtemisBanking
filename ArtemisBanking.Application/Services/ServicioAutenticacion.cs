@@ -179,11 +179,16 @@ namespace ArtemisBanking.Application.Services
                 // Generar token de reseteo
                 var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
 
-                // Enviar correo con el token
+                // Obtener la URL base desde la configuración o usar una predeterminada
+                var urlBase = "https://localhost:7096"; // Cambiar según tu dominio en producción
+
+                // Enviar correo con el link
                 await _servicioCorreo.EnviarCorreoReseteoContrasenaAsync(
                     usuario.Email,
                     usuario.UserName,
-                    token);
+                    usuario.Id,
+                    token,
+                    urlBase);
 
                 _logger.LogInformation($"Token de reseteo generado y enviado a {usuario.UserName}");
 

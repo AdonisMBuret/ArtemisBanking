@@ -11,6 +11,7 @@
             <!-- Formulario de Configuración -->
             <form asp-action="ProcesarAsignacionTarjeta" method="post">@Html.AntiForgeryToken()                    
                 <input type="hidden" asp-for="ClienteId" />
+                <input type="hidden" asp-for="NombreCliente" />
 
                     <!-- 
                         CAMBIO CLAVE:

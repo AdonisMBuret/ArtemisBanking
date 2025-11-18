@@ -11,6 +11,17 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
+        /// Obtiene un préstamo por ID con todas sus relaciones
+        /// Sobrescribe el método base para incluir Cliente, Administrador y TablaAmortizacion
+        public override async Task<Prestamo> ObtenerPorIdAsync(int id)
+        {
+            return await _context.Prestamos
+                .Include(p => p.Cliente)
+                .Include(p => p.Administrador)
+                .Include(p => p.TablaAmortizacion)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
         /// Obtiene un préstamo por su número, incluyendo toda su información
          
         public async Task<Prestamo> ObtenerPorNumeroPrestamoAsync(string numeroPrestamo)
@@ -47,7 +58,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
         }
 
          
-        /// Obtiene préstamos paginados con filtros opcionales
+        /// Obtiene préstamos paginados with filtros opcionales
          
         public async Task<(IEnumerable<Prestamo> prestamos, int total)> ObtenerPrestamosPaginadosAsync(
             int pagina,

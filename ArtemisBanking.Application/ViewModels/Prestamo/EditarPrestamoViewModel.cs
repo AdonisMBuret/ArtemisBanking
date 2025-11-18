@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    // ==================== EDITAR PRÉSTAMO ====================
-
     /// ViewModel para editar la tasa de interés de un préstamo
     public class EditarPrestamoViewModel
     {

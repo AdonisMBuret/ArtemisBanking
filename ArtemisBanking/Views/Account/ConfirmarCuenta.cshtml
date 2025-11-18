@@ -2,6 +2,10 @@
 @{
     ViewData["Title"] = "Confirmar Cuenta";
     Layout = null;
+    
+    // Obtener parámetros de la URL si existen
+    var usuarioId = ViewData["userId"] as string ?? Context.Request.Query["userId"].ToString() ?? string.Empty;
+    var token = ViewData["token"] as string ?? Context.Request.Query["token"].ToString() ?? string.Empty;
 }
 
 <!DOCTYPE html>
@@ -18,28 +22,74 @@
             <div class="col-md-6">
                 <div class="card shadow">
                     <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Confirmar Cuenta</h2>
+                        <div class="text-center mb-4">
+                            <h2>✓ Confirmar Cuenta</h2>
+                            <p class="text-muted">Verifica tu identidad para activar tu cuenta</p>
+                        </div>
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
 
                         <form asp-action="ConfirmarCuenta" method="post">
                             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                             <div class="mb-3">
                                 <label asp-for="UsuarioId" class="form-label">ID de Usuario</label>
-                                <input asp-for="UsuarioId" class="form-control" />
-                                <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                                <input asp-for="UsuarioId" value="@usuarioId" class="form-control form-control-lg" placeholder="Pega aquí tu ID de usuario" readonly />
+                                <span asp-validation-for="UsuarioId" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">Encontrado en el enlace del correo</small>
                             </div>
 
                             <div class="mb-3">
-                                <label asp-for="Token" class="form-label"></label>
-                                <textarea asp-for="Token" class="form-control" rows="4"></textarea>
-                                <span asp-validation-for="Token" class="text-danger"></span>
+                                <label asp-for="Token" class="form-label">Token de Confirmación</label>
+                                <textarea asp-for="Token" class="form-control form-control-lg" rows="4" placeholder="Pega aquí el token completo del correo" readonly>@token</textarea>
+                                <span asp-validation-for="Token" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">Una larga cadena de caracteres encontrada en el correo</small>
                             </div>
 
+                            @if (!string.IsNullOrEmpty(usuarioId) && !string.IsNullOrEmpty(token))
+                            {
+                                <div class="alert alert-success" role="alert">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <strong>¡Excelente!</strong> Los datos de confirmación ya están pre-llenados. Solo presiona el botón de abajo para activar tu cuenta.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info" role="alert">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <strong>Tip:</strong> Si hiciste clic en el enlace del correo, deberías haber llegado aquí con los campos ya completados.
+                                </div>
+                            }
+
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Confirmar Cuenta</button>
-                                <a asp-action="Login" class="btn btn-secondary">Volver al Login</a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Confirmar Cuenta
+                                </button>
+                                <a asp-action="Login" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-arrow-left me-2"></i>Volver al Login
+                                </a>
                             </div>
                         </form>
+
+                        <hr class="my-4">
+
+                        <p class="text-center text-muted small">
+                            ¿No recibiste el correo? Revisa tu carpeta de spam o <a href="#">solicita uno nuevo</a>
+                        </p>
                     </div>
                 </div>
             </div>

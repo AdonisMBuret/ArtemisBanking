@@ -11,6 +11,16 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
+        /// Obtiene una cuenta por ID con todas sus relaciones
+        /// Sobrescribe el método base para incluir Usuario y Transacciones
+        public override async Task<CuentaAhorro> ObtenerPorIdAsync(int id)
+        {
+            return await _context.CuentasAhorro
+                .Include(c => c.Usuario)
+                .Include(c => c.Transacciones)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         /// Busca una cuenta por su número único
         /// Incluye las relaciones con usuario y transacciones
         public async Task<CuentaAhorro> ObtenerPorNumeroCuentaAsync(string numeroCuenta)

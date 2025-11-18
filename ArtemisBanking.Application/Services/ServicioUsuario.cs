@@ -116,10 +116,15 @@ namespace ArtemisBanking.Application.Services
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(nuevoUsuario);
 
+                    // Obtener la URL base desde la configuración o usar una predeterminada
+                    var urlBase = "https://localhost:7096"; // Cambiar según tu dominio en producción
+
                     await _servicioCorreo.EnviarCorreoConfirmacionAsync(
                         nuevoUsuario.Email,
                         nuevoUsuario.UserName,
-                        token);
+                        nuevoUsuario.Id,
+                        token,
+                        urlBase);
                 }
                 catch (Exception ex)
                 {

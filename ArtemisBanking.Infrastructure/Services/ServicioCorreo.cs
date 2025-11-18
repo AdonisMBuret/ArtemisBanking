@@ -62,17 +62,31 @@ namespace ArtemisBanking.Infrastructure.Services
             }
         }
 
-        public async Task EnviarCorreoConfirmacionAsync(string correo, string nombreUsuario, string token)
+        public async Task EnviarCorreoConfirmacionAsync(string correo, string nombreUsuario, string usuarioId, string token, string urlBase)
         {
             var asunto = "Confirma tu cuenta - Artemis Banking";
+            
+            // Generar el link de confirmación
+            var enlaceConfirmacion = $"{urlBase}/Account/ConfirmarCuenta?userId={Uri.EscapeDataString(usuarioId)}&token={Uri.EscapeDataString(token)}";
+            
             var cuerpo = $@"
                 <h2>Bienvenido a Artemis Banking</h2>
                 <p>Hola <strong>{nombreUsuario}</strong>,</p>
-                <p>Para activar tu cuenta, usa el siguiente token de confirmación:</p>
-                <div style='background-color: #f4f4f4; padding: 15px; margin: 20px 0; border-radius: 5px;'>
-                    <code style='font-size: 16px; color: #333;'>{token}</code>
+                <p>Para activar tu cuenta, haz clic en el botón de abajo:</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <a href='{enlaceConfirmacion}' style='display: inline-block; background-color: #1b6ec2; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;'>
+                        ✓ Confirmar Cuenta
+                    </a>
                 </div>
-                <p>Este token es válido por 24 horas.</p>
+                
+                <p>O copia y pega este enlace en tu navegador:</p>
+                <p style='background-color: #f4f4f4; padding: 10px; word-break: break-all; border-radius: 5px;'>
+                    {enlaceConfirmacion}
+                </p>
+                
+                <p>Este enlace es válido por 24 horas.</p>
+                <p style='color: #666; font-size: 12px;'>Si no solicitaste esta cuenta, ignora este correo.</p>
                 <br>
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
@@ -80,17 +94,31 @@ namespace ArtemisBanking.Infrastructure.Services
             await EnviarCorreoAsync(correo, asunto, cuerpo);
         }
 
-        public async Task EnviarCorreoReseteoContrasenaAsync(string correo, string nombreUsuario, string token)
+        public async Task EnviarCorreoReseteoContrasenaAsync(string correo, string nombreUsuario, string usuarioId, string token, string urlBase)
         {
             var asunto = "Restablecer contraseña - Artemis Banking";
+            
+            // Generar el link de restablecimiento
+            var enlaceRestablecimiento = $"{urlBase}/Account/RestablecerContrasena?userId={Uri.EscapeDataString(usuarioId)}&token={Uri.EscapeDataString(token)}";
+            
             var cuerpo = $@"
                 <h2>Restablecimiento de contraseña</h2>
                 <p>Hola <strong>{nombreUsuario}</strong>,</p>
-                <p>Recibimos una solicitud para restablecer tu contraseña. Usa el siguiente token:</p>
-                <div style='background-color: #f4f4f4; padding: 15px; margin: 20px 0; border-radius: 5px;'>
-                    <code style='font-size: 16px; color: #333;'>{token}</code>
+                <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón de abajo para continuar:</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <a href='{enlaceRestablecimiento}' style='display: inline-block; background-color: #1b6ec2; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;'>
+                        🔐 Restablecer Contraseña
+                    </a>
                 </div>
-                <p>Si no solicitaste este cambio, ignora este correo.</p>
+                
+                <p>O copia y pega este enlace en tu navegador:</p>
+                <p style='background-color: #f4f4f4; padding: 10px; word-break: break-all; border-radius: 5px;'>
+                    {enlaceRestablecimiento}
+                </p>
+                
+                <p>Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá sin cambios.</p>
+                <p style='color: #666; font-size: 12px;'>Este enlace es válido por 24 horas.</p>
                 <br>
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
