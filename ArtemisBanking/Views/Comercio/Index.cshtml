@@ -1,0 +1,102 @@
+@model ArtemisBanking.Application.ViewModels.Comercio.ListaComerciosViewModel
+@{
+    ViewData["Title"] = "Comercios";
+}
+
+<div class="container-artemis fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-shop"></i> Comercios
+        </h2>
+        <a asp-action="Crear" class="btn btn-artemis-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Comercio
+        </a>
+    </div>
+
+    @if (Model.Comercios == null || !Model.Comercios.Any())
+    {
+        <div class="alert alert-artemis-info">
+            <i class="bi bi-info-circle"></i> No hay comercios registrados
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-artemis">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>RNC</th>
+                        <th>Fecha Creación</th>
+                        <th>Estado</th>
+                        <th>Usuario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comercio in Model.Comercios)
+                    {
+                        <tr>
+                            <td>@comercio.Nombre</td>
+                            <td>@comercio.RNC</td>
+                            <td>@comercio.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (comercio.EstaActivo)
+                                {
+                                    <span class="badge-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                @if (comercio.TieneUsuario)
+                                {
+                                    <span class="badge-success">Sí</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Detalle" asp-route-id="@comercio.Id" 
+                                   class="btn btn-sm btn-outline-artemis me-1" title="Ver detalle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Editar" asp-route-id="@comercio.Id" 
+                                   class="btn btn-sm btn-artemis-secondary me-1" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="CambiarEstado" asp-route-id="@comercio.Id" 
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" 
+                                            class="btn btn-sm @(comercio.EstaActivo ? "btn-danger" : "btn-success")"
+                                            title="@(comercio.EstaActivo ? "Desactivar" : "Activar")">
+                                        <i class="bi bi-@(comercio.EstaActivo ? "x-circle" : "check-circle")"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPaginas > 1)
+        {
+            <nav>
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= Model.TotalPaginas; i++)
+                    {
+                        <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+</div>

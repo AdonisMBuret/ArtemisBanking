@@ -1,15 +1,15 @@
-﻿
-namespace ArtemisBanking.Application.Common
+﻿namespace ArtemisBanking.Application.Common
 {
     /// Clase que contiene todas las constantes usadas en el sistema
     /// Esto nos ayuda a no repetir valores en todo el código
     public static class Constantes
     {
         // ==================== ROLES DEL SISTEMA ====================
-        // Estos son los 3 tipos de usuarios que puede haber
+        // Estos son los tipos de usuarios que puede haber
         public const string RolAdministrador = "Administrador";
         public const string RolCajero = "Cajero";
         public const string RolCliente = "Cliente";
+        public const string RolComercio = "Comercio"; // ⭐ Nuevo rol para comercios
 
         // ==================== TIPOS DE TRANSACCIÓN ====================
         // Cuando el dinero SALE de una cuenta

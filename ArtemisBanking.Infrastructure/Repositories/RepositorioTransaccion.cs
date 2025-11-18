@@ -98,6 +98,27 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .CountAsync();
         }
 
+        /// <summary>
+        /// Obtiene transacciones paginadas de una cuenta específica
+        /// </summary>
+        public async Task<(IEnumerable<Transaccion> Transacciones, int TotalRegistros)> ObtenerPorCuentaPaginadoAsync(
+            int cuentaId, 
+            int pagina, 
+            int registrosPorPagina)
+        {
+            var query = _context.Transacciones
+                .Where(t => t.CuentaAhorroId == cuentaId)
+                .OrderByDescending(t => t.FechaTransaccion);
+
+            var totalRegistros = await query.CountAsync();
+
+            var transacciones = await query
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            return (transacciones, totalRegistros);
+        }
     }
 }
 

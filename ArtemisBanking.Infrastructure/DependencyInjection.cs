@@ -25,10 +25,12 @@ namespace ArtemisBanking.Infrastructure
     {
          
         /// Configura todos los servicios de infraestructura
+        /// <param name="configurarCookies">Indica si se deben configurar cookies de autenticación (Razor Pages). False para APIs con JWT.</param>
          
         public static IServiceCollection AgregarInfraestructura(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            bool configurarCookies = true)
         {
             // ==================== BASE DE DATOS ====================
             services.AddDbContext<ArtemisBankingDbContext>(options =>
@@ -63,14 +65,18 @@ namespace ArtemisBanking.Infrastructure
             .AddDefaultTokenProviders();
 
             // ==================== COOKIES DE AUTENTICACIÓN ====================
-            services.ConfigureApplicationCookie(options =>
+            // Solo configurar cookies para Razor Pages, no para APIs con JWT
+            if (configurarCookies)
             {
-                options.LoginPath = "/Account/Login";
-                options.LogoutPath = "/Account/Logout";
-                options.AccessDeniedPath = "/Account/AccessDenied";
-                options.ExpireTimeSpan = TimeSpan.FromHours(24);
-                options.SlidingExpiration = true;
-            });
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.LogoutPath = "/Account/Logout";
+                    options.AccessDeniedPath = "/Account/AccessDenied";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                    options.SlidingExpiration = true;
+                });
+            }
 
             // ==================== HANGFIRE ====================
             services.AddHangfire(config => config
@@ -102,6 +108,7 @@ namespace ArtemisBanking.Infrastructure
             services.AddScoped<IRepositorioConsumoTarjeta, RepositorioConsumoTarjeta>();
             services.AddScoped<IRepositorioTransaccion, RepositorioTransaccion>();
             services.AddScoped<IRepositorioBeneficiario, RepositorioBeneficiario>();
+            services.AddScoped<IRepositorioComercio, RepositorioComercio>();
 
             // ==================== SERVICIOS DE INFRAESTRUCTURA ====================
             // Solo servicios que interactúan con recursos externos
@@ -111,6 +118,9 @@ namespace ArtemisBanking.Infrastructure
 
             // Servicio para cifrado de datos (SHA-256)
             services.AddScoped<IServicioCifrado, ServicioCifrado>();
+
+            // Servicio para generación y validación de JWT
+            services.AddScoped<IServicioJwt, ServicioJwt>();
 
             // ==================== JOBS DE HANGFIRE ====================
             services.AddScoped<ActualizadorCuotasAtrasadasJob>();

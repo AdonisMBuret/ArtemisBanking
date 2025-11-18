@@ -4,6 +4,9 @@ namespace ArtemisBanking.Application.Interfaces
     /// Define todos los métodos para enviar notificaciones por email
     public interface IServicioCorreo
     {
+        // Método genérico para enviar cualquier correo
+        Task EnviarCorreoGenericoAsync(string correo, string asunto, string cuerpo);
+        
         Task EnviarCorreoConfirmacionAsync(string correo, string nombreUsuario, string usuarioId, string token, string urlBase);
         Task EnviarCorreoReseteoContrasenaAsync(string correo, string nombreUsuario, string usuarioId, string token, string urlBase);
         Task EnviarNotificacionPrestamoAprobadoAsync(string correo, string nombreCliente, decimal monto, int plazoMeses, decimal tasaInteres, decimal cuotaMensual);

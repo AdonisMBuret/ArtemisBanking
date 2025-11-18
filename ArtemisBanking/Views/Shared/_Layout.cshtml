@@ -10,13 +10,13 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-artemis">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-bank2"></i> Artemis Banking
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" 
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -27,7 +27,7 @@
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="Index">
-                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                        <i class="bi bi-house"></i> Inicio
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -50,6 +50,11 @@
                                         <i class="bi bi-piggy-bank"></i> Cuentas
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Comercio" asp-action="Index">
+                                        <i class="bi bi-shop"></i> Comercios
+                                    </a>
+                                </li>
                             </ul>
                         }
                         else if (User.IsInRole("Cajero"))
@@ -57,7 +62,7 @@
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Cajero" asp-action="Index">
-                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                        <i class="bi bi-house"></i> Inicio
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -75,13 +80,13 @@
                                         <i class="bi bi-wallet2"></i> Pagos
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarTarjeta">Pagar Tarjeta</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarPrestamo">Pagar Préstamo</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarTarjeta">Tarjeta</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cajero" asp-action="PagarPrestamo">Préstamo</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Cajero" asp-action="TransaccionTerceros">
-                                        <i class="bi bi-arrow-left-right"></i> Transacciones
+                                        <i class="bi bi-arrow-left-right"></i> Transferir
                                     </a>
                                 </li>
                             </ul>
@@ -96,13 +101,21 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-arrow-left-right"></i> Transacciones
+                                        <i class="bi bi-send"></i> Enviar
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="TransaccionExpress">Express</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarTarjeta">Pagar Tarjeta</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarPrestamo">Pagar Préstamo</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarBeneficiario">Pagar Beneficiario</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="TransaccionExpress">A Cualquiera</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarBeneficiario">A Beneficiario</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="TransferirEntreCuentas">Entre Mis Cuentas</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-wallet2"></i> Pagar
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarTarjeta">Tarjeta</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cliente" asp-action="PagarPrestamo">Préstamo</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item">
@@ -113,11 +126,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Cliente" asp-action="AvanceEfectivo">
                                         <i class="bi bi-cash-stack"></i> Avance
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Cliente" asp-action="TransferirEntreCuentas">
-                                        <i class="bi bi-arrow-repeat"></i> Transferir
                                     </a>
                                 </li>
                             </ul>
@@ -132,7 +140,7 @@
                                     <li>
                                         <form method="post" asp-controller="Account" asp-action="Logout">
                                             <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                                <i class="bi bi-box-arrow-right"></i> Salir
                                             </button>
                                         </form>
                                     </li>
@@ -146,27 +154,40 @@
     </header>
 
     <div class="container">
+        @* Mensajes de éxito/error *@
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert alert-artemis-success alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert alert-artemis-error alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         }
 
         @if (TempData["InfoMessage"] != null)
         {
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <i class="bi bi-info-circle-fill"></i> @TempData["InfoMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert alert-artemis-info alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                @TempData["InfoMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        }
+
+        @if (TempData["WarningMessage"] != null)
+        {
+            <div class="alert alert-artemis-warning alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @TempData["WarningMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         }
 
@@ -174,12 +195,6 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Artemis Banking - Sistema Bancario Integral
-        </div>
-    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,6 +1,6 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Account.RestablecerContrasenaViewModel
 @{
-    ViewData["Title"] = "Restablecer Contraseña";
+    ViewData["Title"] = "Nueva Contraseña";
     Layout = null;
 }
 
@@ -11,46 +11,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Artemis Banking</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Nueva Contraseña</h2>
-
-                        <form asp-action="RestablecerContrasena" method="post">
-                            <input type="hidden" asp-for="UsuarioId" />
-                            <input type="hidden" asp-for="Token" />
-
-                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                            <div class="mb-3">
-                                <label asp-for="Contrasena" class="form-label"></label>
-                                <input asp-for="Contrasena" class="form-control" type="password" />
-                                <span asp-validation-for="Contrasena" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <label asp-for="ConfirmarContrasena" class="form-label"></label>
-                                <input asp-for="ConfirmarContrasena" class="form-control" type="password" />
-                                <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Restablecer Contraseña</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="bi bi-shield-lock" style="font-size: 2.5rem; color: var(--marron-principal);"></i>
+                <h1 style="font-size: 1.6rem;">Nueva Contraseña</h1>
+                <p>Crea una contraseña segura</p>
             </div>
+
+            <form asp-action="RestablecerContrasena" method="post">
+                <input type="hidden" asp-for="UsuarioId" />
+                <input type="hidden" asp-for="Token" />
+
+                @if (ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div class="alert alert-artemis-error" role="alert">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Revisa los errores abajo
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Contrasena" class="form-label-artemis">
+                        Nueva Contraseña
+                    </label>
+                    <input asp-for="Contrasena" class="form-control" type="password" 
+                           placeholder="Mínimo 8 caracteres" autofocus />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmarContrasena" class="form-label-artemis">
+                        Confirmar Contraseña
+                    </label>
+                    <input asp-for="ConfirmarContrasena" class="form-control" type="password" 
+                           placeholder="Escríbela de nuevo" />
+                    <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-artemis-primary w-100">
+                    <i class="bi bi-check-circle-fill me-2"></i>Guardar Nueva Contraseña
+                </button>
+            </form>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 </body>
 </html>

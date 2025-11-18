@@ -1,20 +1,20 @@
 /* ============================================
-   ARTEMIS BANKING - ESTILOS PERSONALIZADOS
-   Paleta: Marrón, Crema, Negro, Morado oscuro
+   ARTEMIS BANKING - Sistema Bancario Simple
+   Diseño estudiantil: Simple, funcional, fácil de usar
+   Colores: Marrón, Crema, Negro
    ============================================ */
 
 /* ===== VARIABLES DE COLOR ===== */
 :root {
     --marron-principal: #5C4033;
     --marron-oscuro: #3E2723;
+    --marron-claro: #8B6F47;
     --crema: #F5E6D3;
     --crema-claro: #FFF8E7;
     --negro: #1A1A1A;
-    --morado-oscuro: #4A148C;
-    --morado-suave: #6A1B9A;
+    --gris: #6C757D;
     --blanco: #FFFFFF;
-    --gris-claro: #F5F5F5;
-    --sombra: rgba(0, 0, 0, 0.1);
+    --sombra: rgba(0, 0, 0, 0.08);
 }
 
 /* ===== ESTILOS GENERALES ===== */
@@ -23,32 +23,36 @@ body {
     background-color: var(--crema-claro);
     color: var(--negro);
     min-height: 100vh;
+    line-height: 1.5;
 }
 
-/* ===== NAVBAR ===== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--marron-oscuro);
+    font-weight: 600;
+}
+
+/* ===== NAVBAR SIMPLE ===== */
 .navbar-artemis {
-    background: linear-gradient(135deg, var(--marron-principal) 0%, var(--marron-oscuro) 100%);
-    box-shadow: 0 2px 10px var(--sombra);
-    padding: 1rem 0;
+    background-color: var(--marron-principal);
+    box-shadow: 0 2px 4px var(--sombra);
+    padding: 0.6rem 0;
 }
 
 .navbar-brand {
     color: var(--crema) !important;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: bold;
-    transition: color 0.3s;
 }
 
     .navbar-brand:hover {
-        color: var(--crema-claro) !important;
+        color: var(--blanco) !important;
     }
 
 .nav-link {
     color: var(--crema) !important;
-    margin: 0 0.5rem;
-    transition: all 0.3s;
-    border-radius: 5px;
-    padding: 0.5rem 1rem !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 4px;
+    transition: background-color 0.2s;
 }
 
     .nav-link:hover {
@@ -57,53 +61,48 @@ body {
     }
 
     .nav-link.active {
-        background-color: var(--morado-oscuro);
+        background-color: var(--marron-oscuro);
         color: var(--blanco) !important;
     }
 
-/* ===== BOTONES ===== */
+/* ===== BOTONES SIMPLES ===== */
 .btn-artemis-primary {
     background-color: var(--marron-principal);
     border: none;
     color: var(--crema);
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
     font-weight: 500;
+    transition: background-color 0.2s;
 }
 
     .btn-artemis-primary:hover {
         background-color: var(--marron-oscuro);
         color: var(--blanco);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px var(--sombra);
     }
 
 .btn-artemis-secondary {
-    background-color: var(--morado-oscuro);
+    background-color: var(--marron-claro);
     border: none;
-    color: var(--crema);
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s;
+    color: var(--blanco);
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
     font-weight: 500;
+    transition: background-color 0.2s;
 }
 
     .btn-artemis-secondary:hover {
-        background-color: var(--morado-suave);
-        color: var(--blanco);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px var(--sombra);
+        background-color: var(--marron-principal);
     }
 
 .btn-outline-artemis {
     border: 2px solid var(--marron-principal);
     color: var(--marron-principal);
     background: transparent;
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
     font-weight: 500;
+    transition: all 0.2s;
 }
 
     .btn-outline-artemis:hover {
@@ -111,84 +110,95 @@ body {
         color: var(--crema);
     }
 
-/* ===== CARDS ===== */
+/* ===== CARDS SIMPLES ===== */
 .card-artemis {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px var(--sombra);
+    border: 1px solid var(--crema);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px var(--sombra);
     background-color: var(--blanco);
-    transition: transform 0.3s;
+    margin-bottom: 1rem;
 }
-
-    .card-artemis:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px var(--sombra);
-    }
 
 .card-header-artemis {
-    background: linear-gradient(135deg, var(--marron-principal) 0%, var(--marron-oscuro) 100%);
+    background-color: var(--marron-principal);
     color: var(--crema);
-    border-radius: 15px 15px 0 0 !important;
-    padding: 1rem 1.5rem;
+    border-radius: 6px 6px 0 0 !important;
+    padding: 0.8rem 1.2rem;
     font-weight: 600;
+    border-bottom: none;
 }
 
-/* ===== FORMULARIOS ===== */
-.form-control-artemis {
-    border: 2px solid var(--crema);
-    border-radius: 8px;
-    padding: 0.7rem;
-    transition: all 0.3s;
-    background-color: var(--blanco);
+.card-body {
+    padding: 1.2rem;
 }
 
-    .form-control-artemis:focus {
+/* ===== FORMULARIOS SIMPLES ===== */
+.form-control-artemis,
+.form-control,
+.form-select {
+    border: 1px solid var(--crema);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+    .form-control-artemis:focus,
+    .form-control:focus,
+    .form-select:focus {
         border-color: var(--marron-principal);
-        box-shadow: 0 0 0 0.2rem rgba(92, 64, 51, 0.25);
-        background-color: var(--crema-claro);
+        box-shadow: 0 0 0 0.1rem rgba(92, 64, 51, 0.15);
+        outline: none;
     }
 
-.form-label-artemis {
+.form-label-artemis,
+.form-label {
     color: var(--marron-oscuro);
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
 }
 
-/* ===== ALERTAS ===== */
-.alert-artemis-success {
+/* ===== ALERTAS SIMPLES ===== */
+.alert {
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid;
+}
+
+.alert-artemis-success,
+.alert-success {
     background-color: #d4edda;
-    border-left: 4px solid #28a745;
+    border-color: #c3e6cb;
     color: #155724;
-    border-radius: 8px;
 }
 
-.alert-artemis-error {
+.alert-artemis-error,
+.alert-danger {
     background-color: #f8d7da;
-    border-left: 4px solid #dc3545;
+    border-color: #f5c6cb;
     color: #721c24;
-    border-radius: 8px;
 }
 
-.alert-artemis-info {
+.alert-artemis-info,
+.alert-info {
     background-color: #d1ecf1;
-    border-left: 4px solid #0c5460;
+    border-color: #bee5eb;
     color: #0c5460;
-    border-radius: 8px;
 }
 
-.alert-artemis-warning {
+.alert-artemis-warning,
+.alert-warning {
     background-color: #fff3cd;
-    border-left: 4px solid #856404;
+    border-color: #ffeeba;
     color: #856404;
-    border-radius: 8px;
 }
 
-/* ===== TABLAS ===== */
+/* ===== TABLAS SIMPLES ===== */
 .table-artemis {
     background-color: var(--blanco);
-    border-radius: 10px;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 2px 10px var(--sombra);
 }
 
     .table-artemis thead {
@@ -197,13 +207,14 @@ body {
     }
 
         .table-artemis thead th {
-            border: none;
-            padding: 1rem;
+            padding: 0.7rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
         }
 
     .table-artemis tbody tr {
-        transition: background-color 0.2s;
+        border-bottom: 1px solid var(--crema);
     }
 
         .table-artemis tbody tr:hover {
@@ -211,168 +222,130 @@ body {
         }
 
     .table-artemis tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--crema);
+        padding: 0.7rem;
+        font-size: 0.9rem;
     }
 
-/* ===== BADGES ===== */
-.badge-artemis-primary {
+/* ===== BADGES SIMPLES ===== */
+.badge-artemis-primary,
+.badge-primary {
     background-color: var(--marron-principal);
     color: var(--crema);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
 }
 
-.badge-artemis-secondary {
-    background-color: var(--morado-oscuro);
-    color: var(--crema);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-}
-
-.badge-artemis-success {
+.badge-success {
     background-color: #28a745;
     color: var(--blanco);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
 }
 
-.badge-artemis-danger {
+.badge-danger {
     background-color: #dc3545;
     color: var(--blanco);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-}
-
-/* ===== INDICADORES (DASHBOARD) ===== */
-.indicator-card {
-    background: linear-gradient(135deg, var(--blanco) 0%, var(--crema-claro) 100%);
-    border-left: 5px solid var(--marron-principal);
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 3px 10px var(--sombra);
-    transition: all 0.3s;
-}
-
-    .indicator-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 15px var(--sombra);
-    }
-
-.indicator-icon {
-    font-size: 3rem;
-    color: var(--morado-oscuro);
-}
-
-.indicator-value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--marron-oscuro);
-}
-
-.indicator-label {
-    font-size: 0.9rem;
-    color: var(--marron-principal);
-    text-transform: uppercase;
-}
-
-/* ===== PAGINACIÓN ===== */
-.pagination-artemis .page-link {
-    color: var(--marron-principal);
-    border: 1px solid var(--crema);
-    margin: 0 2px;
-    border-radius: 5px;
-}
-
-    .pagination-artemis .page-link:hover {
-        background-color: var(--marron-principal);
-        color: var(--crema);
-    }
-
-.pagination-artemis .page-item.active .page-link {
-    background-color: var(--morado-oscuro);
-    border-color: var(--morado-oscuro);
-    color: var(--crema);
-}
-
-/* ===== FOOTER ===== */
-.footer-artemis {
-    background-color: var(--marron-oscuro);
-    color: var(--crema);
-    padding: 2rem 0;
-    margin-top: 4rem;
 }
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .container-artemis {
     background-color: var(--blanco);
-    border-radius: 15px;
-    padding: 2rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 15px var(--sombra);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px var(--sombra);
 }
 
-/* ===== LOGIN ESPECIAL ===== */
+/* ===== PÁGINA DE LOGIN SIMPLE ===== */
 .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--marron-oscuro) 0%, var(--morado-oscuro) 100%);
+    background: linear-gradient(135deg, var(--marron-oscuro) 0%, var(--marron-principal) 100%);
 }
 
 .login-card {
     background-color: var(--blanco);
-    border-radius: 20px;
-    padding: 3rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
     width: 100%;
 }
 
 .login-logo {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
     .login-logo h1 {
         color: var(--marron-principal);
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: bold;
+        margin-bottom: 0.2rem;
     }
 
     .login-logo p {
-        color: var(--morado-oscuro);
-        font-size: 0.9rem;
+        color: var(--gris);
+        font-size: 0.85rem;
     }
+
+/* ===== DASHBOARD SIMPLE ===== */
+.indicator-card {
+    background: var(--blanco);
+    border-left: 4px solid var(--marron-principal);
+    border-radius: 4px;
+    padding: 1.2rem;
+    box-shadow: 0 1px 3px var(--sombra);
+    margin-bottom: 1rem;
+}
+
+.indicator-icon {
+    font-size: 2rem;
+    color: var(--marron-principal);
+    margin-bottom: 0.3rem;
+}
+
+.indicator-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--marron-oscuro);
+    margin: 0.2rem 0;
+}
+
+.indicator-label {
+    font-size: 0.8rem;
+    color: var(--gris);
+    text-transform: uppercase;
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .container-artemis {
         padding: 1rem;
-    }
-
-    .indicator-card {
-        margin-bottom: 1rem;
+        margin-top: 1rem;
     }
 
     .login-card {
         margin: 1rem;
-        padding: 2rem;
+        padding: 1.5rem;
+    }
+
+    .table-artemis {
+        font-size: 0.85rem;
     }
 }
 
-/* ===== ANIMACIONES ===== */
+/* ===== ANIMACIÓN SIMPLE ===== */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
 
     to {
@@ -381,23 +354,37 @@ body {
     }
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
 /* ===== UTILIDADES ===== */
 .text-artemis-primary {
     color: var(--marron-principal) !important;
 }
 
 .text-artemis-secondary {
-    color: var(--morado-oscuro) !important;
+    color: var(--marron-claro) !important;
 }
 
 .bg-artemis-light {
     background-color: var(--crema-claro) !important;
 }
 
-.border-artemis {
-    border-color: var(--marron-principal) !important;
+/* ===== VALIDACIÓN ===== */
+.text-danger {
+    color: #dc3545 !important;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+/* ===== DROPDOWN MENUS ===== */
+.dropdown-menu {
+    border: 1px solid var(--crema);
+    box-shadow: 0 2px 6px var(--sombra);
+}
+
+.dropdown-item:hover {
+    background-color: var(--crema-claro);
+    color: var(--marron-oscuro);
 }

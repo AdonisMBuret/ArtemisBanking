@@ -2,25 +2,27 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    // ==================== TRANSACCIÓN ENTRE TERCEROS ====================
-
+    /// <summary>
     /// ViewModel para realizar una transacción entre dos cuentas de terceros
+    /// Incluye validaciones con mensajes amigables
+    /// </summary>
     public class TransaccionTercerosCajeroViewModel
     {
-        [Required(ErrorMessage = "El número de cuenta origen es obligatorio")]
-        [StringLength(9, MinimumLength = 9, ErrorMessage = "El número de cuenta debe tener 9 dígitos")]
+        [Required(ErrorMessage = "Necesitas el número de cuenta de donde se tomará el dinero")]
+        [RegularExpression(@"^[0-9]{9}$", ErrorMessage = "El número de cuenta origen debe tener 9 dígitos")]
         [Display(Name = "Número de Cuenta Origen")]
         public string NumeroCuentaOrigen { get; set; }
 
-        [Required(ErrorMessage = "El número de cuenta destino es obligatorio")]
-        [StringLength(9, MinimumLength = 9, ErrorMessage = "El número de cuenta debe tener 9 dígitos")]
+        [Required(ErrorMessage = "Necesitas el número de cuenta a donde va el dinero")]
+        [RegularExpression(@"^[0-9]{9}$", ErrorMessage = "El número de cuenta destino debe tener 9 dígitos")]
         [Display(Name = "Número de Cuenta Destino")]
         public string NumeroCuentaDestino { get; set; }
 
-        [Required(ErrorMessage = "El monto es obligatorio")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
+        [Required(ErrorMessage = "No olvides poner el monto a transferir")]
+        [Range(0.01, 1000000, ErrorMessage = "El monto debe estar entre RD$0.01 y RD$1,000,000")]
         [Display(Name = "Monto a Transferir")]
-        [DisplayFormat(DataFormatString = "{0:C2}")]
+        [DataType(DataType.Currency)]
+        [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
     }
 }

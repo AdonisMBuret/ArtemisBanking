@@ -1,48 +1,65 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cliente.TransaccionExpressViewModel
 @{
-    ViewData["Title"] = "Transacción Express";
+    ViewData["Title"] = "Enviar Dinero";
 }
 
 <div class="container-artemis fade-in">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-8">
             <div class="card-artemis">
                 <div class="card-header-artemis">
-                    <h3 class="mb-0"><i class="bi bi-send-fill me-2"></i>@ViewData["Title"]</h3>
+                    <h3 class="mb-0"><i class="bi bi-send"></i> Enviar Dinero</h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Transfiera a cualquier cuenta de Artemis Banking.</p>
+                    <div class="alert alert-artemis-info mb-3">
+                        <i class="bi bi-info-circle"></i> Envía dinero a cualquier cuenta de Artemis Banking
+                    </div>
 
                     <form asp-action="TransaccionExpress" method="post">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+                        
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-artemis-error">
+                                <i class="bi bi-x-circle"></i> Revisa los campos marcados en rojo
+                            </div>
+                        }
 
                         <div class="mb-3">
-                            <label asp-for="CuentaOrigenId" class="form-label-artemis"></label>
-                            <select asp-for="CuentaOrigenId" class="form-select form-control-artemis" asp-items="Model.CuentasDisponibles">
-                                <option value="">Seleccione una cuenta...</option>
+                            <label asp-for="CuentaOrigenId" class="form-label-artemis">
+                                Desde mi cuenta
+                            </label>
+                            <select asp-for="CuentaOrigenId" class="form-select" asp-items="Model.CuentasDisponibles">
+                                <option value="">Elige una cuenta...</option>
                             </select>
                             <span asp-validation-for="CuentaOrigenId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="NumeroCuentaDestino" class="form-label-artemis"></label>
-                            <input asp-for="NumeroCuentaDestino" class="form-control form-control-artemis" placeholder="9 dígitos de la cuenta destino" />
+                            <label asp-for="NumeroCuentaDestino" class="form-label-artemis">
+                                A la cuenta
+                            </label>
+                            <input asp-for="NumeroCuentaDestino" class="form-control" 
+                                   placeholder="123456789" maxlength="9" />
                             <span asp-validation-for="NumeroCuentaDestino" class="text-danger"></span>
+                            <small class="text-muted">9 dígitos</small>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Monto" class="form-label-artemis"></label>
-                            <input asp-for="Monto" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 500.00" />
+                            <label asp-for="Monto" class="form-label-artemis">
+                                Cuánto envías
+                            </label>
+                            <input asp-for="Monto" class="form-control" type="number" step="0.01" 
+                                   placeholder="0.00" />
                             <span asp-validation-for="Monto" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between gap-2 mt-4">
                             <a asp-action="Index" class="btn btn-outline-artemis">
-                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                                <i class="bi bi-arrow-left"></i> Volver
                             </a>
                             <button type="submit" class="btn btn-artemis-primary">
-                                Siguiente<i class="bi bi-arrow-right-circle ms-2"></i>
+                                Continuar <i class="bi bi-arrow-right"></i>
                             </button>
                         </div>
                     </form>

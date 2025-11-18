@@ -1,56 +1,67 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cajero.PagoTarjetaCajeroViewModel
 @{
-    ViewData["Title"] = "Pagar Tarjeta de Crédito";
+    ViewData["Title"] = "Pagar Tarjeta";
 }
 
 <div class="container-artemis fade-in">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-8">
             <div class="card-artemis">
                 <div class="card-header-artemis">
                     <h3 class="mb-0">
-                        <i class="bi bi-credit-card-fill me-2"></i>Pagar Tarjeta de Crédito
+                        <i class="bi bi-credit-card"></i> Pagar Tarjeta de Crédito
                     </h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Pago de tarjeta de crédito desde una cuenta de ahorros.</p>
+                    <div class="alert alert-artemis-info mb-3">
+                        <i class="bi bi-info-circle"></i> Si el cliente paga más de lo que debe, solo se cobra lo que debe
+                    </div>
 
-                    <!-- Formulario de Pago -->
                     <form asp-action="PagarTarjeta" method="post">
                         @Html.AntiForgeryToken()
 
-                        <!-- Mensaje de error general -->
-                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-artemis-error">
+                                <i class="bi bi-x-circle"></i> Revisa los campos marcados
+                            </div>
+                        }
 
-                        <!-- Campo: Número de Cuenta Origen -->
                         <div class="mb-3">
-                            <label asp-for="NumeroCuentaOrigen" class="form-label-artemis"></label>
-                            <input asp-for="NumeroCuentaOrigen" class="form-control form-control-artemis" placeholder="9 dígitos de la cuenta de débito" />
+                            <label asp-for="NumeroCuentaOrigen" class="form-label-artemis">
+                                Cuenta del cliente
+                            </label>
+                            <input asp-for="NumeroCuentaOrigen" class="form-control" 
+                                   placeholder="123456789" maxlength="9" />
                             <span asp-validation-for="NumeroCuentaOrigen" class="text-danger"></span>
+                            <small class="text-muted">9 dígitos</small>
                         </div>
 
-                        <!-- Campo: Número de Tarjeta -->
                         <div class="mb-3">
-                            <label asp-for="NumeroTarjeta" class="form-label-artemis"></label>
-                            <input asp-for="NumeroTarjeta" class="form-control form-control-artemis" placeholder="16 dígitos de la tarjeta de crédito" />
+                            <label asp-for="NumeroTarjeta" class="form-label-artemis">
+                                Número de tarjeta
+                            </label>
+                            <input asp-for="NumeroTarjeta" class="form-control" 
+                                   placeholder="1234567890123456" maxlength="16" />
                             <span asp-validation-for="NumeroTarjeta" class="text-danger"></span>
+                            <small class="text-muted">16 dígitos</small>
                         </div>
 
-                        <!-- Campo: Monto a Pagar -->
                         <div class="mb-3">
-                            <label asp-for="Monto" class="form-label-artemis"></label>
-                            <input asp-for="Monto" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 1000.00" />
+                            <label asp-for="Monto" class="form-label-artemis">
+                                Cuánto paga
+                            </label>
+                            <input asp-for="Monto" class="form-control" type="number" step="0.01" 
+                                   placeholder="0.00" />
                             <span asp-validation-for="Monto" class="text-danger"></span>
-                            <small class="form-text text-muted">Si el monto es mayor a la deuda, solo se pagará el total de la deuda.</small>
                         </div>
 
-                        <!-- Botones de Acción -->
                         <div class="d-flex justify-content-between gap-2 mt-4">
                             <a asp-action="Index" class="btn btn-outline-artemis">
-                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                                <i class="bi bi-arrow-left"></i> Volver
                             </a>
                             <button type="submit" class="btn btn-artemis-primary">
-                                <i class="bi bi-check-circle-fill me-2"></i>Procesar Pago
+                                <i class="bi bi-check-circle"></i> Procesar Pago
                             </button>
                         </div>
                     </form>

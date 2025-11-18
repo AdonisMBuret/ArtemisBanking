@@ -7,6 +7,12 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
         // Obtener transacciones de una cuenta
         Task<IEnumerable<Transaccion>> ObtenerTransaccionesDeCuentaAsync(int cuentaId);
 
+        // Obtener transacciones paginadas de una cuenta
+        Task<(IEnumerable<Transaccion> Transacciones, int TotalRegistros)> ObtenerPorCuentaPaginadoAsync(
+            int cuentaId, 
+            int pagina, 
+            int registrosPorPagina);
+
         // Contar transacciones totales
         Task<int> ContarTransaccionesTotalesAsync();
 
@@ -18,9 +24,9 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
 
         // Contar pagos del día
         Task<int> ContarPagosDelDiaAsync();
+        
         Task<int> ContarDepositosDelDiaAsync();
 
         Task<int> ContarRetirosDelDiaAsync();
-
     }
 }

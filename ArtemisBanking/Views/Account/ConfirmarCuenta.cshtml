@@ -2,8 +2,6 @@
 @{
     ViewData["Title"] = "Confirmar Cuenta";
     Layout = null;
-    
-    // Obtener parámetros de la URL si existen
     var usuarioId = ViewData["userId"] as string ?? Context.Request.Query["userId"].ToString() ?? string.Empty;
     var token = ViewData["token"] as string ?? Context.Request.Query["token"].ToString() ?? string.Empty;
 }
@@ -15,90 +13,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Artemis Banking</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <h2>✓ Confirmar Cuenta</h2>
-                            <p class="text-muted">Verifica tu identidad para activar tu cuenta</p>
-                        </div>
-
-                        @if (TempData["SuccessMessage"] != null)
-                        {
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        }
-
-                        @if (TempData["ErrorMessage"] != null)
-                        {
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        }
-
-                        <form asp-action="ConfirmarCuenta" method="post">
-                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                            <div class="mb-3">
-                                <label asp-for="UsuarioId" class="form-label">ID de Usuario</label>
-                                <input asp-for="UsuarioId" value="@usuarioId" class="form-control form-control-lg" placeholder="Pega aquí tu ID de usuario" readonly />
-                                <span asp-validation-for="UsuarioId" class="text-danger small"></span>
-                                <small class="text-muted d-block mt-1">Encontrado en el enlace del correo</small>
-                            </div>
-
-                            <div class="mb-3">
-                                <label asp-for="Token" class="form-label">Token de Confirmación</label>
-                                <textarea asp-for="Token" class="form-control form-control-lg" rows="4" placeholder="Pega aquí el token completo del correo" readonly>@token</textarea>
-                                <span asp-validation-for="Token" class="text-danger small"></span>
-                                <small class="text-muted d-block mt-1">Una larga cadena de caracteres encontrada en el correo</small>
-                            </div>
-
-                            @if (!string.IsNullOrEmpty(usuarioId) && !string.IsNullOrEmpty(token))
-                            {
-                                <div class="alert alert-success" role="alert">
-                                    <i class="bi bi-check-circle-fill"></i>
-                                    <strong>¡Excelente!</strong> Los datos de confirmación ya están pre-llenados. Solo presiona el botón de abajo para activar tu cuenta.
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="alert alert-info" role="alert">
-                                    <i class="bi bi-info-circle-fill"></i>
-                                    <strong>Tip:</strong> Si hiciste clic en el enlace del correo, deberías haber llegado aquí con los campos ya completados.
-                                </div>
-                            }
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-check-circle me-2"></i>Confirmar Cuenta
-                                </button>
-                                <a asp-action="Login" class="btn btn-outline-secondary btn-lg">
-                                    <i class="bi bi-arrow-left me-2"></i>Volver al Login
-                                </a>
-                            </div>
-                        </form>
-
-                        <hr class="my-4">
-
-                        <p class="text-center text-muted small">
-                            ¿No recibiste el correo? Revisa tu carpeta de spam o <a href="#">solicita uno nuevo</a>
-                        </p>
-                    </div>
-                </div>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="bi bi-check-circle" style="font-size: 2.5rem; color: var(--marron-principal);"></i>
+                <h1 style="font-size: 1.6rem;">Confirmar Tu Cuenta</h1>
+                <p>Activa tu cuenta para empezar a usar Artemis</p>
             </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-artemis-success">
+                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-artemis-error">
+                    <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form asp-action="ConfirmarCuenta" method="post">
+                <div class="mb-3">
+                    <label class="form-label-artemis">ID de Usuario</label>
+                    <input asp-for="UsuarioId" value="@usuarioId" class="form-control" readonly />
+                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-artemis">Token de Confirmación</label>
+                    <textarea asp-for="Token" class="form-control" rows="4" readonly>@token</textarea>
+                    <span asp-validation-for="Token" class="text-danger"></span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(usuarioId) && !string.IsNullOrEmpty(token))
+                {
+                    <div class="alert alert-artemis-success">
+                        <i class="bi bi-check-circle"></i> Los datos ya están listos, solo confirma
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-artemis-info">
+                        <i class="bi bi-info-circle"></i> Usa el enlace que te enviamos al correo
+                    </div>
+                }
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-artemis-primary">
+                        <i class="bi bi-check-circle"></i> Confirmar Cuenta
+                    </button>
+                    <a asp-action="Login" class="btn btn-outline-artemis">
+                        <i class="bi bi-arrow-left"></i> Volver al Login
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 </body>
 </html>

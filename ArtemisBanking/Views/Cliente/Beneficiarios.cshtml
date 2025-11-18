@@ -1,58 +1,57 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cliente.ListaBeneficiariosViewModel
 @{
-    ViewData["Title"] = "Mis Beneficiarios";
-    // Usamos un ViewModel separado para el formulario de agregar
+    ViewData["Title"] = "Beneficiarios";
     var agregarModel = new ArtemisBanking.Application.ViewModels.Cliente.AgregarBeneficiarioViewModel();
 }
 
 <div class="container-artemis fade-in">
-    <h2 class="text-artemis-primary mb-4">@ViewData["Title"]</h2>
+    <h2 class="mb-4">
+        <i class="bi bi-person-check"></i> Mis Beneficiarios
+    </h2>
 
-    <div class="row g-4">
-        <!-- Columna para Agregar Beneficiario -->
-        <div class="col-lg-4">
-            <div class="card-artemis sticky-top" style="top: 80px;">
+    <div class="row">
+        <!-- Formulario Agregar -->
+        <div class="col-md-4 mb-4">
+            <div class="card-artemis">
                 <div class="card-header-artemis">
-                    <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Agregar Beneficiario</h5>
+                    <h5 class="mb-0">Agregar Nuevo</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="AgregarBeneficiario" method="post">
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
-                            <label asp-for="@agregarModel.NumeroCuenta" class="form-label-artemis"></label>
-                            <input asp-for="@agregarModel.NumeroCuenta" class="form-control form-control-artemis" placeholder="Ingrese 9 dígitos" />
+                            <label class="form-label-artemis">Número de Cuenta</label>
+                            <input asp-for="@agregarModel.NumeroCuenta" class="form-control" 
+                                   placeholder="123456789" maxlength="9" />
                             <span asp-validation-for="@agregarModel.NumeroCuenta" class="text-danger"></span>
+                            <small class="text-muted">9 dígitos</small>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-artemis-primary">
-                                <i class="bi bi-plus-circle me-2"></i>Agregar
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-artemis-primary w-100">
+                            <i class="bi bi-plus-circle"></i> Agregar
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- Columna para Listar Beneficiarios -->
-        <div class="col-lg-8">
-            <h4 class="text-artemis-secondary mb-3">Beneficiarios Guardados</h4>
+        <!-- Lista Beneficiarios -->
+        <div class="col-md-8">
+            <h4 class="mb-3">Tus Beneficiarios</h4>
             @if (Model.Beneficiarios == null || !Model.Beneficiarios.Any())
             {
-                <div class="card-artemis">
-                    <div class="card-body text-center text-muted">
-                        No tienes beneficiarios guardados. Agrega uno usando el formulario.
-                    </div>
+                <div class="alert alert-artemis-info">
+                    <i class="bi bi-info-circle"></i> Aún no tienes beneficiarios guardados
                 </div>
             }
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-artemis table-hover align-middle">
-                        <thead class="table-dark">
+                    <table class="table table-artemis">
+                        <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Nro. de Cuenta</th>
-                                <th>Acciones</th>
+                                <th>Cuenta</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,10 +61,12 @@
                                     <td>@item.NombreBeneficiario @item.ApellidoBeneficiario</td>
                                     <td><strong>@item.NumeroCuentaBeneficiario</strong></td>
                                     <td>
-                                        <form asp-action="EliminarBeneficiario" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar a este beneficiario?');">
+                                        <form asp-action="EliminarBeneficiario" asp-route-id="@item.Id" method="post" 
+                                              onsubmit="return confirm('¿Seguro que quieres eliminar este beneficiario?');" 
+                                              class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                                <i class="bi bi-trash-fill"></i>
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i> Eliminar
                                             </button>
                                         </form>
                                     </td>

@@ -1,74 +1,67 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cliente.DetalleTarjetaClienteViewModel
 @{
     ViewData["Title"] = "Detalle de Tarjeta";
-
-    // Función auxiliar para formatear números de tarjeta (ocultar)
-    Func<string, string> FormatearNumeroTarjeta = (numero) =>
-    {
-        if (string.IsNullOrEmpty(numero) || numero.Length < 4) return "****";
-        return "**** **** **** " + numero.Substring(numero.Length - 4);
-    };
+    string ultimosCuatro = Model.NumeroTarjeta.Length >= 4 
+        ? Model.NumeroTarjeta.Substring(Model.NumeroTarjeta.Length - 4) 
+        : Model.NumeroTarjeta;
 }
 
 <div class="container-artemis fade-in">
-    <!-- Encabezado y Botón Volver -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-artemis-primary mb-0">@ViewData["Title"]</h2>
+        <h2 class="mb-0">
+            <i class="bi bi-credit-card"></i> Mi Tarjeta
+        </h2>
         <a asp-action="Index" class="btn btn-outline-artemis">
-            <i class="bi bi-arrow-left-circle me-2"></i>Volver al Resumen
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
 
-    <!-- Información General de la Tarjeta -->
+    <!-- Info de la Tarjeta -->
     <div class="card-artemis mb-4">
         <div class="card-header-artemis">
-            <h5 class="mb-0">Tarjeta Nro: @FormatearNumeroTarjeta(Model.NumeroTarjeta)</h5>
+            <h5 class="mb-0">Tarjeta **** @ultimosCuatro</h5>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <dl class="row">
-                        <dt class="col-sm-5">Límite de Crédito:</dt>
-                        <dd class="col-sm-7">@Model.LimiteCredito.ToString("C2")</dd>
-
-                        <dt class="col-sm-5">Deuda Actual:</dt>
-                        <dd class="col-sm-7 fw-bold text-danger">@Model.DeudaActual.ToString("C2")</dd>
-                    </dl>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted">Límite:</p>
+                    <p class="mb-0 fw-bold">@Model.LimiteCredito.ToString("C2")</p>
                 </div>
-                <div class="col-md-6">
-                    <dl class="row">
-                        <dt class="col-sm-5">Crédito Disponible:</dt>
-                        <dd class="col-sm-7 fw-bold text-success">@Model.CreditoDisponible.ToString("C2")</dd>
-
-                        <dt class="col-sm-5">Expiración:</dt>
-                        <dd class="col-sm-7">@Model.FechaExpiracion</dd>
-                    </dl>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted">Deuda:</p>
+                    <p class="mb-0 fw-bold text-danger">@Model.DeudaActual.ToString("C2")</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted">Disponible:</p>
+                    <p class="mb-0 fw-bold" style="color: var(--marron-principal);">@Model.CreditoDisponible.ToString("C2")</p>
                 </div>
             </div>
+            <p class="mb-0 text-muted">Vence: @Model.FechaExpiracion</p>
         </div>
     </div>
 
-    <!-- Historial de Consumos -->
-    <h4 class="text-artemis-secondary mb-3">Historial de Consumos</h4>
-    <div class="table-responsive">
-        <table class="table table-artemis table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Fecha</th>
-                    <th>Comercio</th>
-                    <th>Monto</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Consumos == null || !Model.Consumos.Any())
-                {
+    <!-- Consumos -->
+    <h4 class="mb-3">Tus Compras</h4>
+    
+    @if (Model.Consumos == null || !Model.Consumos.Any())
+    {
+        <div class="alert alert-artemis-info">
+            <i class="bi bi-info-circle"></i> No hay compras registradas
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-artemis">
+                <thead>
                     <tr>
-                        <td colspan="4" class="text-center">No se encontraron consumos para esta tarjeta.</td>
+                        <th>Fecha</th>
+                        <th>Comercio</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
                     </tr>
-                }
-                else
-                {
+                </thead>
+                <tbody>
                     @foreach (var consumo in Model.Consumos)
                     {
                         <tr>
@@ -78,17 +71,17 @@
                             <td>
                                 @if (consumo.EstadoConsumo == "APROBADO")
                                 {
-                                    <span class="badge-artemis-success">@consumo.EstadoConsumo</span>
+                                    <span class="badge-success">OK</span>
                                 }
                                 else
                                 {
-                                    <span class="badge-artemis-danger">@consumo.EstadoConsumo</span>
+                                    <span class="badge-danger">@consumo.EstadoConsumo</span>
                                 }
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

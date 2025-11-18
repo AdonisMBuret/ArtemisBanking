@@ -31,10 +31,8 @@ namespace ArtemisBanking.Infrastructure.Services
             _fromName = _configuration["EmailSettings:FromName"];
         }
 
-         
-        /// Método privado para enviar correos
-         
-        private async Task EnviarCorreoAsync(string destinatario, string asunto, string cuerpo)
+        /// Método para enviar correos genéricos
+        public async Task EnviarCorreoGenericoAsync(string destinatario, string asunto, string cuerpo)
         {
             try
             {
@@ -91,7 +89,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarCorreoReseteoContrasenaAsync(string correo, string nombreUsuario, string usuarioId, string token, string urlBase)
@@ -123,7 +121,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionPrestamoAprobadoAsync(
@@ -151,7 +149,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionCambioTasaPrestamoAsync(
@@ -175,7 +173,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionCambioLimiteTarjetaAsync(
@@ -194,7 +192,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionTransaccionRealizadaAsync(
@@ -219,7 +217,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionTransaccionRecibidaAsync(
@@ -244,7 +242,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionPagoTarjetaAsync(
@@ -271,7 +269,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionPagoPrestamoAsync(
@@ -298,7 +296,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionAvanceEfectivoAsync(
@@ -326,7 +324,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionDepositoAsync(
@@ -351,7 +349,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionRetiroAsync(
@@ -376,7 +374,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
 
         public async Task EnviarNotificacionConsumoTarjetaAsync(
@@ -403,7 +401,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Saludos,<br>Equipo de Artemis Banking</p>
             ";
 
-            await EnviarCorreoAsync(correo, asunto, cuerpo);
+            await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
         }
     }
 }

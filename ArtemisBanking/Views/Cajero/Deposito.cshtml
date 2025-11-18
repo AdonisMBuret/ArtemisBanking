@@ -1,48 +1,53 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cajero.DepositoCajeroViewModel
 @{
-    ViewData["Title"] = "Realizar Depósito";
+    ViewData["Title"] = "Depósito";
 }
 
 <div class="container-artemis fade-in">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-8">
             <div class="card-artemis">
                 <div class="card-header-artemis">
                     <h3 class="mb-0">
-                        <i class="bi bi-plus-circle-fill me-2"></i>Realizar Depósito
+                        <i class="bi bi-arrow-down-circle"></i> Hacer Depósito
                     </h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Ingrese los datos de la cuenta a la que desea depositar.</p>
-
-                    <!-- Formulario de Depósito -->
                     <form asp-action="Deposito" method="post">
                         @Html.AntiForgeryToken()
 
-                        <!-- Mensaje de error general -->
-                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-artemis-error">
+                                <i class="bi bi-x-circle"></i> Revisa los campos marcados
+                            </div>
+                        }
 
-                        <!-- Campo: Número de Cuenta Destino -->
                         <div class="mb-3">
-                            <label asp-for="NumeroCuentaDestino" class="form-label-artemis"></label>
-                            <input asp-for="NumeroCuentaDestino" class="form-control form-control-artemis" placeholder="Ingrese los 9 dígitos de la cuenta" />
+                            <label asp-for="NumeroCuentaDestino" class="form-label-artemis">
+                                Cuenta del cliente
+                            </label>
+                            <input asp-for="NumeroCuentaDestino" class="form-control" 
+                                   placeholder="123456789" maxlength="9" />
                             <span asp-validation-for="NumeroCuentaDestino" class="text-danger"></span>
+                            <small class="text-muted">9 dígitos</small>
                         </div>
 
-                        <!-- Campo: Monto a Depositar -->
                         <div class="mb-3">
-                            <label asp-for="Monto" class="form-label-artemis"></label>
-                            <input asp-for="Monto" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 500.00" />
+                            <label asp-for="Monto" class="form-label-artemis">
+                                Cuánto deposita
+                            </label>
+                            <input asp-for="Monto" class="form-control" type="number" step="0.01" 
+                                   placeholder="0.00" />
                             <span asp-validation-for="Monto" class="text-danger"></span>
                         </div>
 
-                        <!-- Botones de Acción -->
                         <div class="d-flex justify-content-between gap-2 mt-4">
                             <a asp-action="Index" class="btn btn-outline-artemis">
-                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                                <i class="bi bi-arrow-left"></i> Volver
                             </a>
                             <button type="submit" class="btn btn-artemis-primary">
-                                <i class="bi bi-check-circle-fill me-2"></i>Procesar Depósito
+                                <i class="bi bi-check-circle"></i> Depositar
                             </button>
                         </div>
                     </form>

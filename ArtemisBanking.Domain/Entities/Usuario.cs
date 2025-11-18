@@ -15,6 +15,10 @@ namespace ArtemisBanking.Domain.Entities
         // Indica si el usuario está activo o inactivo
         public bool EstaActivo { get; set; } = false; // Por defecto inactivo hasta confirmar correo
 
+        // Relación opcional con comercio (solo para usuarios con rol comercio)
+        public int? ComercioId { get; set; }
+        public virtual Comercio? Comercio { get; set; }
+
         // Relación: Un usuario puede tener muchas cuentas de ahorro
         public virtual ICollection<CuentaAhorro> CuentasAhorro { get; set; }
 

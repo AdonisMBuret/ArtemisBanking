@@ -1,164 +1,162 @@
 ﻿@model ArtemisBanking.Application.ViewModels.Cliente.HomeClienteViewModel
 @{
-    ViewData["Title"] = "Mi Resumen";
-
-    // Función auxiliar para formatear números de tarjeta (ocultar)
-    Func<string, string> FormatearNumeroTarjeta = (numero) =>
-    {
-        if (string.IsNullOrEmpty(numero) || numero.Length < 4) return "****";
-        return "**** **** **** " + numero.Substring(numero.Length - 4);
-    };
+    ViewData["Title"] = "Mis Productos";
 }
 
-<!-- Animación de entrada -->
-<div class="container-fluid mt-4 fade-in">
+<div class="container-artemis fade-in">
+    <h2 class="mb-4">
+        <i class="bi bi-house-door"></i> Mis Productos
+    </h2>
 
-    <h2 class="text-artemis-primary mb-4">@ViewData["Title"]</h2>
+    <!-- CUENTAS DE AHORRO -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-piggy-bank"></i> Cuentas de Ahorro</h4>
+        </div>
 
-    <div class="row g-4">
-
-        <!-- ==================== CUENTAS DE AHORRO (Columna 1) ==================== -->
-        <div class="col-lg-6">
-            <h4 class="text-artemis-secondary mb-3"><i class="bi bi-piggy-bank me-2"></i>Mis Cuentas de Ahorro</h4>
-
-            @if (Model.CuentasAhorro == null || !Model.CuentasAhorro.Any())
-            {
-                <div class="card-artemis">
-                    <div class="card-body text-center text-muted">
-                        No tienes cuentas de ahorro activas.
-                    </div>
+        @if (Model.CuentasAhorro == null || !Model.CuentasAhorro.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-artemis-info">
+                    <i class="bi bi-info-circle"></i> No tienes cuentas de ahorro
                 </div>
-            }
-            else
+            </div>
+        }
+        else
+        {
+            @foreach (var cuenta in Model.CuentasAhorro.OrderByDescending(c => c.EsPrincipal))
             {
-                @foreach (var cuenta in Model.CuentasAhorro.OrderByDescending(c => c.EsPrincipal))
-                {
-                    <div class="card-artemis mb-3">
+                <div class="col-md-6 mb-3">
+                    <div class="card-artemis">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <h5 class="card-title text-artemis-primary mb-1">
-                                        @cuenta.NumeroCuenta
-                                    </h5>
+                                    <h5 class="mb-1">@cuenta.NumeroCuenta</h5>
                                     @if (cuenta.EsPrincipal)
                                     {
                                         <span class="badge-artemis-primary">@cuenta.TipoCuenta</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-light text-dark border">@cuenta.TipoCuenta</span>
+                                        <span class="badge bg-secondary">@cuenta.TipoCuenta</span>
                                     }
                                 </div>
-                                <a asp-action="DetalleCuenta" asp-route-id="@cuenta.Id" class="btn btn-sm btn-outline-artemis">
-                                    <i class="bi bi-eye me-1"></i>Ver Detalle
+                                <a asp-action="DetalleCuenta" asp-route-id="@cuenta.Id" 
+                                   class="btn btn-sm btn-outline-artemis">
+                                    <i class="bi bi-eye"></i> Ver
                                 </a>
                             </div>
-                            <hr class="my-2">
-                            <p class="card-text mb-0">Balance Disponible:</p>
-                            <h3 class="fw-bold text-success">@cuenta.Balance.ToString("C2")</h3>
+                            <hr />
+                            <p class="mb-1 text-muted">Disponible:</p>
+                            <h3 class="mb-0" style="color: var(--marron-oscuro);">@cuenta.Balance.ToString("C2")</h3>
                         </div>
-                    </div>
-                }
-            }
-        </div>
-
-        <!-- ==================== PRÉSTAMOS (Columna 2) ==================== -->
-        <div class="col-lg-6">
-            <h4 class="text-artemis-secondary mb-3"><i class="bi bi-cash-stack me-2"></i>Mis Préstamos</h4>
-
-            @if (Model.Prestamos == null || !Model.Prestamos.Any())
-            {
-                <div class="card-artemis">
-                    <div class="card-body text-center text-muted">
-                        No tienes préstamos activos.
                     </div>
                 </div>
             }
-            else
+        }
+    </div>
+
+    <!-- PRÉSTAMOS -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-cash-coin"></i> Préstamos</h4>
+        </div>
+
+        @if (Model.Prestamos == null || !Model.Prestamos.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-artemis-info">
+                    <i class="bi bi-info-circle"></i> No tienes préstamos activos
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var prestamo in Model.Prestamos)
             {
-                @foreach (var prestamo in Model.Prestamos)
-                {
-                    <div class="card-artemis mb-3">
+                <div class="col-md-6 mb-3">
+                    <div class="card-artemis">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <h5 class="card-title text-artemis-primary mb-1">
-                                        Préstamo Nro. @prestamo.NumeroPrestamo
-                                    </h5>
+                                    <h5 class="mb-1">Préstamo @prestamo.NumeroPrestamo</h5>
                                     @if (prestamo.EstaAlDia)
                                     {
-                                        <span class="badge-artemis-success">@prestamo.Estado</span>
+                                        <span class="badge-success">Al día</span>
                                     }
                                     else
                                     {
-                                        <span class="badge-artemis-danger">@prestamo.Estado</span>
+                                        <span class="badge-danger">En mora</span>
                                     }
                                 </div>
-                                <a asp-action="DetallePrestamo" asp-route-id="@prestamo.Id" class="btn btn-sm btn-outline-artemis">
-                                    <i class="bi bi-eye me-1"></i>Ver Detalle
+                                <a asp-action="DetallePrestamo" asp-route-id="@prestamo.Id" 
+                                   class="btn btn-sm btn-outline-artemis">
+                                    <i class="bi bi-eye"></i> Ver
                                 </a>
                             </div>
-                            <hr class="my-2">
-                            <p class="card-text mb-0">Monto Pendiente:</p>
-                            <h3 class="fw-bold text-danger">@prestamo.MontoPendiente.ToString("C2")</h3>
+                            <hr />
+                            <p class="mb-1 text-muted">Pendiente:</p>
+                            <h3 class="mb-1 text-danger">@prestamo.MontoPendiente.ToString("C2")</h3>
                             <small class="text-muted">
-                                Cuotas: @prestamo.CuotasPagadas / @prestamo.TotalCuotas
+                                Cuotas: @prestamo.CuotasPagadas de @prestamo.TotalCuotas
                             </small>
                         </div>
                     </div>
-                }
-            }
-        </div>
-
-        <!-- ==================== TARJETAS DE CRÉDITO (Fila Completa) ==================== -->
-        <div class="col-12">
-            <h4 class="text-artemis-secondary mb-3 mt-3"><i class="bi bi-credit-card me-2"></i>Mis Tarjetas de Crédito</h4>
-
-            @if (Model.TarjetasCredito == null || !Model.TarjetasCredito.Any())
-            {
-                <div class="card-artemis">
-                    <div class="card-body text-center text-muted">
-                        No tienes tarjetas de crédito activas.
-                    </div>
                 </div>
             }
-            else
-            {
-                <div class="row g-3">
-                    @foreach (var tarjeta in Model.TarjetasCredito)
-                    {
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card-artemis h-100">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <h5 class="card-title text-artemis-primary mb-1">
-                                            @FormatearNumeroTarjeta(tarjeta.NumeroTarjeta)
-                                        </h5>
-                                        <a asp-action="DetalleTarjeta" asp-route-id="@tarjeta.Id" class="btn btn-sm btn-outline-artemis">
-                                            <i class="bi bi-eye me-1"></i>Ver Detalle
-                                        </a>
-                                    </div>
-                                    <small class="text-muted">Exp: @tarjeta.FechaExpiracion</small>
-                                    <hr class="my-2">
+        }
+    </div>
 
-                                    <div class="mt-auto">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <small class="text-muted d-block">Deuda Actual</small>
-                                                <span class="fw-bold fs-5 text-danger">@tarjeta.DeudaActual.ToString("C2")</span>
-                                            </div>
-                                            <div class="col-6">
-                                                <small class="text-muted d-block">Disponible</small>
-                                                <span class="fw-bold fs-5 text-success">@tarjeta.CreditoDisponible.ToString("C2")</span>
-                                            </div>
-                                        </div>
-                                    </div>
+    <!-- TARJETAS -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-credit-card"></i> Tarjetas de Crédito</h4>
+        </div>
+
+        @if (Model.TarjetasCredito == null || !Model.TarjetasCredito.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-artemis-info">
+                    <i class="bi bi-info-circle"></i> No tienes tarjetas de crédito
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var tarjeta in Model.TarjetasCredito)
+            {
+                string ultimosCuatro = tarjeta.NumeroTarjeta.Length >= 4 
+                    ? tarjeta.NumeroTarjeta.Substring(tarjeta.NumeroTarjeta.Length - 4) 
+                    : tarjeta.NumeroTarjeta;
+
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card-artemis">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">**** @ultimosCuatro</h5>
+                                    <small class="text-muted">Vence: @tarjeta.FechaExpiracion</small>
+                                </div>
+                                <a asp-action="DetalleTarjeta" asp-route-id="@tarjeta.Id" 
+                                   class="btn btn-sm btn-outline-artemis">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Deuda:</small>
+                                    <p class="mb-0 fw-bold text-danger">@tarjeta.DeudaActual.ToString("C2")</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Disponible:</small>
+                                    <p class="mb-0 fw-bold" style="color: var(--marron-principal);">@tarjeta.CreditoDisponible.ToString("C2")</p>
                                 </div>
                             </div>
                         </div>
-                    }
+                    </div>
                 </div>
             }
-        </div>
+        }
     </div>
 </div>

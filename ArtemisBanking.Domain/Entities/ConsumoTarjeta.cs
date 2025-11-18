@@ -1,4 +1,3 @@
-ï»¿
 namespace ArtemisBanking.Domain.Entities
 {
     public class ConsumoTarjeta : EntidadBase
@@ -15,7 +14,11 @@ namespace ArtemisBanking.Domain.Entities
         // Estado del consumo (APROBADO o RECHAZADO)
         public string EstadoConsumo { get; set; }
 
-        // RelaciÃ³n: Este consumo pertenece a una tarjeta
+        // Relación opcional con comercio (null si es avance de efectivo)
+        public int? ComercioId { get; set; }
+        public virtual Comercio? Comercio { get; set; }
+
+        // Relación: Este consumo pertenece a una tarjeta
         public int TarjetaId { get; set; }
         public virtual TarjetaCredito Tarjeta { get; set; }
     }

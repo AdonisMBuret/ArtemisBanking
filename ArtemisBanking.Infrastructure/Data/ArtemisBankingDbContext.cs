@@ -39,12 +39,42 @@ namespace ArtemisBanking.Infrastructure.Data
         // Tabla de beneficiarios de los clientes
         public DbSet<Beneficiario> Beneficiarios { get; set; }
 
+        // Tabla de comercios
+        public DbSet<Comercio> Comercios { get; set; }
+
         /// Método que se ejecuta cuando Entity Framework está creando el modelo de la base de datos
         /// Aquí configuramos las relaciones entre tablas, índices, restricciones, etc.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Llamar al método base para que Identity configure sus tablas
             base.OnModelCreating(modelBuilder);
+
+            // ==================== CONFIGURACIÓN DE COMERCIOS ====================
+            modelBuilder.Entity<Comercio>(entity =>
+            {
+                // El RNC debe ser único
+                entity.HasIndex(c => c.RNC).IsUnique();
+                
+                entity.Property(c => c.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(200);
+                
+                entity.Property(c => c.RNC)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                // Relación opcional con usuario
+                entity.HasOne(c => c.Usuario)
+                    .WithOne(u => u.Comercio)
+                    .HasForeignKey<Comercio>(c => c.UsuarioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Relación con consumos
+                entity.HasMany(c => c.Consumos)
+                    .WithOne(ct => ct.Comercio)
+                    .HasForeignKey(ct => ct.ComercioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
 
             // ==================== CONFIGURACIÓN DE CUENTAS DE AHORRO ====================
             modelBuilder.Entity<CuentaAhorro>(entity =>
@@ -145,6 +175,12 @@ namespace ArtemisBanking.Infrastructure.Data
                     .WithMany(t => t.Consumos)
                     .HasForeignKey(c => c.TarjetaId)
                     .OnDelete(DeleteBehavior.Cascade); // Si se borra la tarjeta, se borran los consumos
+
+                // Relación opcional con comercio
+                entity.HasOne(c => c.Comercio)
+                    .WithMany(co => co.Consumos)
+                    .HasForeignKey(c => c.ComercioId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // ==================== CONFIGURACIÓN DE TRANSACCIONES ====================

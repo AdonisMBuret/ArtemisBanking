@@ -2,22 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Account
 {
-    // ==================== LOGIN ====================
-
+    /// <summary>
     /// ViewModel para el formulario de inicio de sesión
+    /// Incluye validaciones con mensajes amigables e informales
+    /// </summary>
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
+        [Required(ErrorMessage = "Oye, te olvidaste de poner tu usuario 😅")]
         [Display(Name = "Usuario")]
+        [StringLength(50, ErrorMessage = "El usuario no puede tener más de 50 caracteres")]
         public string NombreUsuario { get; set; }
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [Required(ErrorMessage = "Necesitas escribir tu contraseña para entrar")]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
+        [StringLength(100, ErrorMessage = "La contraseña es demasiado larga")]
         public string Contrasena { get; set; }
 
-        [Display(Name = "Recordarme")]
+        [Display(Name = "Mantenerme conectado")]
         public bool Recordarme { get; set; }
     }
-
 }

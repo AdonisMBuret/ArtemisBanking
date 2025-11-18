@@ -22,7 +22,7 @@ namespace ArtemisBanking.Application
 
             // ==================== SERVICIOS DE NEGOCIO ====================
 
-            // ⭐ NUEVO - Servicio de autenticación
+            // Servicio de autenticación
             services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 
             // Servicio para cálculos de préstamos
@@ -48,6 +48,15 @@ namespace ArtemisBanking.Application
 
             // Servicio para operaciones de cajero
             services.AddScoped<IServicioCajero, ServicioCajero>();
+
+            // Servicio para gestión de comercios
+            services.AddScoped<IServicioComercio, ServicioComercio>();
+
+            // Servicio para procesamiento de pagos (Hermes Pay)
+            services.AddScoped<IServicioProcesadorPagos, ServicioProcesadorPagos>();
+
+            // ⭐ NUEVO - Servicio para dashboard del cliente
+            services.AddScoped<IServicioDashboardCliente, ServicioDashboardCliente>();
 
             return services;
         }

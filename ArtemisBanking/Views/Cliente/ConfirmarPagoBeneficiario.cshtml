@@ -1,50 +1,47 @@
-﻿@model ArtemisBanking.Application.ViewModels.Cliente.PagoBeneficiarioViewModel
+﻿@model ArtemisBanking.Application.ViewModels.Cliente.ConfirmarTransaccionViewModel
 @{
-    ViewData["Title"] = "Pagar a Beneficiario";
+    ViewData["Title"] = "Confirmar Pago";
 }
 
 <div class="container-artemis fade-in">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-8">
             <div class="card-artemis">
                 <div class="card-header-artemis">
-                    <h3 class="mb-0"><i class="bi bi-person-check-fill me-2"></i>@ViewData["Title"]</h3>
+                    <h3 class="mb-0"><i class="bi bi-check-circle"></i> Confirmar Pago a Beneficiario</h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Transfiera a uno de sus beneficiarios guardados.</p>
+                    <div class="alert alert-artemis-info">
+                        <i class="bi bi-info-circle"></i> Revisa bien los datos antes de confirmar
+                    </div>
 
-                    <form asp-action="PagarBeneficiario" method="post">
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted">Beneficiario:</p>
+                        <p class="mb-0 fw-bold">@Model.NombreDestinatario @Model.ApellidoDestinatario</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted">Cuenta:</p>
+                        <p class="mb-0 fw-bold">@Model.NumeroCuentaDestino</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted">Monto:</p>
+                        <h3 class="mb-0" style="color: var(--marron-oscuro);">@Model.Monto.ToString("C2")</h3>
+                    </div>
+
+                    <form asp-action="ConfirmarPagoBeneficiario" method="post">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="BeneficiarioId" class="form-label-artemis"></label>
-                            <select asp-for="BeneficiarioId" class="form-select form-control-artemis" asp-items="Model.BeneficiariosDisponibles">
-                                <option value="">Seleccione un beneficiario...</option>
-                            </select>
-                            <span asp-validation-for="BeneficiarioId" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="CuentaOrigenId" class="form-label-artemis"></label>
-                            <select asp-for="CuentaOrigenId" class="form-select form-control-artemis" asp-items="Model.CuentasDisponibles">
-                                <option value="">Pagar desde...</option>
-                            </select>
-                            <span asp-validation-for="CuentaOrigenId" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Monto" class="form-label-artemis"></label>
-                            <input asp-for="Monto" class="form-control form-control-artemis" type="number" step="0.01" placeholder="Ej: 300.00" />
-                            <span asp-validation-for="Monto" class="text-danger"></span>
-                        </div>
+                        <input type="hidden" asp-for="CuentaOrigenId" />
+                        <input type="hidden" asp-for="NumeroCuentaDestino" />
+                        <input type="hidden" asp-for="Monto" />
 
                         <div class="d-flex justify-content-between gap-2 mt-4">
-                            <a asp-action="Index" class="btn btn-outline-artemis">
-                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            <a asp-action="PagarBeneficiario" class="btn btn-outline-artemis">
+                                <i class="bi bi-arrow-left"></i> Volver
                             </a>
                             <button type="submit" class="btn btn-artemis-primary">
-                                Siguiente<i class="bi bi-arrow-right-circle ms-2"></i>
+                                <i class="bi bi-check-circle"></i> Confirmar Pago
                             </button>
                         </div>
                     </form>
@@ -53,7 +50,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

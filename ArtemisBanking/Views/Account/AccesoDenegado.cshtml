@@ -3,7 +3,6 @@
     Layout = null;
 }
 
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,21 +10,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Artemis Banking</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6 text-center">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h1 class="display-1 text-danger">🚫</h1>
-                        <h2 class="mb-3">Acceso Denegado</h2>
-                        <p class="text-muted mb-4">No tiene permisos para acceder a esta sección.</p>
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Volver al Inicio</a>
-                    </div>
-                </div>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="bi bi-x-octagon" style="font-size: 3rem; color: #dc3545;"></i>
+                <h1 style="font-size: 1.8rem;">Acceso Denegado</h1>
+                <p>No tienes permisos para ver esto</p>
             </div>
+
+            <div class="alert alert-artemis-error">
+                <i class="bi bi-shield-x"></i> No estás autorizado para acceder aquí
+            </div>
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-artemis-primary w-100 mb-2">
+                <i class="bi bi-house"></i> Ir al Inicio
+            </a>
+
+            <form method="post" asp-controller="Account" asp-action="Logout">
+                <button type="submit" class="btn btn-outline-artemis w-100">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </form>
         </div>
     </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -2,9 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Account
 {
-    // ==================== RESTABLECER CONTRASEÑA ====================
-
+    /// <summary>
     /// ViewModel para restablecer la contraseña con el token recibido
+    /// Incluye validaciones robustas con mensajes amigables
+    /// </summary>
     public class RestablecerContrasenaViewModel
     {
         [Required]
@@ -13,16 +14,16 @@ namespace ArtemisBanking.Application.ViewModels.Account
         [Required]
         public string Token { get; set; }
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} caracteres", MinimumLength = 8)]
+        [Required(ErrorMessage = "Necesitas crear una nueva contraseña")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
         [DataType(DataType.Password)]
         [Display(Name = "Nueva Contraseña")]
         public string Contrasena { get; set; }
 
-        [Required(ErrorMessage = "Debe confirmar la contraseña")]
+        [Required(ErrorMessage = "No olvides confirmar tu nueva contraseña")]
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar Contraseña")]
-        [Compare("Contrasena", ErrorMessage = "Las contraseñas no coinciden")]
+        [Compare("Contrasena", ErrorMessage = "Las contraseñas no coinciden. Verifica bien")]
         public string ConfirmarContrasena { get; set; }
     }
 }
