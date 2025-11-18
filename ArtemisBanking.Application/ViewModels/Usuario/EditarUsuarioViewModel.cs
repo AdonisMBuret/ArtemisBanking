@@ -36,10 +36,10 @@ namespace ArtemisBanking.Application.ViewModels.Usuario
         [Display(Name = "Nombre de Usuario")]
         public string NombreUsuario { get; set; }
 
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "Si cambias la contraseña, debe tener al menos 8 caracteres")]
+        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
         [DataType(DataType.Password)]
         [Display(Name = "Nueva Contraseña (dejar en blanco si no deseas cambiarla)")]
-        public string NuevaContrasena { get; set; }
+        public string? NuevaContrasena { get; set; }
 
         [Display(Name = "Tipo de Usuario")]
         public string TipoUsuario { get; set; }

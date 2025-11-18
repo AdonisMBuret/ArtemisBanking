@@ -7,10 +7,10 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
     /// ViewModel para mostrar advertencia cuando el cliente es de alto riesgo
     public class AdvertenciaRiesgoViewModel
     {
-        public string ClienteId { get; set; }
+        public string? ClienteId { get; set; }
 
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Monto del Préstamo")]
         [DisplayFormat(DataFormatString = "{0:C2}")]
@@ -34,6 +34,6 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
         [DisplayFormat(DataFormatString = "{0:C2}")]
         public decimal DeudaDespuesDelPrestamo { get; set; }
 
-        public string MensajeAdvertencia { get; set; }
+        public string? MensajeAdvertencia { get; set; }
     }
 }

@@ -6,22 +6,22 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
     public class ConfirmarTransaccionTercerosViewModel
     {
         [Display(Name = "Cliente Origen")]
-        public string NombreClienteOrigen { get; set; }
+        public string? NombreClienteOrigen { get; set; }
 
         [Display(Name = "Apellido Cliente Origen")]
-        public string ApellidoClienteOrigen { get; set; }
+        public string? ApellidoClienteOrigen { get; set; }
 
         [Display(Name = "Cuenta Origen")]
-        public string NumeroCuentaOrigen { get; set; }
+        public string? NumeroCuentaOrigen { get; set; }
 
         [Display(Name = "Cliente Destino")]
-        public string NombreClienteDestino { get; set; }
+        public string? NombreClienteDestino { get; set; }
 
         [Display(Name = "Apellido Cliente Destino")]
-        public string ApellidoClienteDestino { get; set; }
+        public string? ApellidoClienteDestino { get; set; }
 
         [Display(Name = "Cuenta Destino")]
-        public string NumeroCuentaDestino { get; set; }
+        public string? NumeroCuentaDestino { get; set; }
 
         [Display(Name = "Monto")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

@@ -7,10 +7,10 @@ namespace ArtemisBanking.Application.ViewModels.CuentaAhorro
         public int Id { get; set; }
 
         [Display(Name = "Número de Cuenta")]
-        public string NumeroCuenta { get; set; }
+        public string? NumeroCuenta { get; set; }
 
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Balance Actual")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

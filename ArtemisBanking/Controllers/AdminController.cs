@@ -464,8 +464,30 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPrestamo(EditarPrestamoViewModel model)
         {
+            // ⭐ LOGGING TEMPORAL PARA DEBUG
+            _logger.LogInformation($"=== EDITANDO PRESTAMO ===");
+            _logger.LogInformation($"Id: {model.Id}");
+            _logger.LogInformation($"NuevaTasaInteres: {model.NuevaTasaInteres}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                // ⭐ AGREGAR MENSAJE VISIBLE AL USUARIO
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
+                
                 return View(model);
             }
 
@@ -1135,8 +1157,30 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarTarjeta(EditarTarjetaViewModel model)
         {
+            // ⭐ LOGGING TEMPORAL PARA DEBUG
+            _logger.LogInformation($"=== EDITANDO TARJETA ===");
+            _logger.LogInformation($"Id: {model.Id}");
+            _logger.LogInformation($"LimiteCredito: {model.LimiteCredito}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                // ⭐ AGREGAR MENSAJE VISIBLE AL USUARIO
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
+                
                 return View(model);
             }
 
@@ -1371,5 +1415,37 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
+        // ==================== MÉTODO TEMPORAL PARA VER CUENTAS ====================
+        
+        /// <summary>
+        /// TEMPORAL: Lista todas las cuentas para debugging
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> ListarTodasLasCuentas()
+        {
+            try
+            {
+                // Obtener todas las cuentas activas
+                var (cuentas, _) = await _repositorioCuenta.ObtenerCuentasPaginadasAsync(1, 1000, null, true, null);
+                
+                var cuentasInfo = cuentas.Select(c => new
+                {
+                    c.Id,
+                    c.NumeroCuenta,
+                    c.Balance,
+                    Cliente = $"{c.Usuario.Nombre} {c.Usuario.Apellido}",
+                    c.Usuario.Cedula,
+                    Tipo = c.EsPrincipal ? "Principal" : "Secundaria",
+                    Estado = c.EstaActiva ? "Activa" : "Inactiva"
+                });
+
+                return Json(cuentasInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al listar cuentas");
+                return Json(new { error = "Error al obtener cuentas" });
+            }
+        }
     }
 }

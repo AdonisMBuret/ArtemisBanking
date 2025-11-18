@@ -84,6 +84,7 @@ namespace ArtemisBanking.Web.Controllers
                     Constantes.RolAdministrador => RedirectToAction("Index", "Admin"),
                     Constantes.RolCajero => RedirectToAction("Index", "Cajero"),
                     Constantes.RolCliente => RedirectToAction("Index", "Cliente"),
+                    Constantes.RolComercio => RedirectToAction("Index", "PortalComercio"),
                     _ => RedirectToAction("Index", "Home")
                 };
             }

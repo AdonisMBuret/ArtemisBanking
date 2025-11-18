@@ -25,7 +25,7 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // Para el selector de cuentas
-        public IEnumerable<SelectListItem> CuentasDisponibles { get; set; }
+        // ⭐ Para el selector de cuentas - NO se envía en POST, debe ser nullable
+        public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }
 }

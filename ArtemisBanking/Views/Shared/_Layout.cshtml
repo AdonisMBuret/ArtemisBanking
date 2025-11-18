@@ -130,6 +130,26 @@
                                 </li>
                             </ul>
                         }
+                        else if (User.IsInRole("Comercio"))
+                        {
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="PortalComercio" asp-action="Index">
+                                        <i class="bi bi-house"></i> Inicio
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="PortalComercio" asp-action="RegistrarConsumo">
+                                        <i class="bi bi-credit-card"></i> Registrar Consumo
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="PortalComercio" asp-action="Historial">
+                                        <i class="bi bi-clock-history"></i> Historial
+                                    </a>
+                                </li>
+                            </ul>
+                        }
 
                         <ul class="navbar-nav">
                             <li class="nav-item dropdown">

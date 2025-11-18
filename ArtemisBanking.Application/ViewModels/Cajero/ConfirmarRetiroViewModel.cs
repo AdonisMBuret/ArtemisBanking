@@ -6,13 +6,13 @@ namespace ArtemisBanking.Application.ViewModels.Cajero
     public class ConfirmarRetiroViewModel
     {
         [Display(Name = "Nombre del Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Apellido del Cliente")]
-        public string ApellidoCliente { get; set; }
+        public string? ApellidoCliente { get; set; }
 
         [Display(Name = "Número de Cuenta")]
-        public string NumeroCuentaOrigen { get; set; }
+        public string? NumeroCuentaOrigen { get; set; }
 
         [Display(Name = "Monto")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

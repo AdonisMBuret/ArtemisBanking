@@ -6,6 +6,7 @@ using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace ArtemisBanking.Application.Services
 {
@@ -18,6 +19,7 @@ namespace ArtemisBanking.Application.Services
         private readonly IRepositorioPrestamo _repositorioPrestamo;
         private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
         private readonly IServicioCorreo _servicioCorreo;
+        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly ILogger<ServicioUsuario> _logger;
 
@@ -31,6 +33,7 @@ namespace ArtemisBanking.Application.Services
             IRepositorioTarjetaCredito repositorioTarjeta,
 
             IServicioCorreo servicioCorreo,
+            IConfiguration configuration,
             IMapper mapper,
             ILogger<ServicioUsuario> logger)
         {
@@ -41,6 +44,7 @@ namespace ArtemisBanking.Application.Services
             _repositorioPrestamo = repositorioPrestamo;
             _repositorioTarjeta = repositorioTarjeta;
             _servicioCorreo = servicioCorreo;
+            _configuration = configuration;
             _mapper = mapper;
             _logger = logger;
         }
@@ -116,8 +120,8 @@ namespace ArtemisBanking.Application.Services
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(nuevoUsuario);
 
-                    // Obtener la URL base desde la configuración o usar una predeterminada
-                    var urlBase = "https://localhost:7096"; // Cambiar según tu dominio en producción
+                    // Obtener la URL base desde la configuración
+                    var urlBase = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7103";
 
                     await _servicioCorreo.EnviarCorreoConfirmacionAsync(
                         nuevoUsuario.Email,

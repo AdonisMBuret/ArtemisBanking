@@ -1,0 +1,145 @@
+@model ArtemisBanking.Application.ViewModels.PortalComercio.DashboardComercioViewModel
+@{
+    ViewData["Title"] = "Portal Comercio";
+}
+
+<div class="container-artemis fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-shop"></i> Portal del Comercio
+        </h2>
+        <a asp-action="RegistrarConsumo" class="btn btn-artemis-primary">
+            <i class="bi bi-credit-card"></i> Registrar Consumo
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-artemis-success">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-artemis-error">
+            <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Información del Comercio -->
+    <div class="card-artemis mb-4">
+        <div class="card-header-artemis">
+            <h5 class="mb-0"><i class="bi bi-building"></i> Información del Comercio</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">Nombre del Comercio:</p>
+                    <p class="mb-3 fw-bold">@Model.NombreComercio</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">RNC:</p>
+                    <p class="mb-3 fw-bold">@Model.RNC</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card-artemis text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-day display-4 text-artemis-primary"></i>
+                    <h6 class="mt-3 text-muted">Consumos Hoy</h6>
+                    <h3 class="mb-0">@Model.TotalConsumosHoy</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-artemis text-center">
+                <div class="card-body">
+                    <i class="bi bi-cash-coin display-4 text-success"></i>
+                    <h6 class="mt-3 text-muted">Ventas Hoy</h6>
+                    <h3 class="mb-0">@Model.MontoTotalHoy.ToString("C2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-artemis text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-month display-4 text-artemis-secondary"></i>
+                    <h6 class="mt-3 text-muted">Consumos del Mes</h6>
+                    <h3 class="mb-0">@Model.TotalConsumosMes</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-artemis text-center">
+                <div class="card-body">
+                    <i class="bi bi-graph-up display-4 text-info"></i>
+                    <h6 class="mt-3 text-muted">Ventas del Mes</h6>
+                    <h3 class="mb-0">@Model.MontoTotalMes.ToString("C2")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consumos Recientes -->
+    <div class="card-artemis">
+        <div class="card-header-artemis d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Consumos Recientes</h5>
+            <a asp-action="Historial" class="btn btn-sm btn-outline-artemis">
+                Ver Historial Completo <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            @if (Model.ConsumosRecientes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Tarjeta</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var consumo in Model.ConsumosRecientes)
+                            {
+                                <tr>
+                                    <td>@consumo.FechaConsumo.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>**** **** **** @consumo.UltimosCuatroDigitos</td>
+                                    <td class="fw-bold">@consumo.Monto.ToString("C2")</td>
+                                    <td>
+                                        @if (consumo.EstadoConsumo == "APROBADO")
+                                        {
+                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> @consumo.EstadoConsumo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning"><i class="bi bi-clock"></i> @consumo.EstadoConsumo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-1"></i>
+                    <p class="mt-3">No hay consumos registrados aún</p>
+                    <a asp-action="RegistrarConsumo" class="btn btn-artemis-primary">
+                        <i class="bi bi-plus-circle"></i> Registrar Primer Consumo
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

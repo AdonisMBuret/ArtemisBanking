@@ -10,8 +10,9 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
         [Required]
         public string ClienteId { get; set; }
 
+        // ⭐ QUITAMOS [Required] - Es solo informativo
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Deuda Actual del Cliente")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

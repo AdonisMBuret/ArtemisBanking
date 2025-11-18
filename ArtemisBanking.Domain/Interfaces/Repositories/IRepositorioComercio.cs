@@ -31,5 +31,10 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
         /// Verifica si un comercio ya tiene un usuario asociado
         /// </summary>
         Task<bool> TieneUsuarioAsociadoAsync(int comercioId);
+
+        /// <summary>
+        /// Obtiene un comercio por el ID del usuario asociado
+        /// </summary>
+        Task<Comercio?> ObtenerPorUsuarioIdAsync(string usuarioId);
     }
 }

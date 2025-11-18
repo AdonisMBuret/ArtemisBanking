@@ -6,13 +6,13 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
     public class ConfirmarTransaccionViewModel
     {
         [Display(Name = "Nombre del Destinatario")]
-        public string NombreDestinatario { get; set; }
+        public string? NombreDestinatario { get; set; }
 
         [Display(Name = "Apellido del Destinatario")]
-        public string ApellidoDestinatario { get; set; }
+        public string? ApellidoDestinatario { get; set; }
 
         [Display(Name = "Cuenta Destino")]
-        public string NumeroCuentaDestino { get; set; }
+        public string? NumeroCuentaDestino { get; set; }
 
         [Display(Name = "Monto")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

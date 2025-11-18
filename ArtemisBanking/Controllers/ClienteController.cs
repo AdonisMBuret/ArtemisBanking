@@ -153,9 +153,27 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarBeneficiario(AgregarBeneficiarioViewModel model)
         {
+            // ⭐ LOGGING PARA DEBUG
+            _logger.LogInformation($"=== AGREGANDO BENEFICIARIO ===");
+            _logger.LogInformation($"NumeroCuenta: {model.NumeroCuenta}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Oye, revisa los datos. Algo no está bien";
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 return RedirectToAction(nameof(Beneficiarios));
             }
 
@@ -193,9 +211,29 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransaccionExpress(TransaccionExpressViewModel model)
         {
+            // ⭐ LOGGING PARA DEBUG
+            _logger.LogInformation($"=== TRANSACCION EXPRESS ===");
+            _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
+            _logger.LogInformation($"NumeroCuentaDestino: {model.NumeroCuentaDestino}");
+            _logger.LogInformation($"Monto: {model.Monto}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Oye, revisa los campos. Hay algunos errores";
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
                 return View(model);
             }
@@ -204,6 +242,7 @@ namespace ArtemisBanking.Web.Controllers
 
             if (!infoDestino.Exito)
             {
+                _logger.LogWarning($"No se pudo obtener info de cuenta destino: {infoDestino.Mensaje}");
                 TempData["ErrorMessage"] = infoDestino.Mensaje;
                 model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
                 return View(model);
@@ -258,9 +297,29 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarTarjeta(PagoTarjetaViewModel model)
         {
+            // ⭐ LOGGING PARA DEBUG
+            _logger.LogInformation($"=== PAGAR TARJETA ===");
+            _logger.LogInformation($"TarjetaId: {model.TarjetaId}");
+            _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
+            _logger.LogInformation($"Monto: {model.Monto}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Revisa los campos del formulario";
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 model.TarjetasDisponibles = await ObtenerTarjetasSelectAsync();
                 model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
                 return View(model);
@@ -278,10 +337,12 @@ namespace ArtemisBanking.Web.Controllers
 
             if (resultado.Exito)
             {
+                _logger.LogInformation($"Pago de tarjeta exitoso");
                 TempData["SuccessMessage"] = resultado.Mensaje;
                 return RedirectToAction(nameof(Index));
             }
 
+            _logger.LogWarning($"Error al pagar tarjeta: {resultado.Mensaje}");
             TempData["ErrorMessage"] = resultado.Mensaje;
             model.TarjetasDisponibles = await ObtenerTarjetasSelectAsync();
             model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
@@ -303,9 +364,29 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarPrestamo(PagoPrestamoViewModel model)
         {
+            // ⭐ LOGGING PARA DEBUG
+            _logger.LogInformation($"=== PAGAR PRESTAMO ===");
+            _logger.LogInformation($"PrestamoId: {model.PrestamoId}");
+            _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
+            _logger.LogInformation($"Monto: {model.Monto}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Revisa los campos del formulario";
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 model.PrestamosDisponibles = await ObtenerPrestamosSelectAsync();
                 model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
                 return View(model);
@@ -323,10 +404,12 @@ namespace ArtemisBanking.Web.Controllers
 
             if (resultado.Exito)
             {
+                _logger.LogInformation($"Pago de préstamo exitoso");
                 TempData["SuccessMessage"] = resultado.Mensaje;
                 return RedirectToAction(nameof(Index));
             }
 
+            _logger.LogWarning($"Error al pagar préstamo: {resultado.Mensaje}");
             TempData["ErrorMessage"] = resultado.Mensaje;
             model.PrestamosDisponibles = await ObtenerPrestamosSelectAsync();
             model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
@@ -466,9 +549,29 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransferirEntreCuentas(TransferenciaEntreCuentasViewModel model)
         {
+            // ⭐ LOGGING PARA DEBUG
+            _logger.LogInformation($"=== TRANSFERIR ENTRE CUENTAS ===");
+            _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
+            _logger.LogInformation($"CuentaDestinoId: {model.CuentaDestinoId}");
+            _logger.LogInformation($"Monto: {model.Monto}");
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Revisa los campos del formulario";
+                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { 
+                        Campo = x.Key, 
+                        Errores = string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
+                    });
+                
+                foreach (var error in errores)
+                {
+                    _logger.LogError($"Error en {error.Campo}: {error.Errores}");
+                }
+                
+                TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
                 return View(model);
             }
@@ -485,10 +588,12 @@ namespace ArtemisBanking.Web.Controllers
 
             if (resultado.Exito)
             {
+                _logger.LogInformation($"Transferencia entre cuentas exitosa");
                 TempData["SuccessMessage"] = resultado.Mensaje;
                 return RedirectToAction(nameof(Index));
             }
 
+            _logger.LogWarning($"Error al transferir: {resultado.Mensaje}");
             TempData["ErrorMessage"] = resultado.Mensaje;
             model.CuentasDisponibles = await ObtenerCuentasSelectAsync();
             return View(model);

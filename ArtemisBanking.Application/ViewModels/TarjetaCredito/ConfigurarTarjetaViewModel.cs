@@ -8,7 +8,7 @@ namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
         public string ClienteId { get; set; }
 
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Required(ErrorMessage = "El límite de crédito es obligatorio")]
         [Range(100, double.MaxValue, ErrorMessage = "El límite debe ser mayor a RD$100")]

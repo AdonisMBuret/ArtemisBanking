@@ -1,0 +1,83 @@
+@model ArtemisBanking.Application.ViewModels.PortalComercio.RegistrarConsumoViewModel
+@{
+    ViewData["Title"] = "Registrar Consumo";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis">
+                <div class="card-header-artemis">
+                    <h3 class="mb-0"><i class="bi bi-credit-card"></i> Registrar Consumo con Tarjeta</h3>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-artemis-error">
+                            <i class="bi bi-x-circle"></i> @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="RegistrarConsumo" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
+
+                        <div class="alert alert-artemis-info">
+                            <i class="bi bi-info-circle"></i> Ingresa el número de tarjeta del cliente y el monto del consumo
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="NumeroTarjeta" class="form-label-artemis"></label>
+                            <input asp-for="NumeroTarjeta" class="form-control form-control-artemis" 
+                                   placeholder="1234567812345678" maxlength="16" 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+                            <span asp-validation-for="NumeroTarjeta" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-shield-check"></i> Ingresa los 16 dígitos de la tarjeta
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Monto" class="form-label-artemis"></label>
+                            <input asp-for="Monto" class="form-control form-control-artemis" 
+                                   type="number" step="0.01" placeholder="0.00"/>
+                            <span asp-validation-for="Monto" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-currency-dollar"></i> Monto del consumo en pesos dominicanos
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-action="Index" class="btn btn-outline-artemis">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-artemis-primary">
+                                <i class="bi bi-arrow-right-circle"></i> Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card-artemis mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> ¿Cómo funciona?</h6>
+                    <ol class="mb-0">
+                        <li class="mb-2">Solicita la tarjeta de crédito al cliente</li>
+                        <li class="mb-2">Ingresa el número completo de 16 dígitos</li>
+                        <li class="mb-2">Ingresa el monto del consumo</li>
+                        <li class="mb-2">Verifica la información del cliente</li>
+                        <li>Confirma el consumo</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,105 @@
+@model ArtemisBanking.Application.ViewModels.PortalComercio.ConfirmarConsumoViewModel
+@{
+    ViewData["Title"] = "Confirmar Consumo";
+}
+
+<div class="container-artemis fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-artemis border-warning border-2">
+                <div class="card-header-artemis bg-warning text-dark">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Consumo
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+
+                    <h5 class="text-artemis-secondary mb-3">Información del Cliente</h5>
+                    <div class="bg-artemis-light p-3 rounded mb-4">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Cliente:</dt>
+                            <dd class="col-sm-7 fw-bold">@Model.NombreCliente</dd>
+
+                            <dt class="col-sm-5">Tarjeta:</dt>
+                            <dd class="col-sm-7">**** **** **** @Model.UltimosCuatroDigitos</dd>
+
+                            <dt class="col-sm-5">Límite de Crédito:</dt>
+                            <dd class="col-sm-7">@Model.LimiteCredito.ToString("C2")</dd>
+
+                            <dt class="col-sm-5">Deuda Actual:</dt>
+                            <dd class="col-sm-7 @(Model.DeudaActual > 0 ? "text-danger" : "")">
+                                @Model.DeudaActual.ToString("C2")
+                            </dd>
+
+                            <dt class="col-sm-5">Crédito Disponible:</dt>
+                            <dd class="col-sm-7 @(Model.CreditoDisponible < Model.Monto ? "text-danger fw-bold" : "text-success fw-bold")">
+                                @Model.CreditoDisponible.ToString("C2")
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <hr>
+
+                    <h5 class="text-artemis-secondary mb-3">Detalles del Consumo</h5>
+                    <div class="bg-artemis-light p-3 rounded mb-4">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Monto del Consumo:</dt>
+                            <dd class="col-sm-7 fw-bold fs-4 text-artemis-primary">@Model.Monto.ToString("C2")</dd>
+
+                            <dt class="col-sm-5">Nueva Deuda:</dt>
+                            <dd class="col-sm-7">@((Model.DeudaActual + Model.Monto).ToString("C2"))</dd>
+
+                            <dt class="col-sm-5">Crédito Disponible Después:</dt>
+                            <dd class="col-sm-7 @(Model.CreditoDisponible - Model.Monto < 0 ? "text-danger fw-bold" : "")">
+                                @((Model.CreditoDisponible - Model.Monto).ToString("C2"))
+                            </dd>
+                        </dl>
+                    </div>
+
+                    @if (Model.CreditoDisponible < Model.Monto)
+                    {
+                        <div class="alert alert-artemis-danger text-center">
+                            <strong class="fs-5">
+                                <i class="bi bi-x-octagon-fill"></i> Crédito Insuficiente
+                            </strong>
+                            <p class="mb-0 mt-2">
+                                El cliente no tiene crédito suficiente para este consumo.
+                            </p>
+                        </div>
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a asp-action="RegistrarConsumo" class="btn btn-artemis-primary btn-lg">
+                                <i class="bi bi-arrow-left-circle"></i> Volver
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-artemis-success text-center">
+                            <strong class="fs-5">
+                                <i class="bi bi-check-circle"></i> ¿Confirmar este consumo?
+                            </strong>
+                            <p class="mb-0 mt-2">
+                                Verifica que toda la información sea correcta antes de confirmar.
+                            </p>
+                        </div>
+
+                        <form asp-action="ConfirmarConsumo" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="NumeroTarjeta" />
+                            <input type="hidden" asp-for="Monto" />
+
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a asp-action="RegistrarConsumo" class="btn btn-outline-artemis btn-lg">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-artemis-primary btn-lg">
+                                    <i class="bi bi-check-circle"></i> Confirmar Consumo
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

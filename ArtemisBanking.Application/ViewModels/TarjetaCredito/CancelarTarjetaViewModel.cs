@@ -9,10 +9,10 @@ namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
         public int Id { get; set; }
 
         [Display(Name = "Últimos 4 Dígitos")]
-        public string UltimosCuatroDigitos { get; set; }
+        public string? UltimosCuatroDigitos { get; set; }
 
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Deuda Actual")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

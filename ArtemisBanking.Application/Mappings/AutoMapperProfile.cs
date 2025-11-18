@@ -125,8 +125,20 @@ namespace ArtemisBanking.Application.Mappings
             CreateMap<DetalleTarjetaClienteDTO, DetalleTarjetaClienteViewModel>();
 
             // ==================== MAPEOS DE COMERCIO ====================
-            CreateMap<ComercioResponseDTO, ComercioItemViewModel>();
-            CreateMap<ComercioResponseDTO, DetalleComercioViewModel>();
+            CreateMap<ComercioResponseDTO, ComercioItemViewModel>()
+                .ForMember(dest => dest.TieneUsuario,
+                    opt => opt.MapFrom(src => src.Usuario != null));
+
+            CreateMap<ComercioResponseDTO, DetalleComercioViewModel>()
+                .ForMember(dest => dest.TieneUsuario,
+                    opt => opt.MapFrom(src => src.Usuario != null))
+                .ForMember(dest => dest.TotalConsumos,
+                    opt => opt.Ignore()) // Se calculará en el servicio
+                .ForMember(dest => dest.MontoTotalConsumos,
+                    opt => opt.Ignore()); // Se calculará en el servicio
+
+            CreateMap<ComercioResponseDTO, EditarComercioViewModel>();
+
             CreateMap<CrearComercioViewModel, CrearComercioRequestDTO>();
             CreateMap<EditarComercioViewModel, ActualizarComercioRequestDTO>();
         }

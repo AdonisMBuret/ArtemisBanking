@@ -10,15 +10,18 @@ namespace ArtemisBanking.Application.Services
     {
         private readonly IRepositorioComercio _repositorioComercio;
         private readonly IRepositorioUsuario _repositorioUsuario;
+        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
         private readonly IMapper _mapper;
 
         public ServicioComercio(
             IRepositorioComercio repositorioComercio,
             IRepositorioUsuario repositorioUsuario,
+            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
             IMapper mapper)
         {
             _repositorioComercio = repositorioComercio;
             _repositorioUsuario = repositorioUsuario;
+            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _mapper = mapper;
         }
 

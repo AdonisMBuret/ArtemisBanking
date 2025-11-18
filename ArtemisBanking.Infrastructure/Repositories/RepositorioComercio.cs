@@ -53,5 +53,12 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return await _context.Comercios
                 .AnyAsync(c => c.Id == comercioId && c.UsuarioId != null);
         }
+
+        public async Task<Comercio?> ObtenerPorUsuarioIdAsync(string usuarioId)
+        {
+            return await _context.Comercios
+                .Include(c => c.Usuario)
+                .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+        }
     }
 }

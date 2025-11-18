@@ -24,8 +24,8 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // Propiedades para los selectores en la vista
-        public IEnumerable<SelectListItem> CuentasDisponibles { get; set; }
+        // ⭐ Propiedades para los selectores - NO se envían en POST, deben ser nullable
+        public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }
 
     /// <summary>
@@ -34,10 +34,10 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
     public class ConfirmarTransferenciaEntreCuentasViewModel
     {
         [Display(Name = "Cuenta de Origen")]
-        public string NumeroCuentaOrigen { get; set; }
+        public string? NumeroCuentaOrigen { get; set; }
 
         [Display(Name = "Cuenta de Destino")]
-        public string NumeroCuentaDestino { get; set; }
+        public string? NumeroCuentaDestino { get; set; }
 
         [Display(Name = "Monto")]
         [DisplayFormat(DataFormatString = "{0:C2}")]

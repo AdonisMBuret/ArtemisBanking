@@ -1,0 +1,142 @@
+@model ArtemisBanking.Application.ViewModels.PortalComercio.ListaConsumosViewModel
+@{
+    ViewData["Title"] = "Historial de Consumos";
+}
+
+<div class="container-artemis fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-clock-history"></i> Historial de Consumos
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-artemis">
+            <i class="bi bi-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card-artemis mb-4">
+        <div class="card-body">
+            <form asp-action="Historial" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label-artemis">Fecha Inicio</label>
+                    <input type="date" name="fechaInicio" class="form-control" 
+                           value="@Model.FiltroFechaInicio?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label-artemis">Fecha Fin</label>
+                    <input type="date" name="fechaFin" class="form-control" 
+                           value="@Model.FiltroFechaFin?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-artemis-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Consumos -->
+    <div class="card-artemis">
+        <div class="card-header-artemis">
+            <h5 class="mb-0">
+                Total de Consumos: @Model.TotalRegistros
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Consumos.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Cliente</th>
+                                <th>Tarjeta</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var consumo in Model.Consumos)
+                            {
+                                <tr>
+                                    <td>@consumo.FechaConsumo.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@consumo.NombreCliente</td>
+                                    <td>**** **** **** @consumo.UltimosCuatroDigitosTarjeta</td>
+                                    <td class="fw-bold">@consumo.Monto.ToString("C2")</td>
+                                    <td>
+                                        @if (consumo.EstadoConsumo == "APROBADO")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> @consumo.EstadoConsumo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-clock"></i> @consumo.EstadoConsumo
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>@Model.Consumos.Sum(c => c.Monto).ToString("C2")</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                @if (Model.TotalPaginas > 1)
+                {
+                    <nav aria-label="Navegación de páginas" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Historial" asp-route-pagina="@(Model.PaginaActual - 1)"
+                                   asp-route-fechaInicio="@Model.FiltroFechaInicio?.ToString("yyyy-MM-dd")"
+                                   asp-route-fechaFin="@Model.FiltroFechaFin?.ToString("yyyy-MM-dd")">
+                                    Anterior
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= Model.TotalPaginas; i++)
+                            {
+                                <li class="page-item @(Model.PaginaActual == i ? "active" : "")">
+                                    <a class="page-link" asp-action="Historial" asp-route-pagina="@i"
+                                       asp-route-fechaInicio="@Model.FiltroFechaInicio?.ToString("yyyy-MM-dd")"
+                                       asp-route-fechaFin="@Model.FiltroFechaFin?.ToString("yyyy-MM-dd")">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                                <a class="page-link" asp-action="Historial" asp-route-pagina="@(Model.PaginaActual + 1)"
+                                   asp-route-fechaInicio="@Model.FiltroFechaInicio?.ToString("yyyy-MM-dd")"
+                                   asp-route-fechaFin="@Model.FiltroFechaFin?.ToString("yyyy-MM-dd")">
+                                    Siguiente
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-1"></i>
+                    <p class="mt-3">No se encontraron consumos en el rango de fechas seleccionado</p>
+                    <a asp-action="RegistrarConsumo" class="btn btn-artemis-primary">
+                        <i class="bi bi-plus-circle"></i> Registrar Consumo
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

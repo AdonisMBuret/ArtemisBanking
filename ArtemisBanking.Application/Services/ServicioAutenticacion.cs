@@ -2,6 +2,7 @@
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArtemisBanking.Application.Services
@@ -17,17 +18,20 @@ namespace ArtemisBanking.Application.Services
         private readonly SignInManager<Usuario> _signInManager;
         private readonly UserManager<Usuario> _userManager;
         private readonly IServicioCorreo _servicioCorreo;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<ServicioAutenticacion> _logger;
 
         public ServicioAutenticacion(
             SignInManager<Usuario> signInManager,
             UserManager<Usuario> userManager,
             IServicioCorreo servicioCorreo,
+            IConfiguration configuration,
             ILogger<ServicioAutenticacion> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _servicioCorreo = servicioCorreo;
+            _configuration = configuration;
             _logger = logger;
         }
                  
@@ -179,8 +183,8 @@ namespace ArtemisBanking.Application.Services
                 // Generar token de reseteo
                 var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
 
-                // Obtener la URL base desde la configuración o usar una predeterminada
-                var urlBase = "https://localhost:7096"; // Cambiar según tu dominio en producción
+                // Obtener la URL base desde la configuración
+                var urlBase = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7103";
 
                 // Enviar correo con el link
                 await _servicioCorreo.EnviarCorreoReseteoContrasenaAsync(

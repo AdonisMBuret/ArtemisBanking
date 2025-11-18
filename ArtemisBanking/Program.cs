@@ -30,6 +30,10 @@ builder.Services.AddAuthorization(options =>
     // Política para clientes
     options.AddPolicy("SoloCliente", policy =>
         policy.RequireRole("Cliente"));
+    
+    // Política para comercios
+    options.AddPolicy("SoloComercio", policy =>
+        policy.RequireRole("Comercio"));
 });
 
 var app = builder.Build();

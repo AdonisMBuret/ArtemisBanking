@@ -10,10 +10,10 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
         public int Id { get; set; }
 
         [Display(Name = "Número de Préstamo")]
-        public string NumeroPrestamo { get; set; }
+        public string? NumeroPrestamo { get; set; }
 
         [Display(Name = "Cliente")]
-        public string NombreCliente { get; set; }
+        public string? NombreCliente { get; set; }
 
         [Display(Name = "Tasa de Interés Actual")]
         [DisplayFormat(DataFormatString = "{0}%")]

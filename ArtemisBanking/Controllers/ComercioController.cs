@@ -1,6 +1,7 @@
 using ArtemisBanking.Application.DTOs.Api;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Application.ViewModels.Comercio;
+using ArtemisBanking.Domain.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,15 +16,18 @@ namespace ArtemisBanking.Web.Controllers
     public class ComercioController : Controller
     {
         private readonly IServicioComercio _servicioComercio;
+        private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
         private readonly IMapper _mapper;
         private readonly ILogger<ComercioController> _logger;
 
         public ComercioController(
             IServicioComercio servicioComercio,
+            IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
             IMapper mapper,
             ILogger<ComercioController> logger)
         {
             _servicioComercio = servicioComercio;
+            _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _mapper = mapper;
             _logger = logger;
         }
@@ -68,7 +72,15 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                // Obtener estadísticas de consumos
+                var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosPorComercioAsync(id);
+
                 var viewModel = _mapper.Map<DetalleComercioViewModel>(comercio);
+                viewModel.TotalConsumos = consumos.Count();
+                viewModel.MontoTotalConsumos = consumos
+                    .Where(c => c.EstadoConsumo == "APROBADO")
+                    .Sum(c => c.Monto);
+
                 return View(viewModel);
             }
             catch (Exception ex)

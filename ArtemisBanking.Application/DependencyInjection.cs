@@ -55,8 +55,11 @@ namespace ArtemisBanking.Application
             // Servicio para procesamiento de pagos (Hermes Pay)
             services.AddScoped<IServicioProcesadorPagos, ServicioProcesadorPagos>();
 
-            // ⭐ NUEVO - Servicio para dashboard del cliente
+            // Servicio para dashboard del cliente
             services.AddScoped<IServicioDashboardCliente, ServicioDashboardCliente>();
+
+            // ⭐ NUEVO - Servicio para consumos con tarjeta (comercios)
+            services.AddScoped<IServicioConsumoTarjeta, ServicioConsumoTarjeta>();
 
             return services;
         }
