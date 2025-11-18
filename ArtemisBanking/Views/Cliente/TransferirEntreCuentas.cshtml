@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <p class="text-muted">Mueva dinero entre su cuenta principal y sus cuentas secundarias.</p>
 
-                    <form asp-action="TransferirEntreCuentas" method="post">
+                    <form asp-controller="Cliente" asp-action="TransferirEntreCuentas" method="post">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="alert alert-artemis-error" role="alert"></div>
 
