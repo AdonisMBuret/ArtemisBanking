@@ -21,6 +21,7 @@ namespace ArtemisBanking.Web.Controllers
         private readonly IServicioComercio _servicioComercio;
         private readonly IRepositorioConsumoTarjeta _repositorioConsumoTarjeta;
         private readonly IRepositorioCuentaAhorro _repositorioCuenta;
+        private readonly IRepositorioComercio _repositorioComercio;
         private readonly UserManager<Usuario> _userManager;
         private readonly IServicioCorreo _servicioCorreo;
         private readonly IMapper _mapper;
@@ -31,6 +32,7 @@ namespace ArtemisBanking.Web.Controllers
             IServicioComercio servicioComercio,
             IRepositorioConsumoTarjeta repositorioConsumoTarjeta,
             IRepositorioCuentaAhorro repositorioCuenta,
+            IRepositorioComercio repositorioComercio,
             UserManager<Usuario> userManager,
             IServicioCorreo servicioCorreo,
             IMapper mapper,
@@ -40,6 +42,7 @@ namespace ArtemisBanking.Web.Controllers
             _servicioComercio = servicioComercio;
             _repositorioConsumoTarjeta = repositorioConsumoTarjeta;
             _repositorioCuenta = repositorioCuenta;
+            _repositorioComercio = repositorioComercio;
             _userManager = userManager;
             _servicioCorreo = servicioCorreo;
             _mapper = mapper;
@@ -410,6 +413,17 @@ namespace ArtemisBanking.Web.Controllers
 
                 await _repositorioCuenta.AgregarAsync(cuentaPrincipal);
                 await _repositorioCuenta.GuardarCambiosAsync();
+
+                // ? 6. ACTUALIZAR EL COMERCIO CON EL ID DEL USUARIO
+                _logger.LogInformation("Actualizando comercio con el ID del usuario...");
+                var comercioEntity = await _repositorioComercio.ObtenerPorIdAsync(model.ComercioId);
+                if (comercioEntity != null)
+                {
+                    comercioEntity.UsuarioId = nuevoUsuario.Id;
+                    await _repositorioComercio.ActualizarAsync(comercioEntity);
+                    await _repositorioComercio.GuardarCambiosAsync();
+                    _logger.LogInformation($"Comercio {model.ComercioId} actualizado con UsuarioId {nuevoUsuario.Id}");
+                }
 
                 _logger.LogInformation($"Usuario {model.NombreUsuario} creado y asociado exitosamente");
                 TempData["SuccessMessage"] = "Usuario creado y asociado al comercio. Se envió un correo de confirmación.";
