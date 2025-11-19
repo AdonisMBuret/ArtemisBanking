@@ -8,3 +8,5 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
         Task<bool> ExisteBeneficiarioAsync(string usuarioId, string numeroCuenta);
     }
 }
+
+//Ya hice las interfaces, push Interface
