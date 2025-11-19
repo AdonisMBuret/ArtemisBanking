@@ -4,14 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ArtemisBanking.Infrastructure.Data
 {
-    /// Configuración de la entidad Transaccion
+    
     public class TransaccionConfiguration : IEntityTypeConfiguration<Transaccion>
     {
         public void Configure(EntityTypeBuilder<Transaccion> builder)
         {
             builder.ToTable("Transacciones");
 
-            // Propiedades requeridas
             builder.Property(t => t.TipoTransaccion)
                 .IsRequired()
                 .HasMaxLength(20);
@@ -26,11 +25,9 @@ namespace ArtemisBanking.Infrastructure.Data
             builder.Property(t => t.Origen)
                 .HasMaxLength(200);
 
-            // Monto con precisión decimal
             builder.Property(t => t.Monto)
                 .HasColumnType("decimal(18,2)");
 
-            // Índices para búsquedas y reportes
             builder.HasIndex(t => t.FechaTransaccion);
             builder.HasIndex(t => new { t.CuentaAhorroId, t.FechaTransaccion });
         }

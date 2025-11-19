@@ -11,8 +11,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// Obtiene una tarjeta por ID con todas sus relaciones
-        /// Sobrescribe el método base para incluir Cliente y Consumos
+
         public override async Task<TarjetaCredito> ObtenerPorIdAsync(int id)
         {
             return await _context.TarjetasCredito
@@ -21,9 +20,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        
-        /// Busca una tarjeta por su número de 16 dígitos
-         
         public async Task<TarjetaCredito> ObtenerPorNumeroTarjetaAsync(string numeroTarjeta)
         {
             return await _context.TarjetasCredito
@@ -32,9 +28,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.NumeroTarjeta == numeroTarjeta);
         }
 
-         
-        /// Obtiene todas las tarjetas de un usuario
-         
+
         public async Task<IEnumerable<TarjetaCredito>> ObtenerTarjetasDeUsuarioAsync(string usuarioId)
         {
             return await _context.TarjetasCredito
@@ -46,8 +40,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
         }
 
          
-        /// Obtiene solo las tarjetas activas de un usuario
-         
         public async Task<IEnumerable<TarjetaCredito>> ObtenerTarjetasActivasDeUsuarioAsync(string usuarioId)
         {
             return await _context.TarjetasCredito
@@ -55,9 +47,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .OrderByDescending(t => t.FechaCreacion)
                 .ToListAsync();
         }
-
-         
-        /// Obtiene tarjetas paginadas con filtros opcionales
          
         public async Task<(IEnumerable<TarjetaCredito> tarjetas, int total)> ObtenerTarjetasPaginadasAsync(
             int pagina,
@@ -69,13 +58,11 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .Include(t => t.Cliente)
                 .AsQueryable();
 
-            // Filtrar por cédula si se proporciona
             if (!string.IsNullOrEmpty(cedula))
             {
                 query = query.Where(t => t.Cliente.Cedula == cedula);
             }
 
-            // Filtrar por estado si se proporciona
             if (estaActiva.HasValue)
             {
                 query = query.Where(t => t.EstaActiva == estaActiva.Value);
@@ -92,9 +79,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (tarjetas, total);
         }
 
-         
-        /// Genera un número de tarjeta único de 16 dígitos
-         
+                 
         public async Task<string> GenerarNumeroTarjetaUnicoAsync()
         {
             string numeroTarjeta;
@@ -113,17 +98,13 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return numeroTarjeta;
         }
 
-         
-        /// Verifica si un número de tarjeta ya existe
-         
+                 
         public async Task<bool> ExisteNumeroTarjetaAsync(string numeroTarjeta)
         {
             return await _context.TarjetasCredito
                 .AnyAsync(t => t.NumeroTarjeta == numeroTarjeta);
         }
 
-         
-        /// Cuenta cuántas tarjetas activas hay en total
          
         public async Task<int> ContarTarjetasActivasAsync()
         {

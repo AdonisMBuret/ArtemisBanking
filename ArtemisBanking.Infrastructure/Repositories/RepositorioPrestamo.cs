@@ -10,9 +10,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
         public RepositorioPrestamo(ArtemisBankingDbContext context) : base(context)
         {
         }
-
-        /// Obtiene un préstamo por ID con todas sus relaciones
-        /// Sobrescribe el método base para incluir Cliente, Administrador y TablaAmortizacion
         public override async Task<Prestamo> ObtenerPorIdAsync(int id)
         {
             return await _context.Prestamos
@@ -21,8 +18,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .Include(p => p.TablaAmortizacion)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
-
-        /// Obtiene un préstamo por su número, incluyendo toda su información
          
         public async Task<Prestamo> ObtenerPorNumeroPrestamoAsync(string numeroPrestamo)
         {
@@ -34,9 +29,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
         }
 
          
-        /// Obtiene el préstamo activo de un usuario
-        /// Un cliente solo puede tener un préstamo activo a la vez
-         
         public async Task<Prestamo> ObtenerPrestamoActivoDeUsuarioAsync(string usuarioId)
         {
             return await _context.Prestamos
@@ -44,21 +36,17 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.ClienteId == usuarioId && p.EstaActivo);
         }
 
-         
-        /// Obtiene todos los préstamos de un usuario (activos y completados)
-         
+                
         public async Task<IEnumerable<Prestamo>> ObtenerPrestamosDeUsuarioAsync(string usuarioId)
         {
             return await _context.Prestamos
                 .Include(p => p.TablaAmortizacion)
                 .Where(p => p.ClienteId == usuarioId)
-                .OrderByDescending(p => p.EstaActivo) // Activos primero
-                .ThenByDescending(p => p.FechaCreacion) // Más recientes primero
+                .OrderByDescending(p => p.EstaActivo) 
+                .ThenByDescending(p => p.FechaCreacion) 
                 .ToListAsync();
         }
 
-         
-        /// Obtiene préstamos paginados with filtros opcionales
          
         public async Task<(IEnumerable<Prestamo> prestamos, int total)> ObtenerPrestamosPaginadosAsync(
             int pagina,
@@ -71,13 +59,11 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .Include(p => p.TablaAmortizacion)
                 .AsQueryable();
 
-            // Filtrar por cédula si se proporciona
             if (!string.IsNullOrEmpty(cedula))
             {
                 query = query.Where(p => p.Cliente.Cedula == cedula);
             }
 
-            // Filtrar por estado si se proporciona
             if (estaActivo.HasValue)
             {
                 query = query.Where(p => p.EstaActivo == estaActivo.Value);
@@ -94,13 +80,9 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return (prestamos, total);
         }
 
-         
-        /// Calcula la deuda promedio de todos los clientes
-        /// Suma préstamos pendientes + deudas de tarjetas / número de clientes
-         
+                 
         public async Task<decimal> CalcularDeudaPromedioAsync()
         {
-            // Obtener todos los clientes que tienen productos financieros
             var clientesConProductos = await _context.Users
                 .Include(u => u.Prestamos)
                 .Include(u => u.TarjetasCredito)
@@ -110,17 +92,14 @@ namespace ArtemisBanking.Infrastructure.Repositories
             if (!clientesConProductos.Any())
                 return 0;
 
-            // Calcular deuda total de cada cliente
             decimal deudaTotal = 0;
 
             foreach (var cliente in clientesConProductos)
             {
-                // Sumar deuda de préstamos activos
                 var deudaPrestamos = cliente.Prestamos
                     .Where(p => p.EstaActivo)
                     .Sum(p => p.TablaAmortizacion.Where(c => !c.EstaPagada).Sum(c => c.MontoCuota));
 
-                // Sumar deuda de tarjetas activas
                 var deudaTarjetas = cliente.TarjetasCredito
                     .Where(t => t.EstaActiva)
                     .Sum(t => t.DeudaActual);
@@ -130,32 +109,21 @@ namespace ArtemisBanking.Infrastructure.Repositories
 
             return deudaTotal / clientesConProductos.Count;
         }
-
-         
-        /// Calcula la deuda total de un cliente específico
-        /// Incluye préstamos activos y tarjetas de crédito
          
         public async Task<decimal> CalcularDeudaTotalClienteAsync(string usuarioId)
         {
-            // Deuda de préstamos activos (cuotas pendientes)
             var deudaPrestamos = await _context.Prestamos
                 .Where(p => p.ClienteId == usuarioId && p.EstaActivo)
                 .SelectMany(p => p.TablaAmortizacion)
                 .Where(c => !c.EstaPagada)
                 .SumAsync(c => c.MontoCuota);
 
-            // Deuda de tarjetas activas
             var deudaTarjetas = await _context.TarjetasCredito
                 .Where(t => t.ClienteId == usuarioId && t.EstaActiva)
                 .SumAsync(t => t.DeudaActual);
 
             return deudaPrestamos + deudaTarjetas;
         }
-
-         
-        /// Genera un número de préstamo único de 9 dígitos
-        /// Verifica que no exista ni en préstamos ni en cuentas
-         
         public async Task<string> GenerarNumeroPrestamoUnicoAsync()
         {
             string numeroPrestamo;
@@ -175,18 +143,12 @@ namespace ArtemisBanking.Infrastructure.Repositories
             return numeroPrestamo;
         }
 
-         
-        /// Verifica si un cliente tiene un préstamo activo
-         
         public async Task<bool> TienePrestamoActivoAsync(string usuarioId)
         {
             return await _context.Prestamos
                 .AnyAsync(p => p.ClienteId == usuarioId && p.EstaActivo);
         }
 
-         
-        /// Cuenta cuántos préstamos activos hay en total
-         
         public async Task<int> ContarPrestamosActivosAsync()
         {
             return await _context.Prestamos

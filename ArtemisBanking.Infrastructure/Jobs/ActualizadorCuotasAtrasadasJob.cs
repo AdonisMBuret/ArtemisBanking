@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace ArtemisBanking.Infrastructure.Jobs
 {
-    /// Job de Hangfire que se ejecuta diariamente para actualizar cuotas atrasadas
-    /// Revisa todas las cuotas y marca como atrasadas las que ya pasaron su fecha de pago
+    ///Job de Hangfire es para que se ejecute diariamente para actualizar cuotas atrasadas
+    
     public class ActualizadorCuotasAtrasadasJob
     {
         private readonly IRepositorioCuotaPrestamo _repositorioCuota;
@@ -19,8 +19,6 @@ namespace ArtemisBanking.Infrastructure.Jobs
             _logger = logger;
         }
 
-        /// Ejecuta la actualización de cuotas atrasadas
-        /// Este método se ejecuta automáticamente cada día a las 00:01
         [AutomaticRetry(Attempts = 3)]
         public async Task EjecutarAsync()
         {

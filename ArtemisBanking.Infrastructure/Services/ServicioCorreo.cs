@@ -6,7 +6,7 @@ using System.Net.Mail;
 namespace ArtemisBanking.Infrastructure.Services
 {
      
-    /// Servicio para envío de correos electrónicos mediante SMTP de Gmail
+    // Servicio para envío de correos electrónicos mediante SMTP de Gmail
      
     public class ServicioCorreo : IServicioCorreo
     {
@@ -54,7 +54,6 @@ namespace ArtemisBanking.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                // Log del error (podrías usar ILogger aquí)
                 Console.WriteLine($"Error al enviar correo: {ex.Message}");
                 throw;
             }
@@ -64,12 +63,11 @@ namespace ArtemisBanking.Infrastructure.Services
         {
             var asunto = "Confirma tu cuenta - Artemis Banking";
             
-            // Generar el link de confirmación
             var enlaceConfirmacion = $"{urlBase}/Account/ConfirmarCuenta?userId={Uri.EscapeDataString(usuarioId)}&token={Uri.EscapeDataString(token)}";
             
             var cuerpo = $@"
                 <h2>Bienvenido a Artemis Banking</h2>
-                <p>Hola <strong>{nombreUsuario}</strong>,</p>
+                <p>Hola !!!!!! <strong>{nombreUsuario}</strong>,</p>
                 <p>Para activar tu cuenta, haz clic en el botón de abajo:</p>
                 
                 <div style='text-align: center; margin: 30px 0;'>
@@ -84,9 +82,9 @@ namespace ArtemisBanking.Infrastructure.Services
                 </p>
                 
                 <p>Este enlace es válido por 24 horas.</p>
-                <p style='color: #666; font-size: 12px;'>Si no solicitaste esta cuenta, ignora este correo.</p>
+                <p style='color: #666; font-size: 12px;'>Si no solicitaste esta cuenta, ignora este correo por favor.</p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -96,12 +94,11 @@ namespace ArtemisBanking.Infrastructure.Services
         {
             var asunto = "Restablecer contraseña - Artemis Banking";
             
-            // Generar el link de restablecimiento
             var enlaceRestablecimiento = $"{urlBase}/Account/RestablecerContrasena?userId={Uri.EscapeDataString(usuarioId)}&token={Uri.EscapeDataString(token)}";
             
             var cuerpo = $@"
                 <h2>Restablecimiento de contraseña</h2>
-                <p>Hola <strong>{nombreUsuario}</strong>,</p>
+                <p>Hola !!!!!! <strong>{nombreUsuario}</strong>,</p>
                 <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón de abajo para continuar:</p>
                 
                 <div style='text-align: center; margin: 30px 0;'>
@@ -118,7 +115,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 <p>Si no solicitaste este cambio, ignora este correo y tu contraseña permanecerá sin cambios.</p>
                 <p style='color: #666; font-size: 12px;'>Este enlace es válido por 24 horas.</p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -135,7 +132,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = "¡Préstamo aprobado! - Artemis Banking";
             var cuerpo = $@"
                 <h2>¡Felicidades! Tu préstamo ha sido aprobado</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Te informamos que tu solicitud de préstamo ha sido <strong>aprobada</strong>.</p>
                 <h3>Detalles del préstamo:</h3>
                 <ul>
@@ -146,7 +143,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 </ul>
                 <p>El monto ha sido depositado en tu cuenta de ahorro principal.</p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -161,7 +158,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = "Actualización de tasa de interés - Artemis Banking";
             var cuerpo = $@"
                 <h2>Actualización en tu préstamo</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Te informamos que la tasa de interés de tu préstamo ha sido actualizada.</p>
                 <h3>Nuevos términos:</h3>
                 <ul>
@@ -170,7 +167,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 </ul>
                 <p>Este cambio aplicará a partir de tu próxima cuota.</p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -185,11 +182,11 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = "Actualización de límite de crédito - Artemis Banking";
             var cuerpo = $@"
                 <h2>Actualización en tu tarjeta de crédito</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>El límite de crédito de tu tarjeta terminada en <strong>{ultimosCuatroDigitos}</strong> ha sido modificado.</p>
                 <p><strong>Nuevo límite de crédito:</strong> RD${nuevoLimite:N2}</p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -205,7 +202,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Transacción realizada a cuenta {ultimosCuatroDigitosCuentaDestino} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Transacción exitosa</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado una transacción desde tu cuenta.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -214,7 +211,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -230,7 +227,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Transacción recibida desde cuenta {ultimosCuatroDigitosCuentaOrigen} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Has recibido una transacción</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha recibido una transacción en tu cuenta.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -239,7 +236,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -256,7 +253,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Pago realizado a tarjeta {ultimosCuatroDigitosTarjeta} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Pago a tarjeta de crédito exitoso</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un pago a tu tarjeta de crédito.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -266,7 +263,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -283,7 +280,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Pago realizado al préstamo {numeroPrestamo} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Pago a préstamo exitoso</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un pago a tu préstamo.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -293,7 +290,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -310,7 +307,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Avance de efectivo desde tarjeta {ultimosCuatroDigitosTarjeta} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Avance de efectivo realizado</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un avance de efectivo desde tu tarjeta de crédito.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -321,7 +318,7 @@ namespace ArtemisBanking.Infrastructure.Services
                 </ul>
                 <p><em>Nota: Se ha aplicado un interés del 6.25% sobre el monto del avance.</em></p>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -337,7 +334,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Depósito realizado a tu cuenta {ultimosCuatroDigitosCuenta} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Depósito exitoso</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un depósito en tu cuenta.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -346,7 +343,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -362,7 +359,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Retiro realizado de tu cuenta {ultimosCuatroDigitosCuenta} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Retiro exitoso</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un retiro de tu cuenta.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -371,7 +368,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);
@@ -388,7 +385,7 @@ namespace ArtemisBanking.Infrastructure.Services
             var asunto = $"Consumo realizado con tarjeta {ultimosCuatroDigitosTarjeta} - Artemis Banking";
             var cuerpo = $@"
                 <h2>Consumo realizado</h2>
-                <p>Hola <strong>{nombreCliente}</strong>,</p>
+                <p>Hola !!! <strong>{nombreCliente}</strong>,</p>
                 <p>Se ha realizado un consumo con tu tarjeta de crédito.</p>
                 <h3>Detalles:</h3>
                 <ul>
@@ -398,7 +395,7 @@ namespace ArtemisBanking.Infrastructure.Services
                     <li><strong>Fecha y hora:</strong> {fechaHora:dd/MM/yyyy HH:mm}</li>
                 </ul>
                 <br>
-                <p>Saludos,<br>Equipo de Artemis Banking</p>
+                <p>Saludos,<br>couple de Artemis Banking</p>
             ";
 
             await EnviarCorreoGenericoAsync(correo, asunto, cuerpo);

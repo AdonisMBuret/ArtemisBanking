@@ -15,24 +15,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArtemisBanking.Infrastructure
 {
      
-    /// Clase de extensión para configurar todos los servicios de infraestructura
-    /// Aquí solo van servicios que interactúan con recursos externos:
-    /// - Base de datos (DbContext, Repositorios)
-    /// - Servicios externos (Correo, SMS, etc.)
-    /// - Servicios de cifrado y seguridad
+    // Clase de extensión para configurar todos los servicios de infraestructura
      
     public static class DependencyInjection
-    {
-         
-        /// Configura todos los servicios de infraestructura
-        /// <param name="configurarCookies">Indica si se deben configurar cookies de autenticación (Razor Pages). False para APIs con JWT.</param>
-         
+    {      
         public static IServiceCollection AgregarInfraestructura(
             this IServiceCollection services,
             IConfiguration configuration,
             bool configurarCookies = true)
         {
-            // ==================== BASE DE DATOS ====================
+            // BASE DE DATOS 
             services.AddDbContext<ArtemisBankingDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
@@ -40,31 +32,27 @@ namespace ArtemisBanking.Infrastructure
                 )
             );
 
-            // ==================== IDENTITY ====================
+            // IDENTITY 
             services.AddIdentity<Usuario, IdentityRole>(options =>
             {
-                // Configuración de contraseñas
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredLength = 8;
 
-                // Configuración de usuarios
                 options.User.RequireUniqueEmail = true;
 
-                // Configuración de lockout
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
 
-                // Configuración de tokens
                 options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultProvider;
                 options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
             })
             .AddEntityFrameworkStores<ArtemisBankingDbContext>()
             .AddDefaultTokenProviders();
 
-            // ==================== COOKIES DE AUTENTICACIÓN ====================
+            // COOKIES DE AUTENTICACIÓN 
             // Solo configurar cookies para Razor Pages, no para APIs con JWT
             if (configurarCookies)
             {
@@ -78,7 +66,7 @@ namespace ArtemisBanking.Infrastructure
                 });
             }
 
-            // ==================== HANGFIRE ====================
+            // HANGFIRE 
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
@@ -98,8 +86,7 @@ namespace ArtemisBanking.Infrastructure
 
             services.AddHangfireServer();
 
-            // ==================== REPOSITORIOS ====================
-            // Los repositorios solo interactúan con la base de datos
+            // REPOSITORIOS 
             services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
             services.AddScoped<IRepositorioCuentaAhorro, RepositorioCuentaAhorro>();
             services.AddScoped<IRepositorioPrestamo, RepositorioPrestamo>();
@@ -110,8 +97,7 @@ namespace ArtemisBanking.Infrastructure
             services.AddScoped<IRepositorioBeneficiario, RepositorioBeneficiario>();
             services.AddScoped<IRepositorioComercio, RepositorioComercio>();
 
-            // ==================== SERVICIOS DE INFRAESTRUCTURA ====================
-            // Solo servicios que interactúan con recursos externos
+            // SERVICIOS DE INFRAESTRUCTURA 
 
             // Servicio para envío de correos (SMTP)
             services.AddScoped<IServicioCorreo, ServicioCorreo>();
@@ -122,23 +108,20 @@ namespace ArtemisBanking.Infrastructure
             // Servicio para generación y validación de JWT
             services.AddScoped<IServicioJwt, ServicioJwt>();
 
-            // ==================== JOBS DE HANGFIRE ====================
+            // JOBS DE HANGFIRE 
             services.AddScoped<ActualizadorCuotasAtrasadasJob>();
 
             return services;
         }
-
          
-        /// Configura los jobs recurrentes de Hangfire
-        /// Se llama desde Program.cs después de construir la aplicación
-         
+        // Configura los jobs recurrentes de Hangfire         
         public static void ConfigurarJobsRecurrentes()
         {
             // Job para actualizar cuotas atrasadas - se ejecuta todos los días a las 00:01
             RecurringJob.AddOrUpdate<ActualizadorCuotasAtrasadasJob>(
                 "actualizar-cuotas-atrasadas",
                 job => job.EjecutarAsync(),
-                Cron.Daily(0, 1) // Cada día a las 00:01
+                Cron.Daily(0, 1) 
             );
         }
     }

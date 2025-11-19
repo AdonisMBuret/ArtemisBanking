@@ -9,9 +9,7 @@ namespace ArtemisBanking.Infrastructure.Services
      
     public class ServicioCifrado : IServicioCifrado
     {
-         
-        /// Cifra el CVC de la tarjeta usando SHA-256
-         
+                
         public string CifrarCVC(string cvc)
         {
             using (var sha256 = SHA256.Create())
@@ -22,9 +20,7 @@ namespace ArtemisBanking.Infrastructure.Services
             }
         }
 
-         
-        /// Verifica si un CVC coincide con su versión cifrada
-         
+                
         public bool VerificarCVC(string cvc, string cvcCifrado)
         {
             var cvcCifradoIngresado = CifrarCVC(cvc);

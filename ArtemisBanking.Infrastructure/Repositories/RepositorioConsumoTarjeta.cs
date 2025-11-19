@@ -11,9 +11,6 @@ namespace ArtemisBanking.Infrastructure.Repositories
         {
         }
 
-        /// <summary>
-        /// Obtiene todos los consumos de una tarjeta ordenados por fecha
-        /// </summary>
         public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosDeTarjetaAsync(int tarjetaId)
         {
             return await _context.ConsumosTarjeta
@@ -22,10 +19,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
-        /// Obtiene todos los consumos de un comercio
-        /// </summary>
-        public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosPorComercioAsync(int comercioId)
+         public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosPorComercioAsync(int comercioId)
         {
             return await _context.ConsumosTarjeta
                 .Where(c => c.ComercioId == comercioId)
@@ -33,10 +27,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
-        /// Obtiene consumos de un comercio en un rango de fechas
-        /// </summary>
-        public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosPorComercioYFechaAsync(
+         public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosPorComercioYFechaAsync(
             int comercioId,
             DateTime fechaInicio,
             DateTime fechaFin)
@@ -49,10 +40,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
-        /// Obtiene los consumos más recientes de un comercio
-        /// </summary>
-        public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosRecientesDeComercioAsync(
+          public async Task<IEnumerable<ConsumoTarjeta>> ObtenerConsumosRecientesDeComercioAsync(
             int comercioId,
             int cantidad)
         {
@@ -64,10 +52,7 @@ namespace ArtemisBanking.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        /// <summary>
-        /// Obtiene consumos paginados de un comercio con filtro de fecha
-        /// </summary>
-        public async Task<(IEnumerable<ConsumoTarjeta> Consumos, int TotalRegistros)> ObtenerConsumosPaginadosDeComercioAsync(
+         public async Task<(IEnumerable<ConsumoTarjeta> Consumos, int TotalRegistros)> ObtenerConsumosPaginadosDeComercioAsync(
             int comercioId,
             int pagina,
             int registrosPorPagina,

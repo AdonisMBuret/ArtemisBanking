@@ -29,7 +29,7 @@ namespace ArtemisBanking.Infrastructure.Data
                 Constantes.RolAdministrador, 
                 Constantes.RolCajero, 
                 Constantes.RolCliente,
-                Constantes.RolComercio // ⭐ Nuevo rol para comercios
+                Constantes.RolComercio 
             };
 
             foreach (var rol in roles)
@@ -41,33 +41,29 @@ namespace ArtemisBanking.Infrastructure.Data
             }
         }
 
-        /// <summary>
-        /// Crea comercios de prueba si no existen
-        /// </summary>
         private static async Task CrearComerciosDePruebaAsync(ArtemisBankingDbContext context)
         {
-            // Verificar si ya existe algún comercio
             if (!await context.Comercios.AnyAsync())
             {
                 var comerciosPrueba = new List<Comercio>
                 {
                     new Comercio
                     {
-                        Nombre = "Supermercado La Economía",
+                        Nombre = "Supermercado La Econmica jajaj",
                         RNC = "130123456",
                         EstaActivo = true,
                         FechaCreacion = DateTime.Now
                     },
                     new Comercio
                     {
-                        Nombre = "Farmacia Carol",
+                        Nombre = "Farmacia GBS",
                         RNC = "130987654",
                         EstaActivo = true,
                         FechaCreacion = DateTime.Now
                     },
                     new Comercio
                     {
-                        Nombre = "Restaurante El Buen Sabor",
+                        Nombre = "Restaurante El Sabroson",
                         RNC = "130555555",
                         EstaActivo = true,
                         FechaCreacion = DateTime.Now
@@ -83,7 +79,7 @@ namespace ArtemisBanking.Infrastructure.Data
             UserManager<Usuario> userManager, 
             ArtemisBankingDbContext context)
         {
-            // ==================== CREAR USUARIO ADMINISTRADOR ====================
+            //  CREAR USUARIO ADMINISTRADOR 
             if (await userManager.FindByNameAsync("admin") == null)
             {
                 var adminUser = new Usuario
@@ -98,7 +94,7 @@ namespace ArtemisBanking.Infrastructure.Data
                     EmailConfirmed = true
                 };
 
-                var resultado = await userManager.CreateAsync(adminUser, "Admin123!");
+                var resultado = await userManager.CreateAsync(adminUser, "Admin123@");
 
                 if (resultado.Succeeded)
                 {
@@ -106,7 +102,7 @@ namespace ArtemisBanking.Infrastructure.Data
                 }
             }
 
-            // ==================== CREAR USUARIO CAJERO ====================
+            //  CREAR USUARIO CAJERO 
             if (await userManager.FindByNameAsync("cajero") == null)
             {
                 var cajeroUser = new Usuario
@@ -121,7 +117,7 @@ namespace ArtemisBanking.Infrastructure.Data
                     EmailConfirmed = true
                 };
 
-                var resultado = await userManager.CreateAsync(cajeroUser, "Cajero123!");
+                var resultado = await userManager.CreateAsync(cajeroUser, "Cajero123@");
 
                 if (resultado.Succeeded)
                 {
@@ -129,28 +125,27 @@ namespace ArtemisBanking.Infrastructure.Data
                 }
             }
 
-            // ==================== CREAR USUARIO CLIENTE ====================
+            //  CREAR USUARIO CLIENTE 
             if (await userManager.FindByNameAsync("cliente") == null)
             {
                 var clienteUser = new Usuario
                 {
                     UserName = "cliente",
                     Email = "cliente@artemisbanking.com",
-                    Nombre = "Cliente",
-                    Apellido = "Prueba",
+                    Nombre = "Henry",
+                    Apellido = "Cavill",
                     Cedula = "00000000003",
                     EstaActivo = true,
                     FechaCreacion = DateTime.Now,
                     EmailConfirmed = true
                 };
 
-                var resultado = await userManager.CreateAsync(clienteUser, "Cliente123!");
+                var resultado = await userManager.CreateAsync(clienteUser, "Cliente123@");
 
                 if (resultado.Succeeded)
                 {
                     await userManager.AddToRoleAsync(clienteUser, Constantes.RolCliente);
 
-                    // Crear cuenta de ahorro principal
                     var numeroCuenta = await GenerarNumeroCuentaUnicoAsync(context);
 
                     var cuentaPrincipal = new CuentaAhorro
@@ -168,45 +163,42 @@ namespace ArtemisBanking.Infrastructure.Data
                 }
             }
 
-            // ==================== CREAR USUARIO COMERCIO ====================
-            // Crear un usuario de comercio asociado al primer comercio
+            //  CREAR USUARIO COMERCIO 
+
             if (await userManager.FindByNameAsync("comercio") == null)
             {
-                // Obtener el primer comercio creado
                 var comercio = await context.Comercios.FirstOrDefaultAsync();
                 
                 if (comercio != null)
                 {
                     var comercioUser = new Usuario
                     {
-                        UserName = "comercio",
-                        Email = "comercio@artemisbanking.com",
-                        Nombre = "Usuario",
-                        Apellido = "Comercio",
+                        UserName = "comerciante",
+                        Email = "comercioX@artemisbanking.com",
+                        Nombre = "Billie",
+                        Apellido = "Eilish",
                         Cedula = "00000000004",
                         EstaActivo = true,
                         FechaCreacion = DateTime.Now,
                         EmailConfirmed = true,
-                        ComercioId = comercio.Id // Asociar al comercio
+                        ComercioId = comercio.Id 
                     };
 
-                    var resultado = await userManager.CreateAsync(comercioUser, "Comercio123!");
+                    var resultado = await userManager.CreateAsync(comercioUser, "Comerciante123@");
 
                     if (resultado.Succeeded)
                     {
                         await userManager.AddToRoleAsync(comercioUser, Constantes.RolComercio);
 
-                        // Actualizar el comercio con el usuario asociado
                         comercio.UsuarioId = comercioUser.Id;
                         context.Comercios.Update(comercio);
 
-                        // Crear cuenta de ahorro principal para el comercio
                         var numeroCuenta = await GenerarNumeroCuentaUnicoAsync(context);
 
                         var cuentaComercio = new CuentaAhorro
                         {
                             NumeroCuenta = numeroCuenta,
-                            Balance = 0, // Los comercios inician con saldo 0
+                            Balance = 0, 
                             EsPrincipal = true,
                             EstaActiva = true,
                             UsuarioId = comercioUser.Id,
@@ -220,9 +212,6 @@ namespace ArtemisBanking.Infrastructure.Data
             }
         }
 
-        /// <summary>
-        /// Genera un número de cuenta único de 9 dígitos
-        /// </summary>
         private static async Task<string> GenerarNumeroCuentaUnicoAsync(ArtemisBankingDbContext context)
         {
             var random = new Random();
@@ -243,3 +232,5 @@ namespace ArtemisBanking.Infrastructure.Data
         }
     }
 }
+
+//Ya hice las Datas, push Db

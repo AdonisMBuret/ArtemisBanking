@@ -8,10 +8,9 @@ namespace ArtemisBanking.Infrastructure.Data
     {
         public void Configure(EntityTypeBuilder<Usuario> builder)
         {
-            // Nombre de la tabla
             builder.ToTable("Usuarios");
 
-            // Propiedades requeridas
+            
             builder.Property(u => u.Nombre)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -24,7 +23,6 @@ namespace ArtemisBanking.Infrastructure.Data
                 .IsRequired()
                 .HasMaxLength(20);
 
-            // Índices para búsquedas rápidas
             builder.HasIndex(u => u.Cedula)
                 .IsUnique();
 
@@ -34,7 +32,6 @@ namespace ArtemisBanking.Infrastructure.Data
             builder.HasIndex(u => u.UserName)
                 .IsUnique();
 
-            // Configurar relaciones
             builder.HasMany(u => u.CuentasAhorro)
                 .WithOne(c => c.Usuario)
                 .HasForeignKey(c => c.UsuarioId)
