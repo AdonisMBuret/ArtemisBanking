@@ -2,9 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.DTOs.Api
 {
-    /// <summary>
-    /// DTO para procesar un pago desde un comercio
-    /// </summary>
+
     public class ProcesarPagoRequestDTO
     {
         [Required(ErrorMessage = "El número de tarjeta es requerido")]
@@ -30,19 +28,5 @@ namespace ArtemisBanking.Application.DTOs.Api
         [Required(ErrorMessage = "El monto de la transacción es requerido")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
         public decimal TransactionAmount { get; set; }
-    }
-
-    /// <summary>
-    /// DTO de respuesta para transacciones del comercio
-    /// </summary>
-    public class TransaccionComercioDTO
-    {
-        public int Id { get; set; }
-        public DateTime Fecha { get; set; }
-        public decimal Monto { get; set; }
-        public string TipoTransaccion { get; set; } = string.Empty;
-        public string Estado { get; set; } = string.Empty;
-        public string? Origen { get; set; }
-        public string? Beneficiario { get; set; }
     }
 }

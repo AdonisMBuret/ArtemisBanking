@@ -2,8 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
 {
-    // ==================== CANCELAR TARJETA ====================
-
     public class CancelarTarjetaViewModel
     {
         public int Id { get; set; }

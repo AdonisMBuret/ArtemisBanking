@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// ViewModel para confirmar el retiro antes de procesarlo
     public class ConfirmarRetiroViewModel
     {
         [Display(Name = "Nombre del Cliente")]

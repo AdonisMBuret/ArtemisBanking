@@ -14,7 +14,7 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         public decimal Balance { get; set; }
 
         [Display(Name = "Tipo")]
-        public string TipoCuenta { get; set; } // "Principal" o "Secundaria"
+        public string TipoCuenta { get; set; } 
 
         public bool EsPrincipal { get; set; }
     }

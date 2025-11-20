@@ -1,10 +1,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// ==================== HOME DEL CLIENTE ====================
-
-    /// ViewModel principal del home del cliente
-    /// Muestra todos sus productos financieros
     public class HomeClienteViewModel
     {
         public IEnumerable<CuentaClienteViewModel> CuentasAhorro { get; set; }

@@ -2,10 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// <summary>
-    /// ViewModel para procesar un pago a tarjeta de crédito
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class PagoTarjetaCajeroViewModel
     {
         [Required(ErrorMessage = "Necesitas el número de cuenta de donde se tomará el dinero")]

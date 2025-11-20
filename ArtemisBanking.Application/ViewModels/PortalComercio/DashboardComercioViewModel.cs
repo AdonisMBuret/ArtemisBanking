@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.PortalComercio
 {
-    /// <summary>
-    /// ViewModel para el dashboard del comercio
-    /// Muestra estadísticas y resumen de actividad
-    /// </summary>
+
     public class DashboardComercioViewModel
     {
         public string NombreComercio { get; set; } = string.Empty;

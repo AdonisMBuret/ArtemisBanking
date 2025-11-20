@@ -31,30 +31,24 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-         
-        /// Crea una cuenta de ahorro secundaria para un cliente
-        /// Genera un número único de 9 dígitos y la marca como no principal
-         
+                 
         public async Task<ResultadoOperacion<CuentaAhorroDTO>> CrearCuentaSecundariaAsync(CrearCuentaSecundariaDTO datos)
         {
             try
             {
-                // 1. Validar que el cliente existe
                 var cliente = await _userManager.FindByIdAsync(datos.ClienteId);
                 if (cliente == null)
                 {
                     return ResultadoOperacion<CuentaAhorroDTO>.Fallo("Cliente no encontrado");
                 }
 
-                // 2. Generar número de cuenta único
                 var numeroCuenta = await _repositorioCuenta.GenerarNumeroCuentaUnicoAsync();
 
-                // 3. Crear la nueva cuenta secundaria
                 var nuevaCuenta = new CuentaAhorro
                 {
                     NumeroCuenta = numeroCuenta,
                     Balance = datos.BalanceInicial,
-                    EsPrincipal = false, // Es una cuenta secundaria
+                    EsPrincipal = false, 
                     EstaActiva = true,
                     UsuarioId = datos.ClienteId,
                     FechaCreacion = DateTime.Now
@@ -65,7 +59,6 @@ namespace ArtemisBanking.Application.Services
 
                 _logger.LogInformation($"Cuenta secundaria {numeroCuenta} creada para cliente {cliente.UserName}");
 
-                // 4. Retornar DTO
                 var cuentaDTO = _mapper.Map<CuentaAhorroDTO>(nuevaCuenta);
                 cuentaDTO.NombreCliente = cliente.Nombre;
                 cuentaDTO.ApellidoCliente = cliente.Apellido;
@@ -84,14 +77,10 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Cancela una cuenta secundaria
-        /// Si tiene fondos, los transfiere automáticamente a la cuenta principal
-        /// Las cuentas principales NO se pueden cancelar
-         
-        public async Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId)
+         public async Task<ResultadoOperacion> CancelarCuentaAsync(int cuentaId)
         {
             try
             {
-                // 1. Obtener la cuenta a cancelar (CON el usuario incluido)
                 var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(cuentaId);
 
                 if (cuenta == null)
@@ -99,21 +88,11 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Cuenta no encontrada");
                 }
 
-                // ELIMINAR esta validación porque ahora obtenemos el usuario de la cuenta:
-                // if (cuenta.UsuarioId != usuarioId)
-                // {
-                //     return ResultadoOperacion.Fallo("No tiene permiso para cancelar esta cuenta");
-                // }
-
-                // El resto del método queda igual...
-
-                // 3. Validar que NO sea la cuenta principal
-                if (cuenta.EsPrincipal)
+                 if (cuenta.EsPrincipal)
                 {
                     return ResultadoOperacion.Fallo("No se puede cancelar la cuenta principal");
                 }
 
-                // 4. Si la cuenta tiene fondos, transferirlos a la cuenta principal
                 if (cuenta.Balance > 0)
                 {
                     var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(cuenta.UsuarioId);
@@ -123,7 +102,6 @@ namespace ArtemisBanking.Application.Services
                         return ResultadoOperacion.Fallo("No se encontró la cuenta principal para transferir los fondos");
                     }
 
-                    // Transferir el balance
                     cuentaPrincipal.Balance += cuenta.Balance;
                     cuenta.Balance = 0;
 
@@ -133,7 +111,6 @@ namespace ArtemisBanking.Application.Services
                         $"Fondos transferidos de cuenta {cuenta.NumeroCuenta} a cuenta principal {cuentaPrincipal.NumeroCuenta}");
                 }
 
-                // 5. Cancelar la cuenta
                 cuenta.EstaActiva = false;
                 await _repositorioCuenta.ActualizarAsync(cuenta);
                 await _repositorioCuenta.GuardarCambiosAsync();
@@ -151,17 +128,14 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Transfiere dinero entre las cuentas propias del cliente
-        /// Valida que ambas cuentas pertenezcan al mismo usuario y que haya fondos suficientes
-         
+
         public async Task<ResultadoOperacion> TransferirEntreCuentasPropiasAsync(TransferirEntrePropiasDTO datos)
         {
             try
             {
-                // 1. Obtener ambas cuentas
                 var cuentaOrigen = await _repositorioCuenta.ObtenerPorIdAsync(datos.CuentaOrigenId);
                 var cuentaDestino = await _repositorioCuenta.ObtenerPorIdAsync(datos.CuentaDestinoId);
 
-                // 2. Validaciones
                 if (cuentaOrigen == null || cuentaDestino == null)
                 {
                     return ResultadoOperacion.Fallo("Una o ambas cuentas no son válidas");
@@ -187,7 +161,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Fondos insuficientes en la cuenta de origen");
                 }
 
-                // 3. Realizar la transferencia
                 cuentaOrigen.Balance -= datos.Monto;
                 cuentaDestino.Balance += datos.Monto;
 
@@ -195,8 +168,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioCuenta.ActualizarAsync(cuentaDestino);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // 4. Registrar transacciones en ambas cuentas
-                // DÉBITO en cuenta origen
                 var transaccionOrigen = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -209,7 +180,6 @@ namespace ArtemisBanking.Application.Services
                     FechaCreacion = DateTime.Now
                 };
 
-                // CRÉDITO en cuenta destino
                 var transaccionDestino = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -240,7 +210,6 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Obtiene una cuenta por su ID con todas sus relaciones (usuario, transacciones)
-         
         public async Task<ResultadoOperacion<CuentaAhorroDTO>> ObtenerCuentaPorIdAsync(int cuentaId)
         {
             try

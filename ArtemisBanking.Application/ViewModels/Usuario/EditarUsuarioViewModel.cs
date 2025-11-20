@@ -2,10 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
-    /// <summary>
-    /// ViewModel para editar un usuario existente
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
     public class EditarUsuarioViewModel
     {
         [Required]

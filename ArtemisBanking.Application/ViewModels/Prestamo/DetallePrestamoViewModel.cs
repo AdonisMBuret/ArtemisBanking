@@ -2,10 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    // ==================== DETALLE DE PRÉSTAMO ====================
-
-    /// ViewModel para mostrar el detalle completo de un préstamo
-    /// Incluye la tabla de amortización con todas las cuotas
     public class DetallePrestamoViewModel
     {
         public int Id { get; set; }
@@ -37,8 +33,6 @@ namespace ArtemisBanking.Application.ViewModels.Prestamo
         [Display(Name = "Fecha de Creación")]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime FechaCreacion { get; set; }
-
-        // Tabla de amortización con todas las cuotas
         public IEnumerable<CuotaPrestamoViewModel> TablaAmortizacion { get; set; }
     }
 

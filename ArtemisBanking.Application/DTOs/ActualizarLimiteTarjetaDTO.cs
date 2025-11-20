@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
 namespace ArtemisBanking.Application.DTOs
 {
     public class ActualizarLimiteTarjetaDTO

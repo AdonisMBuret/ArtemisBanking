@@ -37,7 +37,6 @@ namespace ArtemisBanking.Application.Services
 
         public async Task<ResultadoOperacion> ProcesarPagoAsync(int comercioId, ProcesarPagoRequestDTO request)
         {
-            // 1. Validar que el comercio existe y está activo
             var comercio = await _repositorioComercio.ObtenerConUsuarioAsync(comercioId);
             if (comercio == null || !comercio.EstaActivo)
             {
@@ -48,7 +47,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 2. Validar que el comercio tenga usuario asociado
             if (comercio.Usuario == null)
             {
                 return new ResultadoOperacion
@@ -58,7 +56,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 3. Buscar la tarjeta por número
             var tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(request.CardNumber);
             if (tarjeta == null || !tarjeta.EstaActiva)
             {
@@ -69,7 +66,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 4. Validar fecha de expiración
             var mesExpiracion = int.Parse(request.MonthExpirationCard);
             var anoExpiracion = int.Parse(request.YearExpirationCard);
             var fechaExpiracion = new DateTime(anoExpiracion, mesExpiracion, 1).AddMonths(1).AddDays(-1);
@@ -83,7 +79,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 5. Validar CVC (comparar con el hash almacenado)
             var cvcHash = _servicioCifrado.CifrarCVC(request.CVC);
             if (tarjeta.CVC != cvcHash)
             {
@@ -94,11 +89,9 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 6. Validar límite de crédito disponible
             var creditoDisponible = tarjeta.LimiteCredito - tarjeta.DeudaActual;
             if (request.TransactionAmount > creditoDisponible)
             {
-                // Registrar consumo RECHAZADO
                 var consumoRechazado = new ConsumoTarjeta
                 {
                     FechaConsumo = DateTime.Now,
@@ -119,12 +112,10 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // 7. Procesar el pago
-            // 7.1 Aumentar la deuda de la tarjeta
+          
             tarjeta.DeudaActual += request.TransactionAmount;
             await _repositorioTarjeta.ActualizarAsync(tarjeta);
 
-            // 7.2 Registrar el consumo APROBADO
             var consumo = new ConsumoTarjeta
             {
                 FechaConsumo = DateTime.Now,
@@ -137,7 +128,6 @@ namespace ArtemisBanking.Application.Services
 
             await _repositorioConsumo.AgregarAsync(consumo);
 
-            // 7.3 Acreditar el monto a la cuenta del comercio
             var cuentaComercio = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(comercio.UsuarioId!);
             if (cuentaComercio == null)
             {
@@ -151,7 +141,6 @@ namespace ArtemisBanking.Application.Services
             cuentaComercio.Balance += request.TransactionAmount;
             await _repositorioCuenta.ActualizarAsync(cuentaComercio);
 
-            // 7.4 Registrar la transacción en la cuenta del comercio
             var transaccion = new Transaccion
             {
                 FechaTransaccion = DateTime.Now,
@@ -166,11 +155,9 @@ namespace ArtemisBanking.Application.Services
             await _repositorioTransaccion.AgregarAsync(transaccion);
             await _repositorioTransaccion.GuardarCambiosAsync();
 
-            // Recargar tarjeta con cliente para obtener la información completa
             tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(tarjeta.NumeroTarjeta);
 
-            // 8. Enviar correos
-            // 8.1 Correo al cliente
+    
             var asuntoCliente = $"Consumo realizado con la tarjeta ****{tarjeta.NumeroTarjeta.Substring(12)}";
             var cuerpoCliente = $@"
                 <h2>Consumo Realizado</h2>
@@ -193,7 +180,6 @@ namespace ArtemisBanking.Application.Services
                 comercio.Nombre,
                 DateTime.Now);
 
-            // 8.2 Correo al comercio (usando método genérico ya que no hay uno específico)
             var asuntoComercio = $"Pago recibido a través de tarjeta ****{tarjeta.NumeroTarjeta.Substring(12)}";
             var cuerpoComercio = $@"
                 <h2>Pago Recibido</h2>
@@ -207,7 +193,6 @@ namespace ArtemisBanking.Application.Services
                 <p>El monto ha sido acreditado a su cuenta.</p>
             ";
 
-            // Como no hay método específico para comercio, usamos el de transacción recibida
             await _servicioCorreo.EnviarNotificacionTransaccionRecibidaAsync(
                 comercio.Usuario.Email!,
                 comercio.Nombre,
@@ -227,7 +212,6 @@ namespace ArtemisBanking.Application.Services
             int page = 1, 
             int pageSize = 20)
         {
-            // Obtener el comercio con su usuario
             var comercio = await _repositorioComercio.ObtenerConUsuarioAsync(comercioId);
             if (comercio == null || comercio.Usuario == null)
             {
@@ -240,7 +224,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // Obtener la cuenta principal del comercio
             var cuentaComercio = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(comercio.UsuarioId!);
             if (cuentaComercio == null)
             {
@@ -253,7 +236,6 @@ namespace ArtemisBanking.Application.Services
                 };
             }
 
-            // Obtener transacciones paginadas
             (IEnumerable<Transaccion> transacciones, int totalRegistros) = await _repositorioTransaccion.ObtenerPorCuentaPaginadoAsync(
                 cuentaComercio.Id, 
                 page, 

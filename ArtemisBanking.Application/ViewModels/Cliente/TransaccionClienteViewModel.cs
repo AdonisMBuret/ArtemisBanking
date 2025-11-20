@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// ViewModel para cada transacción en el detalle de cuenta
     public class TransaccionClienteViewModel
     {
         [Display(Name = "Fecha")]

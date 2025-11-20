@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// ViewModel para confirmar la transacción antes de ejecutarla
     public class ConfirmarTransaccionViewModel
     {
         [Display(Name = "Nombre del Destinatario")]

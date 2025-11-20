@@ -2,10 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// <summary>
-    /// ViewModel para realizar un depósito a una cuenta
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class DepositoCajeroViewModel
     {
         [Required(ErrorMessage = "Necesitas el número de cuenta donde vas a depositar")]

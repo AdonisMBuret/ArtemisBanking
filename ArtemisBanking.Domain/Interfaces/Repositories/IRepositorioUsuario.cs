@@ -6,7 +6,7 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
     
     public interface IRepositorioUsuario
     {
-        // ==================== BÚSQUEDAS BÁSICAS ====================
+        // BÚSQUEDAS BÁSICAS 
 
         Task<Usuario> ObtenerPorNombreUsuarioAsync(string nombreUsuario);
 
@@ -16,14 +16,14 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
 
         Task<Usuario> ObtenerPorIdAsync(string usuarioId);
 
-        // ==================== PAGINACIÓN ====================
+        // PAGINACIÓN 
 
         Task<(IEnumerable<Usuario> usuarios, int total)> ObtenerUsuariosPaginadosAsync(
             int pagina,
             int tamano,
             string rol = null);
 
-        // ==================== CONTADORES ====================
+        // CONTADORES 
 
         Task<int> ContarAsync(Expression<Func<Usuario, bool>> predicate);
 
@@ -31,7 +31,7 @@ namespace ArtemisBanking.Domain.Interfaces.Repositories
 
         Task<bool> ExisteAsync(Expression<Func<Usuario, bool>> predicate);
 
-        // ==================== VALIDACIÓN DE PERMISOS ====================
+        // VALIDACIÓN DE PERMISOS 
 
         Task<bool> PuedeEditarUsuarioAsync(string usuarioId, string usuarioActualId);
     }

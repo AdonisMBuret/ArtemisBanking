@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// ViewModel para cada consumo en el detalle de tarjeta
     public class ConsumoTarjetaClienteViewModel
     {
         [Display(Name = "Fecha")]

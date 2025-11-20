@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    // ==================== SELECCIONAR CLIENTE PARA PRÉSTAMO ====================
 
-    /// ViewModel para mostrar el listado de clientes sin préstamo activo
     public class SeleccionarClientePrestamoViewModel
     {
         public IEnumerable<ClienteParaPrestamoViewModel> Clientes { get; set; }

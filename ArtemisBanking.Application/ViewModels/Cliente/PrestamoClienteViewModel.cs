@@ -31,7 +31,7 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         public int PlazoMeses { get; set; }
 
         [Display(Name = "Estado")]
-        public string Estado { get; set; } // "Al día" o "En mora"
+        public string Estado { get; set; } 
 
         public bool EstaAlDia { get; set; }
     }

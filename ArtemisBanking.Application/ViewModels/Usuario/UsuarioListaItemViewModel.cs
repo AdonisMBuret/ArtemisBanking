@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
-    /// ViewModel para cada usuario en el listado
     public class UsuarioListaItemViewModel
     {
         public string Id { get; set; }
@@ -25,7 +24,6 @@ namespace ArtemisBanking.Application.ViewModels.Usuario
         [Display(Name = "Estado")]
         public bool EstaActivo { get; set; }
 
-        // Indica si el usuario actual puede editar este registro
         public bool PuedeEditar { get; set; }
     }
 }

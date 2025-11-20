@@ -2,10 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
-    /// <summary>
-    /// ViewModel para crear un nuevo usuario
-    /// Incluye validaciones completas con mensajes amigables
-    /// </summary>
     public class CrearUsuarioViewModel
     {
         [Required(ErrorMessage = "No te olvides del nombre")]

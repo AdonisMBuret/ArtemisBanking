@@ -1,9 +1,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Usuario
 {
-    // ==================== LISTADO DE USUARIOS ====================
-
-    /// ViewModel para el listado paginado de usuarios
     public class ListaUsuariosViewModel
     {
         public IEnumerable<UsuarioListaItemViewModel> Usuarios { get; set; }

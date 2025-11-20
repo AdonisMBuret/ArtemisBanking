@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.PortalComercio
 {
-    /// <summary>
-    /// ViewModel para listar los consumos del comercio
-    /// </summary>
     public class ListaConsumosViewModel
     {
         public IEnumerable<ConsumoItemViewModel> Consumos { get; set; } = new List<ConsumoItemViewModel>();

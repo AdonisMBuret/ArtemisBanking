@@ -2,9 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.PortalComercio
 {
-    /// <summary>
-    /// ViewModel para registrar un consumo con tarjeta
-    /// </summary>
+
     public class RegistrarConsumoViewModel
     {
         [Required(ErrorMessage = "El número de tarjeta es obligatorio")]
@@ -20,9 +18,6 @@ namespace ArtemisBanking.Application.ViewModels.PortalComercio
         public decimal Monto { get; set; }
     }
 
-    /// <summary>
-    /// ViewModel para confirmar el consumo antes de procesarlo
-    /// </summary>
     public class ConfirmarConsumoViewModel
     {
         public string? NumeroTarjeta { get; set; }

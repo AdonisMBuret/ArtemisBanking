@@ -2,10 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// <summary>
-    /// ViewModel para realizar un retiro de una cuenta
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class RetiroCajeroViewModel
     {
         [Required(ErrorMessage = "Necesitas el número de cuenta de donde vas a retirar")]

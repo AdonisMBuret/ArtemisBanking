@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    // ==================== DETALLE DE CUENTA ====================
-
-    /// ViewModel para mostrar el detalle de una cuenta con todas sus transacciones
+    
     public class DetalleCuentaClienteViewModel
     {
         public int Id { get; set; }
@@ -21,7 +19,6 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
 
         public bool EsPrincipal { get; set; }
 
-        // Lista de todas las transacciones de esta cuenta
         public IEnumerable<TransaccionClienteViewModel> Transacciones { get; set; }
     }
 }

@@ -2,10 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// <summary>
-    /// ViewModel para realizar una transacción entre dos cuentas de terceros
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class TransaccionTercerosCajeroViewModel
     {
         [Required(ErrorMessage = "Necesitas el número de cuenta de donde se tomará el dinero")]

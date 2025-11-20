@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Account
 {
-    /// <summary>
-    /// ViewModel para confirmar la cuenta con el token enviado por correo
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class ConfirmarCuentaViewModel
     {
         [Required(ErrorMessage = "Necesitamos el ID de usuario")]

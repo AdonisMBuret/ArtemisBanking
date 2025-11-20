@@ -26,15 +26,14 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+        
         /// Obtiene información de una tarjeta para mostrar antes de confirmar el consumo
-        /// </summary>
+
         public async Task<ResultadoOperacion<(string ultimosCuatroDigitos, string nombreCliente, decimal limiteCredito, decimal deudaActual, decimal creditoDisponible)>> 
             ObtenerInfoTarjetaAsync(string numeroTarjeta)
         {
             try
             {
-                // Buscar la tarjeta
                 var tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(numeroTarjeta);
 
                 if (tarjeta == null)
@@ -49,7 +48,6 @@ namespace ArtemisBanking.Application.Services
                         "Esta tarjeta no está activa");
                 }
 
-                // Retornar la información
                 var info = (
                     tarjeta.UltimosCuatroDigitos,
                     $"{tarjeta.Cliente.Nombre} {tarjeta.Cliente.Apellido}",
@@ -68,14 +66,13 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+        
         /// Registra un consumo con tarjeta de crédito
-        /// </summary>
+        
         public async Task<ResultadoOperacion> RegistrarConsumoAsync(RegistrarConsumoDTO datos)
         {
             try
             {
-                // 1. Validar que la tarjeta existe
                 var tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(datos.NumeroTarjeta);
 
                 if (tarjeta == null)
@@ -88,14 +85,12 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("La tarjeta no está activa");
                 }
 
-                // 2. Validar que hay crédito disponible
                 if (tarjeta.CreditoDisponible < datos.Monto)
                 {
                     return ResultadoOperacion.Fallo(
                         $"Crédito insuficiente. Disponible: RD${tarjeta.CreditoDisponible:N2}, Solicitado: RD${datos.Monto:N2}");
                 }
 
-                // 3. Validar que el comercio existe
                 var comercio = await _repositorioComercio.ObtenerPorIdAsync(datos.ComercioId);
 
                 if (comercio == null)
@@ -108,17 +103,15 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El comercio no está activo");
                 }
 
-                // 4. Actualizar la deuda de la tarjeta
                 tarjeta.DeudaActual += datos.Monto;
                 await _repositorioTarjeta.ActualizarAsync(tarjeta);
 
-                // 5. Registrar el consumo
                 var consumo = new ConsumoTarjeta
                 {
                     FechaConsumo = DateTime.Now,
                     Monto = datos.Monto,
                     NombreComercio = comercio.Nombre,
-                    EstadoConsumo = Constantes.ConsumoAprobado, // ? CORREGIDO
+                    EstadoConsumo = Constantes.ConsumoAprobado, 
                     TarjetaId = tarjeta.Id,
                     ComercioId = comercio.Id,
                     FechaCreacion = DateTime.Now

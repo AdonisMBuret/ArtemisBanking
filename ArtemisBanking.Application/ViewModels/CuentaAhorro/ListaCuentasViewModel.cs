@@ -9,6 +9,6 @@ namespace ArtemisBanking.Application.ViewModels.CuentaAhorro
         public int TotalRegistros { get; set; }
         public string FiltroCedula { get; set; }
         public bool? FiltroEstado { get; set; }
-        public bool? FiltroTipo { get; set; } // true = principal, false = secundaria
+        public bool? FiltroTipo { get; set; } 
     }
 }

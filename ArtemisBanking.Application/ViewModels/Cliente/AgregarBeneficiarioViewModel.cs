@@ -2,10 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para agregar un beneficiario
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class AgregarBeneficiarioViewModel
     {
         [Required(ErrorMessage = "Necesitas el número de cuenta del beneficiario")]

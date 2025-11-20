@@ -6,10 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArtemisBanking.Application.Services
 {
-    /// <summary>
-    /// Servicio para Dashboard del Cliente
-    /// Implementa toda la lógica de negocio para obtener los productos del cliente
-    /// </summary>
+
     public class ServicioDashboardCliente : IServicioDashboardCliente
     {
         private readonly IRepositorioCuentaAhorro _repositorioCuenta;
@@ -45,20 +42,16 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Obtener cuentas activas
                 var cuentas = await _repositorioCuenta.ObtenerCuentasActivasDeUsuarioAsync(usuarioId);
                 var cuentasDTO = _mapper.Map<IEnumerable<CuentaAhorroDTO>>(cuentas);
 
-                // 2. Obtener préstamos activos
                 var prestamos = await _repositorioPrestamo.ObtenerPrestamosDeUsuarioAsync(usuarioId);
                 var prestamosActivos = prestamos.Where(p => p.EstaActivo);
                 var prestamosDTO = _mapper.Map<IEnumerable<PrestamoDTO>>(prestamosActivos);
 
-                // 3. Obtener tarjetas activas
                 var tarjetas = await _repositorioTarjeta.ObtenerTarjetasActivasDeUsuarioAsync(usuarioId);
                 var tarjetasDTO = _mapper.Map<IEnumerable<TarjetaCreditoDTO>>(tarjetas);
 
-                // 4. Crear el dashboard
                 var dashboard = new DashboardClienteDTO
                 {
                     CuentasAhorro = cuentasDTO,
@@ -82,20 +75,16 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // Obtener la cuenta
                 var cuenta = await _repositorioCuenta.ObtenerPorIdAsync(cuentaId);
 
-                // Validar que la cuenta pertenezca al usuario
                 if (cuenta == null || cuenta.UsuarioId != usuarioId)
                 {
                     return ResultadoOperacion<DetalleCuentaClienteDTO>.Fallo(
                         "Esa cuenta no existe o no es tuya");
                 }
 
-                // Obtener transacciones
                 var transacciones = await _repositorioTransaccion.ObtenerTransaccionesDeCuentaAsync(cuentaId);
 
-                // Mapear a DTO
                 var detalle = new DetalleCuentaClienteDTO
                 {
                     Id = cuenta.Id,
@@ -122,17 +111,14 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // Obtener el préstamo
                 var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(prestamoId);
 
-                // Validar que el préstamo pertenezca al usuario
                 if (prestamo == null || prestamo.ClienteId != usuarioId)
                 {
                     return ResultadoOperacion<DetallePrestamoClienteDTO>.Fallo(
                         "Ese préstamo no existe o no es tuyo");
                 }
 
-                // Obtener cuotas
                 var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(prestamoId);
 
                 // Mapear a DTO
@@ -161,20 +147,16 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // Obtener la tarjeta
                 var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(tarjetaId);
 
-                // Validar que la tarjeta pertenezca al usuario
                 if (tarjeta == null || tarjeta.ClienteId != usuarioId)
                 {
                     return ResultadoOperacion<DetalleTarjetaClienteDTO>.Fallo(
                         "Esa tarjeta no existe o no es tuya");
                 }
 
-                // Obtener consumos
                 var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosDeTarjetaAsync(tarjetaId);
 
-                // Mapear a DTO
                 var detalle = new DetalleTarjetaClienteDTO
                 {
                     Id = tarjeta.Id,

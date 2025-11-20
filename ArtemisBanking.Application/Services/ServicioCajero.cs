@@ -42,7 +42,6 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Validar que la cuenta existe y está activa
                 var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaDestino);
 
                 if (cuenta == null || !cuenta.EstaActiva)
@@ -50,12 +49,10 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El número de cuenta ingresado no es válido o está inactiva");
                 }
 
-                // 2. Acreditar el monto a la cuenta
                 cuenta.Balance += datos.Monto;
                 await _repositorioCuenta.ActualizarAsync(cuenta);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // 3. Registrar la transacción
                 var transaccion = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -71,7 +68,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTransaccion.AgregarAsync(transaccion);
                 await _repositorioTransaccion.GuardarCambiosAsync();
 
-                // 4. Enviar correo de notificación
                 try
                 {
                     cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuenta.NumeroCuenta);
@@ -99,14 +95,12 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-         
         /// Realiza un retiro de una cuenta de ahorro
          
         public async Task<ResultadoOperacion> RealizarRetiroAsync(RetiroCajeroDTO datos)
         {
             try
             {
-                // 1. Validar que la cuenta existe y está activa
                 var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaOrigen);
 
                 if (cuenta == null || !cuenta.EstaActiva)
@@ -114,18 +108,15 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El número de cuenta ingresado no es válido o está inactiva");
                 }
 
-                // 2. Validar fondos suficientes
                 if (cuenta.Balance < datos.Monto)
                 {
                     return ResultadoOperacion.Fallo("Fondos insuficientes en la cuenta");
                 }
 
-                // 3. Debitar el monto de la cuenta
                 cuenta.Balance -= datos.Monto;
                 await _repositorioCuenta.ActualizarAsync(cuenta);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // 4. Registrar la transacción
                 var transaccion = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -141,7 +132,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTransaccion.AgregarAsync(transaccion);
                 await _repositorioTransaccion.GuardarCambiosAsync();
 
-                // 5. Enviar correo de notificación
                 try
                 {
                     cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuenta.NumeroCuenta);
@@ -176,7 +166,6 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Validar cuenta y tarjeta
                 var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaOrigen);
                 var tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(datos.NumeroTarjeta);
 
@@ -190,13 +179,11 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El número de tarjeta ingresado no es válido o está inactiva");
                 }
 
-                // 2. Validar fondos suficientes
                 if (cuenta.Balance < datos.Monto)
                 {
                     return ResultadoOperacion.Fallo("Fondos insuficientes en la cuenta");
                 }
 
-                // 3. Calcular monto real a pagar (no se puede pagar más que la deuda)
                 decimal montoPagar = Math.Min(datos.Monto, tarjeta.DeudaActual);
 
                 if (montoPagar <= 0)
@@ -204,7 +191,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("La tarjeta no tiene deuda pendiente");
                 }
 
-                // 4. Procesar el pago
                 cuenta.Balance -= montoPagar;
                 tarjeta.DeudaActual -= montoPagar;
 
@@ -212,7 +198,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTarjeta.ActualizarAsync(tarjeta);
                 await _repositorioTarjeta.GuardarCambiosAsync();
 
-                // 5. Registrar transacción
                 var transaccion = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -228,7 +213,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTransaccion.AgregarAsync(transaccion);
                 await _repositorioTransaccion.GuardarCambiosAsync();
 
-                // 6. Enviar correo
                 try
                 {
                     cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuenta.NumeroCuenta);
@@ -265,7 +249,6 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Validar cuenta y préstamo
                 var cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaOrigen);
                 var prestamo = await _repositorioPrestamo.ObtenerPorNumeroPrestamoAsync(datos.NumeroPrestamo);
 
@@ -279,13 +262,11 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El número de préstamo ingresado no es válido o está completado");
                 }
 
-                // 2. Validar fondos suficientes
                 if (cuenta.Balance < datos.Monto)
                 {
                     return ResultadoOperacion.Fallo("Fondos insuficientes en la cuenta");
                 }
 
-                // 3. Aplicar pago a las cuotas pendientes de forma secuencial
                 decimal montoRestante = datos.Monto;
                 int cuotasPagadas = 0;
 
@@ -294,7 +275,7 @@ namespace ArtemisBanking.Application.Services
                     var cuotaPendiente = await _repositorioCuotaPrestamo.ObtenerPrimeraCuotaPendienteAsync(prestamo.Id);
 
                     if (cuotaPendiente == null)
-                        break; // No hay más cuotas pendientes
+                        break; 
 
                     if (montoRestante >= cuotaPendiente.MontoCuota)
                     {
@@ -306,13 +287,12 @@ namespace ArtemisBanking.Application.Services
                     }
                     else
                     {
-                        break; // No se permite pago parcial de cuotas
+                        break; 
                     }
                 }
 
                 await _repositorioCuotaPrestamo.GuardarCambiosAsync();
 
-                // 4. Calcular cuánto dinero realmente se usó
                 decimal montoUsado = datos.Monto - montoRestante;
 
                 if (montoUsado <= 0)
@@ -320,12 +300,10 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("No se pudo aplicar el pago a ninguna cuota");
                 }
 
-                // 5. Descontar de la cuenta
                 cuenta.Balance -= montoUsado;
                 await _repositorioCuenta.ActualizarAsync(cuenta);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // 6. Verificar si el préstamo está completamente pagado
                 var cuotasPendientesTotal = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(prestamo.Id);
                 if (cuotasPendientesTotal.All(c => c.EstaPagada))
                 {
@@ -334,7 +312,6 @@ namespace ArtemisBanking.Application.Services
                     await _repositorioPrestamo.GuardarCambiosAsync();
                 }
 
-                // 7. Registrar transacción
                 var transaccion = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -350,7 +327,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTransaccion.AgregarAsync(transaccion);
                 await _repositorioTransaccion.GuardarCambiosAsync();
 
-                // 8. Enviar correo
                 try
                 {
                     cuenta = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuenta.NumeroCuenta);
@@ -391,11 +367,9 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Obtener ambas cuentas
                 var cuentaOrigen = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaOrigen);
                 var cuentaDestino = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(datos.NumeroCuentaDestino);
 
-                // 2. Validaciones
                 if (cuentaOrigen == null || !cuentaOrigen.EstaActiva)
                 {
                     return ResultadoOperacion.Fallo("El número de cuenta origen no es válido o está inactiva");
@@ -411,7 +385,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Fondos insuficientes en la cuenta de origen");
                 }
 
-                // 3. Realizar débito y crédito
                 cuentaOrigen.Balance -= datos.Monto;
                 cuentaDestino.Balance += datos.Monto;
 
@@ -419,7 +392,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioCuenta.ActualizarAsync(cuentaDestino);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // 4. Registrar transacciones en ambas cuentas
                 var transaccionOrigen = new Transaccion
                 {
                     FechaTransaccion = DateTime.Now,
@@ -448,7 +420,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioTransaccion.AgregarAsync(transaccionDestino);
                 await _repositorioTransaccion.GuardarCambiosAsync();
 
-                // 5. Enviar correos
                 try
                 {
                     cuentaOrigen = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(cuentaOrigen.NumeroCuenta);

@@ -7,7 +7,6 @@ namespace ArtemisBanking.Application.DTOs
         public string Mensaje { get; set; }
         public List<string> Errores { get; set; } = new();
 
-        // Métodos estáticos para crear resultados comunes
         public static ResultadoOperacion Ok(string mensaje = "Operación exitosa")
             => new() { Exito = true, Mensaje = mensaje };
 

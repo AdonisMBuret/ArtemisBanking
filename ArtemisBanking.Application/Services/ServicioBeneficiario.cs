@@ -27,13 +27,11 @@ namespace ArtemisBanking.Application.Services
         }
 
          
-        /// Agrega un nuevo beneficiario para el usuario
-        /// Primero valida que la cuenta existe y que no esté ya registrada como beneficiario
         public async Task<ResultadoOperacion> AgregarBeneficiarioAsync(string usuarioId, string numeroCuenta)
         {
             try
             {
-                // 1. Validar que la cuenta destino existe y está activa
+                
                 var cuentaBeneficiario = await _repositorioCuenta.ObtenerPorNumeroCuentaAsync(numeroCuenta);
 
                 if (cuentaBeneficiario == null || !cuentaBeneficiario.EstaActiva)
@@ -41,13 +39,11 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El número de cuenta ingresado no es válido o está inactiva");
                 }
 
-                // 2. Validar que no se agregue su propia cuenta como beneficiario
                 if (cuentaBeneficiario.UsuarioId == usuarioId)
                 {
                     return ResultadoOperacion.Fallo("No puede agregar su propia cuenta como beneficiario");
                 }
 
-                // 3. Validar que no esté ya registrado como beneficiario
                 var yaExiste = await _repositorioBeneficiario.ExisteBeneficiarioAsync(usuarioId, numeroCuenta);
 
                 if (yaExiste)
@@ -55,7 +51,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Esta cuenta ya está registrada como beneficiario");
                 }
 
-                // 4. Crear el nuevo beneficiario
                 var nuevoBeneficiario = new Beneficiario
                 {
                     NumeroCuentaBeneficiario = numeroCuenta,
@@ -78,14 +73,12 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-         
-        /// Elimina un beneficiario del usuario
-        /// Valida que el beneficiario pertenezca al usuario antes de eliminarlo
+         /// Elimina un beneficiario del usuario
+        
         public async Task<ResultadoOperacion> EliminarBeneficiarioAsync(int beneficiarioId, string usuarioId)
         {
             try
             {
-                // 1. Obtener el beneficiario
                 var beneficiario = await _repositorioBeneficiario.ObtenerPorIdAsync(beneficiarioId);
 
                 if (beneficiario == null)
@@ -93,13 +86,11 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Beneficiario no encontrado");
                 }
 
-                // 2. Validar que el beneficiario pertenezca al usuario
                 if (beneficiario.UsuarioId != usuarioId)
                 {
                     return ResultadoOperacion.Fallo("No tiene permiso para eliminar este beneficiario");
                 }
 
-                // 3. Eliminar el beneficiario
                 await _repositorioBeneficiario.EliminarAsync(beneficiario);
                 await _repositorioBeneficiario.GuardarCambiosAsync();
 
@@ -113,10 +104,8 @@ namespace ArtemisBanking.Application.Services
                 return ResultadoOperacion.Fallo("Error al eliminar el beneficiario");
             }
         }
-
-         
+                 
         /// Obtiene todos los beneficiarios de un usuario
-        /// Los retorna con la información de nombre y apellido del beneficiario
         public async Task<ResultadoOperacion<IEnumerable<BeneficiarioDTO>>> ObtenerBeneficiariosAsync(string usuarioId)
         {
             try

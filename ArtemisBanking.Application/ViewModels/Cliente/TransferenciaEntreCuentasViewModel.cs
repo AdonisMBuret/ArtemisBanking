@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para transferencias entre cuentas propias del cliente
-    /// Incluye validaciones robustas con mensajes amigables
-    /// </summary>
+
     public class TransferenciaEntreCuentasViewModel
     {
         [Required(ErrorMessage = "Tienes que seleccionar una cuenta de origen")]
@@ -24,26 +21,7 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // ⭐ Propiedades para los selectores - NO se envían en POST, deben ser nullable
         public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }
 
-    /// <summary>
-    /// ViewModel para confirmar la transferencia antes de procesarla
-    /// </summary>
-    public class ConfirmarTransferenciaEntreCuentasViewModel
-    {
-        [Display(Name = "Cuenta de Origen")]
-        public string? NumeroCuentaOrigen { get; set; }
-
-        [Display(Name = "Cuenta de Destino")]
-        public string? NumeroCuentaDestino { get; set; }
-
-        [Display(Name = "Monto")]
-        [DisplayFormat(DataFormatString = "{0:C2}")]
-        public decimal Monto { get; set; }
-
-        public int CuentaOrigenId { get; set; }
-        public int CuentaDestinoId { get; set; }
-    }
 }

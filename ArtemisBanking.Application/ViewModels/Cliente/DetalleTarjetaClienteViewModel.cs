@@ -2,9 +2,7 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    // ==================== DETALLE DE TARJETA ====================
 
-    /// ViewModel para mostrar el detalle de una tarjeta con todos sus consumos
     public class DetalleTarjetaClienteViewModel
     {
         public int Id { get; set; }
@@ -27,7 +25,6 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [Display(Name = "Fecha de Expiración")]
         public string FechaExpiracion { get; set; }
 
-        // Lista de todos los consumos de esta tarjeta
         public IEnumerable<ConsumoTarjetaClienteViewModel> Consumos { get; set; }
     }
 }

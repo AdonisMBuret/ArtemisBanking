@@ -35,32 +35,26 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Asigna una nueva tarjeta de crédito a un cliente
-        /// Genera número único de 16 dígitos, CVC cifrado y fecha de expiración
-         
+
         public async Task<ResultadoOperacion<TarjetaCreditoDTO>> AsignarTarjetaAsync(AsignarTarjetaDTO datos)
         {
             try
             {
-                // 1. Validar que el cliente existe
                 var cliente = await _userManager.FindByIdAsync(datos.ClienteId);
                 if (cliente == null)
                 {
                     return ResultadoOperacion<TarjetaCreditoDTO>.Fallo("Cliente no encontrado");
                 }
 
-                // 2. Generar número de tarjeta único (16 dígitos)
                 var numeroTarjeta = await _repositorioTarjeta.GenerarNumeroTarjetaUnicoAsync();
 
-                // 3. Generar CVC aleatorio de 3 dígitos y cifrarlo con SHA-256
                 var random = new Random();
                 var cvcPlano = random.Next(100, 1000).ToString(); // Genera número de 3 dígitos
                 var cvcCifrado = _servicioCifrado.CifrarCVC(cvcPlano);
 
-                // 4. Calcular fecha de expiración (3 años desde hoy, formato MM/AA)
                 var fechaExpiracion = DateTime.Now.AddYears(3);
                 var fechaExpiracionFormato = fechaExpiracion.ToString("MM/yy");
 
-                // 5. Crear la nueva tarjeta
                 var nuevaTarjeta = new TarjetaCredito
                 {
                     NumeroTarjeta = numeroTarjeta,
@@ -79,7 +73,6 @@ namespace ArtemisBanking.Application.Services
 
                 _logger.LogInformation($"Tarjeta {numeroTarjeta} asignada a cliente {cliente.UserName}");
 
-                // 6. Retornar DTO
                 var tarjetaDTO = _mapper.Map<TarjetaCreditoDTO>(nuevaTarjeta);
                 tarjetaDTO.NombreCliente = cliente.Nombre;
                 tarjetaDTO.ApellidoCliente = cliente.Apellido;
@@ -98,14 +91,11 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Actualiza el límite de crédito de una tarjeta
-        /// Valida que el nuevo límite no sea menor a la deuda actual
-        /// Envía correo de notificación al cliente
-         
+
         public async Task<ResultadoOperacion> ActualizarLimiteAsync(ActualizarLimiteTarjetaDTO datos)
         {
             try
             {
-                // 1. Obtener la tarjeta
                 var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(datos.TarjetaId);
 
                 if (tarjeta == null)
@@ -118,19 +108,16 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("La tarjeta no está activa");
                 }
 
-                // 2. Validar que el nuevo límite no sea menor a la deuda actual
                 if (datos.NuevoLimite < tarjeta.DeudaActual)
                 {
                     return ResultadoOperacion.Fallo(
                         $"El nuevo límite (RD${datos.NuevoLimite:N2}) no puede ser menor a la deuda actual (RD${tarjeta.DeudaActual:N2})");
                 }
 
-                // 3. Actualizar el límite
                 tarjeta.LimiteCredito = datos.NuevoLimite;
                 await _repositorioTarjeta.ActualizarAsync(tarjeta);
                 await _repositorioTarjeta.GuardarCambiosAsync();
 
-                // 4. Enviar correo de notificación
                 try
                 {
                     tarjeta = await _repositorioTarjeta.ObtenerPorNumeroTarjetaAsync(tarjeta.NumeroTarjeta);
@@ -159,14 +146,11 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Cancela una tarjeta de crédito
-        /// Solo se puede cancelar si NO tiene deuda pendiente
-        /// Una vez cancelada, no se puede usar para consumos o pagos
-         
+
         public async Task<ResultadoOperacion> CancelarTarjetaAsync(int tarjetaId)
         {
             try
             {
-                // 1. Obtener la tarjeta
                 var tarjeta = await _repositorioTarjeta.ObtenerPorIdAsync(tarjetaId);
 
                 if (tarjeta == null)
@@ -179,14 +163,12 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("La tarjeta ya está cancelada");
                 }
 
-                // 2. Validar que NO tenga deuda pendiente
                 if (tarjeta.DeudaActual > 0)
                 {
                     return ResultadoOperacion.Fallo(
                         $"Para cancelar esta tarjeta, el cliente debe saldar la deuda pendiente de RD${tarjeta.DeudaActual:N2}");
                 }
 
-                // 3. Cancelar la tarjeta
                 tarjeta.EstaActiva = false;
                 await _repositorioTarjeta.ActualizarAsync(tarjeta);
                 await _repositorioTarjeta.GuardarCambiosAsync();

@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Account
 {
-    /// <summary>
-    /// ViewModel para el formulario de inicio de sesión
-    /// Incluye validaciones con mensajes amigables e informales
-    /// </summary>
+
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Oye, te olvidaste de poner tu usuario 😅")]

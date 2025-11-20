@@ -7,10 +7,9 @@ using System.Linq.Expressions;
 
 namespace ArtemisBanking.Application.Services
 {
-    /// <summary>
+
     /// Servicio genérico base que implementa operaciones CRUD comunes
-    /// Promueve la reutilización de código y reduce duplicación
-    /// </summary>
+
     public abstract class ServicioGenerico<TDto, TEntidad> : IServicioGenerico<TDto, TEntidad>
         where TDto : class
         where TEntidad : class
@@ -29,9 +28,9 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
 
-        /// <summary>
+
         /// Obtiene todos los registros y los mapea a DTOs
-        /// </summary>
+   
         public virtual async Task<ResultadoOperacion<IEnumerable<TDto>>> ObtenerTodosAsync()
         {
             try
@@ -48,9 +47,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+
         /// Obtiene un registro por ID y lo mapea a DTO
-        /// </summary>
+        
         public virtual async Task<ResultadoOperacion<TDto>> ObtenerPorIdAsync(int id)
         {
             try
@@ -74,9 +73,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+
         /// Obtiene registros filtrados por condición
-        /// </summary>
+        
         public virtual async Task<ResultadoOperacion<IEnumerable<TDto>>> ObtenerPorCondicionAsync(
             Expression<Func<TEntidad, bool>> filtro)
         {
@@ -94,9 +93,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+
         /// Verifica si existe un registro con la condición especificada
-        /// </summary>
+        
         public virtual async Task<ResultadoOperacion<bool>> ExisteAsync(
             Expression<Func<TEntidad, bool>> filtro)
         {
@@ -113,9 +112,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-        /// <summary>
+
         /// Cuenta registros que cumplan la condición
-        /// </summary>
+        
         public virtual async Task<ResultadoOperacion<int>> ContarAsync(
             Expression<Func<TEntidad, bool>> filtro)
         {

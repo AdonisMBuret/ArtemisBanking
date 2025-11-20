@@ -3,7 +3,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    /// ViewModel para editar la tasa de interés de un préstamo
     public class EditarPrestamoViewModel
     {
         [Required]

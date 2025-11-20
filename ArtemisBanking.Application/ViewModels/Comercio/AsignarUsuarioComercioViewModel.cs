@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Comercio
 {
-    /// <summary>
-    /// ViewModel para asignar un usuario a un comercio
-    /// </summary>
     public class AsignarUsuarioComercioViewModel
     {
         public int ComercioId { get; set; }

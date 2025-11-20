@@ -14,7 +14,7 @@ namespace ArtemisBanking.Application.Mappings
     {
         public AutoMapperProfile()
         {
-            // ==================== MAPEO DE USUARIO ====================
+            //  MAPEO DE USUARIO 
             CreateMap<Usuario, UsuarioDTO>()
                 .ForMember(dest => dest.NombreCompleto,
                     opt => opt.MapFrom(src => $"{src.Nombre} {src.Apellido}"))
@@ -23,7 +23,7 @@ namespace ArtemisBanking.Application.Mappings
                 .ForMember(dest => dest.NombreUsuario,
                     opt => opt.MapFrom(src => src.UserName));
 
-            // ==================== MAPEOS DE VIEWMODEL <-> DTO  ====================
+            //  MAPEOS DE VIEWMODEL <-> DTO  
                         
             CreateMap<DashboardCajeroDTO, DashboardCajeroViewModel>();
 
@@ -31,7 +31,7 @@ namespace ArtemisBanking.Application.Mappings
 
             CreateMap<EditarUsuarioViewModel, ActualizarUsuarioDTO>();
 
-            // ==================== MAPEO DE CUENTA DE AHORRO ====================
+            //  MAPEO DE CUENTA DE AHORRO 
             CreateMap<CuentaAhorro, CuentaAhorroDTO>()
                 .ForMember(dest => dest.NombreCliente,
                     opt => opt.MapFrom(src => src.Usuario.Nombre))
@@ -45,7 +45,7 @@ namespace ArtemisBanking.Application.Mappings
                 .ForMember(dest => dest.TipoCuenta,
                     opt => opt.MapFrom(src => src.EsPrincipal ? "Principal" : "Secundaria"));
 
-            // ==================== MAPEO DE PRÉSTAMO ====================
+            //  MAPEO DE PRÉSTAMO 
             CreateMap<Prestamo, PrestamoDTO>()
                 .ForMember(dest => dest.NombreCliente,
                     opt => opt.MapFrom(src => src.Cliente.Nombre))
@@ -63,7 +63,7 @@ namespace ArtemisBanking.Application.Mappings
                 .ForMember(dest => dest.Estado,
                     opt => opt.MapFrom(src => src.EstaAlDia ? "Al día" : "En mora"));
 
-            // ==================== MAPEO DE TARJETA DE CRÉDITO ====================
+            //  MAPEO DE TARJETA DE CRÉDITO 
             CreateMap<TarjetaCredito, TarjetaCreditoDTO>()
                 .ForMember(dest => dest.NombreCliente,
                     opt => opt.MapFrom(src => src.Cliente.Nombre))
@@ -75,7 +75,7 @@ namespace ArtemisBanking.Application.Mappings
             // DTO → ViewModel para Cliente
             CreateMap<TarjetaCreditoDTO, TarjetaClienteViewModel>();
 
-            // ==================== MAPEO DE TRANSACCIÓN ====================
+            //  MAPEO DE TRANSACCIÓN 
             CreateMap<Transaccion, TransaccionDTO>()
                 .ForMember(dest => dest.NumeroCuenta,
                     opt => opt.MapFrom(src => src.CuentaAhorro.NumeroCuenta));
@@ -83,7 +83,7 @@ namespace ArtemisBanking.Application.Mappings
             // DTO → ViewModel para Cliente
             CreateMap<TransaccionDTO, TransaccionClienteViewModel>();
 
-            // ==================== MAPEO DE CONSUMO DE TARJETA ====================
+            //  MAPEO DE CONSUMO DE TARJETA 
             CreateMap<ConsumoTarjeta, ConsumoTarjetaDTO>()
                 .ForMember(dest => dest.NumeroTarjeta,
                     opt => opt.MapFrom(src => src.Tarjeta.NumeroTarjeta));
@@ -91,13 +91,13 @@ namespace ArtemisBanking.Application.Mappings
             // DTO → ViewModel para Cliente
             CreateMap<ConsumoTarjetaDTO, ConsumoTarjetaClienteViewModel>();
 
-            // ==================== MAPEO DE CUOTA DE PRÉSTAMO ====================
+            //  MAPEO DE CUOTA DE PRÉSTAMO 
             CreateMap<CuotaPrestamo, CuotaPrestamoDTO>();
 
             // DTO → ViewModel
             CreateMap<CuotaPrestamoDTO, CuotaPrestamoViewModel>();
 
-            // ==================== MAPEO DE BENEFICIARIO ====================
+            //  MAPEO DE BENEFICIARIO 
             CreateMap<Beneficiario, BeneficiarioDTO>()
                 .ForMember(dest => dest.NombreBeneficiario,
                     opt => opt.MapFrom(src => src.CuentaAhorro.Usuario.Nombre))
@@ -107,7 +107,7 @@ namespace ArtemisBanking.Application.Mappings
             // DTO → ViewModel para Cliente
             CreateMap<BeneficiarioDTO, BeneficiarioItemViewModel>();
 
-            // ==================== MAPEOS PARA DASHBOARD CLIENTE ====================
+            //  MAPEOS PARA DASHBOARD CLIENTE 
             CreateMap<DashboardClienteDTO, HomeClienteViewModel>()
                 .ForMember(dest => dest.CuentasAhorro,
                     opt => opt.MapFrom(src => src.CuentasAhorro))
@@ -124,7 +124,7 @@ namespace ArtemisBanking.Application.Mappings
 
             CreateMap<DetalleTarjetaClienteDTO, DetalleTarjetaClienteViewModel>();
 
-            // ==================== MAPEOS DE COMERCIO ====================
+            //  MAPEOS DE COMERCIO 
             CreateMap<ComercioResponseDTO, ComercioItemViewModel>()
                 .ForMember(dest => dest.TieneUsuario,
                     opt => opt.MapFrom(src => src.Usuario != null));
@@ -133,9 +133,9 @@ namespace ArtemisBanking.Application.Mappings
                 .ForMember(dest => dest.TieneUsuario,
                     opt => opt.MapFrom(src => src.Usuario != null))
                 .ForMember(dest => dest.TotalConsumos,
-                    opt => opt.Ignore()) // Se calculará en el servicio
+                    opt => opt.Ignore()) 
                 .ForMember(dest => dest.MontoTotalConsumos,
-                    opt => opt.Ignore()); // Se calculará en el servicio
+                    opt => opt.Ignore()); 
 
             CreateMap<ComercioResponseDTO, EditarComercioViewModel>();
 

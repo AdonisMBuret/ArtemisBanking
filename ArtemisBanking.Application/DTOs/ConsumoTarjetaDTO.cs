@@ -11,4 +11,3 @@ namespace ArtemisBanking.Application.DTOs
         public string NumeroTarjeta { get; set; }
     }
 }
-

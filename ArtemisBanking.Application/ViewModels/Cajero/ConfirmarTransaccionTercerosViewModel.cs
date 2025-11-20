@@ -2,7 +2,6 @@
 
 namespace ArtemisBanking.Application.ViewModels.Cajero
 {
-    /// ViewModel para confirmar la transacción entre terceros antes de procesarla
     public class ConfirmarTransaccionTercerosViewModel
     {
         [Display(Name = "Cliente Origen")]

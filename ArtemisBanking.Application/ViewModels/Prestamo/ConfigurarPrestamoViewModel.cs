@@ -2,15 +2,12 @@
 
 namespace ArtemisBanking.Application.ViewModels.Prestamo
 {
-    // ==================== CONFIGURAR PRÉSTAMO ====================
 
-    /// ViewModel para configurar los datos del préstamo a asignar
     public class ConfigurarPrestamoViewModel
     {
         [Required]
         public string ClienteId { get; set; }
 
-        // ⭐ QUITAMOS [Required] - Es solo informativo
         [Display(Name = "Cliente")]
         public string? NombreCliente { get; set; }
 

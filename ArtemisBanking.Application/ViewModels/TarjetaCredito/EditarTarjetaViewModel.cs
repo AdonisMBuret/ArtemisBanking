@@ -2,20 +2,17 @@
 
 namespace ArtemisBanking.Application.ViewModels.TarjetaCredito
 {
-    // ==================== EDITAR TARJETA ====================
+
     public class EditarTarjetaViewModel
     {
         public int Id { get; set; }
 
-        // ⭐ QUITAMOS [Required] - Es solo informativo
         [Display(Name = "Número de Tarjeta")]
         public string? NumeroTarjeta { get; set; }
 
-        // ⭐ QUITAMOS [Required] - Es solo informativo
         [Display(Name = "Últimos 4 Dígitos")]
         public string? UltimosCuatroDigitos { get; set; }
 
-        // ⭐ QUITAMOS [Required] - Es solo informativo
         [Display(Name = "Cliente")]
         public string? NombreCliente { get; set; }
 

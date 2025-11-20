@@ -51,14 +51,11 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Crea un nuevo usuario en el sistema
-        /// Si es cliente, también crea su cuenta de ahorro principal con el monto inicial
-        /// Envía correo de confirmación con token para activar la cuenta
-         
+
         public async Task<ResultadoOperacion<UsuarioDTO>> CrearUsuarioAsync(CrearUsuarioDTO datos)
         {
             try
             {
-                // 1. Validar que el usuario y correo sean únicos
                 if (await _repositorioUsuario.ObtenerPorNombreUsuarioAsync(datos.NombreUsuario) != null)
                 {
                     return ResultadoOperacion<UsuarioDTO>.Fallo("El nombre de usuario ya está en uso");
@@ -69,7 +66,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion<UsuarioDTO>.Fallo("El correo electrónico ya está registrado");
                 }
 
-                // 2. Crear el usuario
                 var nuevoUsuario = new Usuario
                 {
                     UserName = datos.NombreUsuario,
@@ -77,11 +73,10 @@ namespace ArtemisBanking.Application.Services
                     Nombre = datos.Nombre,
                     Apellido = datos.Apellido,
                     Cedula = datos.Cedula,
-                    EstaActivo = false, // Empieza inactivo hasta confirmar correo
+                    EstaActivo = false, 
                     FechaCreacion = DateTime.Now
                 };
 
-                // 3. Crear usuario con contraseña
                 var resultado = await _userManager.CreateAsync(nuevoUsuario, datos.Contrasena);
 
                 if (!resultado.Succeeded)
@@ -90,13 +85,10 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion<UsuarioDTO>.Fallo($"Error al crear usuario: {errores}");
                 }
 
-                // 4. Asignar el rol correspondiente
                 await _userManager.AddToRoleAsync(nuevoUsuario, datos.TipoUsuario);
 
-                // 5. Si es cliente, crear su cuenta de ahorro principal
                 if (datos.TipoUsuario == Constantes.RolCliente)
                 {
-                    // Generar número de cuenta único
                     var numeroCuenta = await _repositorioCuenta.GenerarNumeroCuentaUnicoAsync();
 
                     var cuentaPrincipal = new CuentaAhorro
@@ -115,12 +107,10 @@ namespace ArtemisBanking.Application.Services
                     _logger.LogInformation($"Cuenta principal {numeroCuenta} creada para cliente {nuevoUsuario.UserName}");
                 }
 
-                // 6. Generar token de confirmación y enviar correo
                 try
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(nuevoUsuario);
 
-                    // Obtener la URL base desde la configuración
                     var urlBase = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7103";
 
                     await _servicioCorreo.EnviarCorreoConfirmacionAsync(
@@ -137,7 +127,6 @@ namespace ArtemisBanking.Application.Services
 
                 _logger.LogInformation($"Usuario {nuevoUsuario.UserName} creado exitosamente con rol {datos.TipoUsuario}");
 
-                // 7. Retornar DTO
                 var usuarioDTO = _mapper.Map<UsuarioDTO>(nuevoUsuario);
                 usuarioDTO.Rol = datos.TipoUsuario;
                 usuarioDTO.MontoInicial = datos.MontoInicial;
@@ -155,14 +144,11 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Actualiza los datos de un usuario existente
-        /// Si es cliente y hay monto adicional, lo suma a la cuenta principal
-        /// Permite cambiar contraseña opcionalmente
-         
+ 
         public async Task<ResultadoOperacion> ActualizarUsuarioAsync(ActualizarUsuarioDTO datos)
         {
             try
             {
-                // 1. Obtener el usuario
                 var usuario = await _userManager.FindByIdAsync(datos.UsuarioId);
 
                 if (usuario == null)
@@ -170,7 +156,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Usuario no encontrado");
                 }
 
-                // 2. Validar unicidad de usuario y correo (excepto el propio)
                 var usuarioConMismoNombre = await _repositorioUsuario.ObtenerPorNombreUsuarioAsync(datos.NombreUsuario);
                 if (usuarioConMismoNombre != null && usuarioConMismoNombre.Id != datos.UsuarioId)
                 {
@@ -183,7 +168,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("El correo electrónico ya está registrado");
                 }
 
-                // 3. Actualizar datos básicos
                 usuario.Nombre = datos.Nombre;
                 usuario.Apellido = datos.Apellido;
                 usuario.Cedula = datos.Cedula;
@@ -198,7 +182,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo($"Error al actualizar: {errores}");
                 }
 
-                // 4. Si se proporcionó una nueva contraseña, cambiarla
                 if (!string.IsNullOrWhiteSpace(datos.NuevaContrasena))
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
@@ -211,7 +194,6 @@ namespace ArtemisBanking.Application.Services
                     }
                 }
 
-                // 5. Si es cliente y hay monto adicional, sumarlo a la cuenta principal
                 var roles = await _userManager.GetRolesAsync(usuario);
                 if (roles.Contains(Constantes.RolCliente) && datos.MontoAdicional > 0)
                 {
@@ -240,19 +222,15 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Activa o desactiva un usuario
-        /// El administrador logueado NO puede cambiar su propio estado
-         
         public async Task<ResultadoOperacion> CambiarEstadoAsync(string usuarioId, string usuarioActualId)
         {
             try
             {
-                // 1. Validar que no sea el mismo usuario
                 if (usuarioId == usuarioActualId)
                 {
                     return ResultadoOperacion.Fallo("No puede cambiar su propio estado");
                 }
 
-                // 2. Obtener el usuario
                 var usuario = await _userManager.FindByIdAsync(usuarioId);
 
                 if (usuario == null)
@@ -260,7 +238,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Usuario no encontrado");
                 }
 
-                // 3. Cambiar el estado
                 usuario.EstaActivo = !usuario.EstaActivo;
                 await _userManager.UpdateAsync(usuario);
 
@@ -278,34 +255,28 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Obtiene los indicadores para el dashboard del administrador
-        /// Incluye estadísticas de transacciones, clientes y productos financieros
-         
+
         public async Task<ResultadoOperacion<DashboardAdminDTO>> ObtenerDashboardAdminAsync()
         {
             try
             {
                 var dashboard = new DashboardAdminDTO
                 {
-                    // Transacciones y pagos
                     TotalTransacciones = await _repositorioTransaccion.ContarTransaccionesTotalesAsync(),
                     TransaccionesDelDia = await _repositorioTransaccion.ContarTransaccionesDelDiaAsync(),
                     TotalPagos = await _repositorioTransaccion.ContarPagosTotalesAsync(),
                     PagosDelDia = await _repositorioTransaccion.ContarPagosDelDiaAsync(),
 
-                    // Clientes
                     ClientesActivos = await _repositorioUsuario.ContarAsync(u => u.EstaActivo),
                     ClientesInactivos = await _repositorioUsuario.ContarAsync(u => !u.EstaActivo),
 
-                    // Productos financieros
                     PrestamosVigentes = await _repositorioPrestamo.ContarPrestamosActivosAsync(),
                     TarjetasActivas = await _repositorioTarjeta.ContarTarjetasActivasAsync(),
                     CuentasAhorro = await _repositorioCuenta.ContarAsync(c => c.EstaActiva),
 
-                    // Deuda promedio
                     DeudaPromedioCliente = await _repositorioPrestamo.CalcularDeudaPromedioAsync()
                 };
 
-                // Calcular total de productos financieros
                 dashboard.TotalProductosFinancieros = dashboard.PrestamosVigentes +
                                                       dashboard.TarjetasActivas +
                                                       dashboard.CuentasAhorro;
@@ -322,24 +293,19 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Obtiene el dashboard del cajero con las estadísticas del día
-        /// Este método se usa en el Home del cajero
-         
+      
         public async Task<ResultadoOperacion<DashboardCajeroDTO>> ObtenerDashboardCajeroAsync(string cajeroId)
         {
             try
             {
                 var dashboard = new DashboardCajeroDTO
                 {
-                    // Transacciones realizadas HOY por este cajero
                     TransaccionesDelDia = await _repositorioTransaccion.ContarTransaccionesDelDiaAsync(),
 
-                    // Pagos (a TC y préstamos) realizados HOY
                     PagosDelDia = await _repositorioTransaccion.ContarPagosDelDiaAsync(),
 
-                    // Depósitos realizados HOY
                     DepositosDelDia = await _repositorioTransaccion.ContarDepositosDelDiaAsync(),
 
-                    // Retiros realizados HOY
                     RetirosDelDia = await _repositorioTransaccion.ContarRetirosDelDiaAsync()
                 };
 
@@ -354,18 +320,15 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Obtiene todos los clientes activos que NO tienen préstamo activo
-        /// Se usa al asignar nuevos préstamos (un cliente solo puede tener uno a la vez)
-         
+      
         public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesSinPrestamoActivoAsync()
         {
             try
             {
-                // Obtener todos los usuarios con rol Cliente que estén activos
                 var clientes = await _userManager.GetUsersInRoleAsync(Constantes.RolCliente);
 
                 var clientesActivos = clientes.Where(c => c.EstaActivo).ToList();
 
-                // Filtrar solo los que NO tienen préstamo activo
                 var clientesSinPrestamo = new List<Usuario>();
 
                 foreach (var cliente in clientesActivos)
@@ -378,14 +341,13 @@ namespace ArtemisBanking.Application.Services
                     }
                 }
 
-                // Convertir a DTOs
+
                 var clientesDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(clientesSinPrestamo);
 
-                // Para cada cliente, calcular su deuda total
                 foreach (var clienteDTO in clientesDTO)
                 {
                     var deudaTotal = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteDTO.Id);
-                    clienteDTO.MontoInicial = deudaTotal; // Reutilizamos este campo para la deuda
+                    clienteDTO.MontoInicial = deudaTotal; 
                 }
 
                 return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Ok(clientesDTO);
@@ -399,25 +361,24 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Obtiene todos los clientes activos del sistema
-        /// Se usa para asignar tarjetas y cuentas de ahorro secundarias
-         
+
         public async Task<ResultadoOperacion<IEnumerable<UsuarioDTO>>> ObtenerClientesActivosAsync()
         {
             try
             {
-                // Obtener todos los usuarios con rol Cliente que estén activos
+            
                 var clientes = await _userManager.GetUsersInRoleAsync(Constantes.RolCliente);
 
                 var clientesActivos = clientes.Where(c => c.EstaActivo).ToList();
 
-                // Convertir a DTOs
+            
                 var clientesDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(clientesActivos);
 
-                // Para cada cliente, calcular su deuda total
+ 
                 foreach (var clienteDTO in clientesDTO)
                 {
                     var deudaTotal = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteDTO.Id);
-                    clienteDTO.MontoInicial = deudaTotal; // Reutilizamos este campo para la deuda
+                    clienteDTO.MontoInicial = deudaTotal; 
                 }
 
                 return ResultadoOperacion<IEnumerable<UsuarioDTO>>.Ok(clientesDTO);
@@ -431,8 +392,7 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Verifica si un nombre de usuario ya existe
-        /// Usado en validaciones de formularios (Ajax)
-         
+   
         public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario, string usuarioIdExcluir = null)
         {
             try
@@ -442,7 +402,6 @@ namespace ArtemisBanking.Application.Services
                 if (usuario == null)
                     return false;
 
-                // Si se proporciona un ID para excluir (modo edición), verificar que no sea el mismo
                 if (!string.IsNullOrEmpty(usuarioIdExcluir))
                     return usuario.Id != usuarioIdExcluir;
 
@@ -454,10 +413,8 @@ namespace ArtemisBanking.Application.Services
                 return false;
             }
         }
-
          
         /// Verifica si un correo ya existe
-        /// Usado en validaciones de formularios (Ajax)
          
         public async Task<bool> ExisteCorreoAsync(string correo, string usuarioIdExcluir = null)
         {
@@ -468,7 +425,6 @@ namespace ArtemisBanking.Application.Services
                 if (usuario == null)
                     return false;
 
-                // Si se proporciona un ID para excluir (modo edición), verificar que no sea el mismo
                 if (!string.IsNullOrEmpty(usuarioIdExcluir))
                     return usuario.Id != usuarioIdExcluir;
 
@@ -483,8 +439,7 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Cuenta cuántos usuarios activos hay del rol especificado
-        /// Usado para estadísticas y dashboards
-         
+       
         public async Task<int> ContarUsuariosActivosPorRolAsync(string rol)
         {
             try
@@ -501,13 +456,11 @@ namespace ArtemisBanking.Application.Services
 
 
         /// Obtiene un usuario por su ID con toda su información
-        /// Se usa para ver detalles de un usuario específico
-         
+      
         public async Task<ResultadoOperacion<UsuarioDTO>> ObtenerUsuarioPorIdAsync(string usuarioId)
         {
             try
             {
-                // Buscar el usuario
                 var usuario = await _repositorioUsuario.ObtenerPorIdAsync(usuarioId);
 
                 if (usuario == null)
@@ -515,15 +468,12 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion<UsuarioDTO>.Fallo("Usuario no encontrado");
                 }
 
-                // Obtener el rol del usuario
                 var roles = await _userManager.GetRolesAsync(usuario);
                 var rol = roles.FirstOrDefault() ?? "Cliente";
 
-                // Convertir a DTO
                 var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
                 usuarioDTO.Rol = rol;
 
-                // Si es cliente, obtener su cuenta principal para mostrar el balance inicial
                 if (rol == Constantes.RolCliente)
                 {
                     var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(usuarioId);
@@ -541,11 +491,9 @@ namespace ArtemisBanking.Application.Services
                 return ResultadoOperacion<UsuarioDTO>.Fallo("Error al obtener el usuario");
             }
         }
-
          
         /// Obtiene un listado paginado de usuarios
-        /// Permite filtrar por rol y excluir al usuario actual de la lista
-         
+ 
         public async Task<ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>> ObtenerUsuariosPaginadosAsync(
             int pagina,
             int tamano,
@@ -554,37 +502,29 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // Obtener usuarios paginados del repositorio
                 var (usuarios, total) = await _repositorioUsuario.ObtenerUsuariosPaginadosAsync(
                     pagina,
                     tamano,
                     rol);
 
-                // Convertir a DTOs
                 var usuariosDTO = new List<UsuarioDTO>();
 
                 foreach (var usuario in usuarios)
                 {
-                    // Obtener el rol del usuario
                     var roles = await _userManager.GetRolesAsync(usuario);
                     var rolUsuario = roles.FirstOrDefault() ?? "Cliente";
 
-                    // Convertir a DTO
                     var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
                     usuarioDTO.Rol = rolUsuario;
 
-                    // Determinar si se puede editar (no se puede editar a uno mismo)
                     if (!string.IsNullOrEmpty(usuarioActualId))
                     {
-                        // El campo MontoInicial lo usamos para indicar si se puede editar
-                        // (No es lo ideal, pero reutilizamos el campo para no crear otro DTO)
                         usuarioDTO.MontoInicial = usuario.Id == usuarioActualId ? 0 : 1;
                     }
 
                     usuariosDTO.Add(usuarioDTO);
                 }
 
-                // Crear el resultado paginado
                 var resultado = new ResultadoPaginadoDTO<UsuarioDTO>
                 {
                     Datos = usuariosDTO,

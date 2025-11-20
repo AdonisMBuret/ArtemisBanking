@@ -10,11 +10,9 @@ namespace ArtemisBanking.Application.Services
      
     /// Servicio que maneja toda la lógica de autenticación
     /// Aquí va TODO lo relacionado con login, logout, confirmación de cuenta, etc.
-    /// Los controladores SOLO llaman a estos métodos, sin lógica propia
      
     public class ServicioAutenticacion : IServicioAutenticacion
     {
-        // Dependencias que necesitamos para trabajar con usuarios
         private readonly SignInManager<Usuario> _signInManager;
         private readonly UserManager<Usuario> _userManager;
         private readonly IServicioCorreo _servicioCorreo;
@@ -35,9 +33,7 @@ namespace ArtemisBanking.Application.Services
             _logger = logger;
         }
                  
-        /// Maneja el proceso completo de login
-        /// Valida credenciales, estado de cuenta y retorna el rol para redireccionar
-         
+       
         public async Task<ResultadoOperacion<string>> LoginAsync(
             string nombreUsuario,
             string contrasena,
@@ -45,7 +41,6 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Buscar el usuario por nombre de usuario
                 var usuario = await _userManager.FindByNameAsync(nombreUsuario);
 
                 if (usuario == null)
@@ -53,21 +48,19 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion<string>.Fallo("Usuario o contraseña incorrectos.");
                 }
 
-                // 2. Validar que la cuenta esté activa
                 if (!usuario.EstaActivo)
                 {
                     return ResultadoOperacion<string>.Fallo(
                         "Su cuenta está inactiva. Es necesario activar la cuenta mediante el enlace enviado al correo electrónico registrado.");
                 }
 
-                // 3. Validar que el email esté confirmado
                 if (!usuario.EmailConfirmed)
                 {
                     return ResultadoOperacion<string>.Fallo(
                         "Debe confirmar su correo electrónico antes de iniciar sesión.");
                 }
 
-                // 4. Intentar hacer login con Identity
+                
                 var resultado = await _signInManager.PasswordSignInAsync(
                     usuario,
                     contrasena,
@@ -78,7 +71,6 @@ namespace ArtemisBanking.Application.Services
                 {
                     _logger.LogInformation($"Usuario {nombreUsuario} inició sesión exitosamente");
 
-                    // Obtener el rol del usuario para saber a dónde redirigir
                     var roles = await _userManager.GetRolesAsync(usuario);
                     var rol = roles.FirstOrDefault() ?? "Cliente";
 
@@ -92,7 +84,6 @@ namespace ArtemisBanking.Application.Services
                         "Su cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos. Intente nuevamente en 5 minutos.");
                 }
 
-                // Si llegamos aquí, la contraseña es incorrecta
                 return ResultadoOperacion<string>.Fallo("Usuario o contraseña incorrectos.");
             }
             catch (Exception ex)
@@ -103,7 +94,6 @@ namespace ArtemisBanking.Application.Services
         }
 
          
-        /// Cierra la sesión del usuario actual
          
         public async Task<ResultadoOperacion> LogoutAsync()
         {
@@ -121,7 +111,6 @@ namespace ArtemisBanking.Application.Services
         }
 
          
-        /// Confirma la cuenta del usuario usando el token enviado por correo
          
         public async Task<ResultadoOperacion> ConfirmarCuentaAsync(string usuarioId, string token)
         {
@@ -134,7 +123,7 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Usuario no encontrado.");
                 }
 
-                // Confirmar el email con Identity
+               
                 var resultado = await _userManager.ConfirmEmailAsync(usuario, token);
 
                 if (!resultado.Succeeded)
@@ -143,7 +132,6 @@ namespace ArtemisBanking.Application.Services
                         "Error al confirmar la cuenta. El token puede ser inválido o haber expirado.");
                 }
 
-                // Activar el usuario
                 usuario.EstaActivo = true;
                 await _userManager.UpdateAsync(usuario);
 
@@ -160,7 +148,7 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Solicita el reseteo de contraseña
-        /// Desactiva al usuario temporalmente y envía el token por correo
+        
          
         public async Task<ResultadoOperacion<string>> SolicitarReseteoContrasenaAsync(string nombreUsuario)
         {
@@ -176,17 +164,13 @@ namespace ArtemisBanking.Application.Services
                         "Si el usuario existe, se ha enviado un correo con instrucciones.");
                 }
 
-                // Desactivar el usuario temporalmente
                 usuario.EstaActivo = false;
                 await _userManager.UpdateAsync(usuario);
 
-                // Generar token de reseteo
                 var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
 
-                // Obtener la URL base desde la configuración
                 var urlBase = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7103";
 
-                // Enviar correo con el link
                 await _servicioCorreo.EnviarCorreoReseteoContrasenaAsync(
                     usuario.Email,
                     usuario.UserName,
@@ -209,7 +193,7 @@ namespace ArtemisBanking.Application.Services
 
          
         /// Restablece la contraseña del usuario usando el token
-        /// Reactiva al usuario una vez cambiada la contraseña
+        
          
         public async Task<ResultadoOperacion> RestablecerContrasenaAsync(
             string usuarioId,
@@ -225,7 +209,6 @@ namespace ArtemisBanking.Application.Services
                     return ResultadoOperacion.Fallo("Usuario no encontrado.");
                 }
 
-                // Resetear la contraseña con el token
                 var resultado = await _userManager.ResetPasswordAsync(usuario, token, nuevaContrasena);
 
                 if (!resultado.Succeeded)
@@ -236,7 +219,6 @@ namespace ArtemisBanking.Application.Services
                         errores);
                 }
 
-                // Reactivar el usuario
                 usuario.EstaActivo = true;
                 await _userManager.UpdateAsync(usuario);
 
@@ -251,9 +233,9 @@ namespace ArtemisBanking.Application.Services
             }
         }
 
-         
-        /// Obtiene el rol del usuario para redirigir al home correcto
-         
+
+        ///  esto es para Obtener el rol del usuario para redirigir al home correcto
+
         public async Task<string> ObtenerRolUsuarioAsync(string usuarioId)
         {
             try
@@ -272,7 +254,7 @@ namespace ArtemisBanking.Application.Services
         }
 
          
-        /// Verifica si un usuario está autenticado y activo
+  
          
         public async Task<bool> EstaAutenticadoAsync(string usuarioId)
         {

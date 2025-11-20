@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para transacciones express
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class TransaccionExpressViewModel
     {
         [Required(ErrorMessage = "Debes seleccionar de qué cuenta vas a transferir")]
@@ -25,7 +22,6 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // ⭐ Para el selector de cuentas - NO se envía en POST, debe ser nullable
         public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }
 }

@@ -1,8 +1,5 @@
 namespace ArtemisBanking.Application.DTOs.Api
 {
-    /// <summary>
-    /// DTO genérico para respuestas paginadas del API
-    /// </summary>
     public class PaginatedResponseDTO<T>
     {
         public IEnumerable<T> Data { get; set; } = new List<T>();

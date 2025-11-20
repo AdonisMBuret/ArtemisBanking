@@ -47,26 +47,21 @@ namespace ArtemisBanking.Application.Services
         {
             try
             {
-                // 1. Validar que el cliente existe
                 var cliente = await _userManager.FindByIdAsync(datos.ClienteId);
                 if (cliente == null)
                     return ResultadoOperacion<PrestamoDTO>.Fallo("Cliente no encontrado");
 
-                // 2. Validar que no tenga préstamo activo
                 var tienePrestamoActivo = await _repositorioPrestamo.TienePrestamoActivoAsync(datos.ClienteId);
                 if (tienePrestamoActivo)
                     return ResultadoOperacion<PrestamoDTO>.Fallo("El cliente ya tiene un préstamo activo");
 
-                // 3. Generar número de préstamo único
                 var numeroPrestamo = await _repositorioPrestamo.GenerarNumeroPrestamoUnicoAsync();
 
-                // 4. Calcular cuota mensual
                 var cuotaMensual = _servicioCalculo.CalcularCuotaMensual(
                     datos.MontoCapital,
                     datos.TasaInteresAnual,
                     datos.PlazoMeses);
 
-                // 5. Crear el préstamo
                 var nuevoPrestamo = new Prestamo
                 {
                     NumeroPrestamo = numeroPrestamo,
@@ -83,7 +78,6 @@ namespace ArtemisBanking.Application.Services
                 await _repositorioPrestamo.AgregarAsync(nuevoPrestamo);
                 await _repositorioPrestamo.GuardarCambiosAsync();
 
-                // 6. Generar tabla de amortización
                 var tablaAmortizacion = _servicioCalculo.GenerarTablaAmortizacion(
                     DateTime.Now,
                     datos.MontoCapital,
@@ -107,14 +101,12 @@ namespace ArtemisBanking.Application.Services
 
                 await _repositorioCuota.GuardarCambiosAsync();
 
-                // 7. Acreditar monto a cuenta principal
                 var cuentaPrincipal = await _repositorioCuenta.ObtenerCuentaPrincipalAsync(datos.ClienteId);
                 if (cuentaPrincipal != null)
                 {
                     cuentaPrincipal.Balance += datos.MontoCapital;
                     await _repositorioCuenta.ActualizarAsync(cuentaPrincipal);
 
-                    // Registrar transacción
                     var transaccion = new Transaccion
                     {
                         FechaTransaccion = DateTime.Now,
@@ -131,7 +123,6 @@ namespace ArtemisBanking.Application.Services
                     await _repositorioTransaccion.GuardarCambiosAsync();
                 }
 
-                // 8. Enviar correo de notificación
                 try
                 {
                     await _servicioCorreo.EnviarNotificacionPrestamoAprobadoAsync(
@@ -149,7 +140,6 @@ namespace ArtemisBanking.Application.Services
 
                 _logger.LogInformation($"Préstamo {numeroPrestamo} asignado exitosamente a cliente {cliente.UserName}");
 
-                // 9. Retornar DTO
                 var prestamoDTO = _mapper.Map<PrestamoDTO>(nuevoPrestamo);
                 return ResultadoOperacion<PrestamoDTO>.Ok(
                     prestamoDTO,
@@ -173,7 +163,6 @@ namespace ArtemisBanking.Application.Services
                 if (!prestamo.EstaActivo)
                     return ResultadoOperacion.Fallo("El préstamo no está activo");
 
-                // Obtener cuotas futuras
                 var cuotasFuturas = await _repositorioCuota.ObtenerCuotasFuturasAsync(datos.PrestamoId);
 
                 if (cuotasFuturas.Any())
@@ -181,13 +170,11 @@ namespace ArtemisBanking.Application.Services
                     int cuotasRestantes = cuotasFuturas.Count();
                     decimal capitalPendiente = cuotasFuturas.Sum(c => c.MontoCuota);
 
-                    // Recalcular cuota con nueva tasa
                     var nuevaCuotaMensual = _servicioCalculo.CalcularCuotaMensual(
                         capitalPendiente,
                         datos.NuevaTasaInteres,
                         cuotasRestantes);
 
-                    // Actualizar todas las cuotas futuras
                     foreach (var cuota in cuotasFuturas)
                     {
                         cuota.MontoCuota = nuevaCuotaMensual;
@@ -197,12 +184,10 @@ namespace ArtemisBanking.Application.Services
                     prestamo.CuotaMensual = nuevaCuotaMensual;
                 }
 
-                // Actualizar tasa del préstamo
                 prestamo.TasaInteresAnual = datos.NuevaTasaInteres;
                 await _repositorioPrestamo.ActualizarAsync(prestamo);
                 await _repositorioPrestamo.GuardarCambiosAsync();
 
-                // Enviar correo
                 try
                 {
                     var cliente = await _userManager.FindByIdAsync(prestamo.ClienteId);
@@ -250,7 +235,6 @@ namespace ArtemisBanking.Application.Services
                 var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(clienteId);
                 var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
 
-                // Calcular si es alto riesgo
                 var esAltoRiesgo = deudaActual > deudaPromedio ||
                                   (deudaActual + montoNuevoPrestamo) > deudaPromedio;
 

@@ -108,13 +108,11 @@ namespace ArtemisBanking.Application.Services
 
         public async Task<ComercioResponseDTO> CrearComercioAsync(CrearComercioRequestDTO request)
         {
-            // ? LOGGING
             _logger.LogInformation($"=== SERVICIO: Creando comercio ===");
             _logger.LogInformation($"Nombre: {request.Nombre}, RNC: {request.RNC}");
             
             try
             {
-                // Verificar que el RNC no exista
                 var comercioExistente = await _repositorioComercio.ObtenerPorRNCAsync(request.RNC);
                 if (comercioExistente != null)
                 {
@@ -162,7 +160,6 @@ namespace ArtemisBanking.Application.Services
             if (comercio == null)
                 return false;
 
-            // Verificar que el RNC no esté en uso por otro comercio
             var comercioConRNC = await _repositorioComercio.ObtenerPorRNCAsync(request.RNC);
             if (comercioConRNC != null && comercioConRNC.Id != id)
             {
@@ -186,11 +183,9 @@ namespace ArtemisBanking.Application.Services
 
             comercio.EstaActivo = nuevoEstado;
 
-            // Si se desactiva el comercio, desactivar también su usuario
             if (!nuevoEstado && comercio.Usuario != null)
             {
                 comercio.Usuario.EstaActivo = false;
-                // El usuario se actualizará en cascada con el comercio
             }
 
             await _repositorioComercio.ActualizarAsync(comercio);

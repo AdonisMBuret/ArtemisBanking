@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArtemisBanking.Application.ViewModels.Account
 {
-    /// <summary>
-    /// ViewModel para restablecer la contraseña con el token recibido
-    /// Incluye validaciones robustas con mensajes amigables
-    /// </summary>
+  
     public class RestablecerContrasenaViewModel
     {
         [Required]

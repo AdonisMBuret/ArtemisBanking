@@ -17,7 +17,7 @@ namespace ArtemisBanking.Application.ViewModels.CuentaAhorro
         public decimal Balance { get; set; }
 
         [Display(Name = "Tipo")]
-        public string TipoCuenta { get; set; } // "Principal" o "Secundaria"
+        public string TipoCuenta { get; set; } 
 
         [Display(Name = "Estado")]
         public bool EstaActiva { get; set; }

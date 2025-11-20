@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para avance de efectivo desde tarjeta
-    /// Incluye validaciones con mensajes amigables
-    /// </summary>
+
     public class AvanceEfectivoViewModel
     {
         [Required(ErrorMessage = "Debes elegir de qué tarjeta vas a tomar el avance")]
@@ -24,7 +21,6 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // ⭐ Para los selectores - NO se envían en POST, deben ser nullable
         public IEnumerable<SelectListItem>? TarjetasDisponibles { get; set; }
         public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }

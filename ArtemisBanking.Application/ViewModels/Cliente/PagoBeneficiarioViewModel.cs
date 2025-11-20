@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Application.ViewModels.Cliente
 {
-    /// <summary>
-    /// ViewModel para realizar pagos a beneficiarios registrados
-    /// Incluye validaciones completas y mensajes amigables
-    /// </summary>
+
     public class PagoBeneficiarioViewModel
     {
         [Required(ErrorMessage = "Oye, tienes que elegir a quién le vas a pagar")]
@@ -24,7 +21,6 @@ namespace ArtemisBanking.Application.ViewModels.Cliente
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
         public decimal Monto { get; set; }
 
-        // ⭐ Propiedades para los selectores - NO se envían en POST, deben ser nullable
         public IEnumerable<SelectListItem>? BeneficiariosDisponibles { get; set; }
         public IEnumerable<SelectListItem>? CuentasDisponibles { get; set; }
     }
