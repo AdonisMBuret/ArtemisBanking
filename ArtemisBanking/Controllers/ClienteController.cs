@@ -8,14 +8,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
+
     /// Controlador para funcionalidades del cliente
-    /// Siguiendo arquitectura ONION: Solo usa SERVICIOS, NO repositorios
-    /// </summary>
+    
     [Authorize(Policy = "SoloCliente")]
     public class ClienteController : Controller
     {
-        // ✅ SOLO SERVICIOS - Cumple con Arquitectura ONION
         private readonly IServicioDashboardCliente _servicioDashboard;
         private readonly IServicioTransaccion _servicioTransaccion;
         private readonly IServicioBeneficiario _servicioBeneficiario;
@@ -44,14 +42,13 @@ namespace ArtemisBanking.Web.Controllers
             return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         }
 
-        // ==================== DASHBOARD ====================
+        //  DASHBOARD 
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var usuarioId = ObtenerUsuarioActualId();
 
-            // ✅ Llama al servicio - NO accede a repositorios
             var resultado = await _servicioDashboard.ObtenerDashboardAsync(usuarioId);
 
             if (!resultado.Exito)
@@ -65,19 +62,17 @@ namespace ArtemisBanking.Web.Controllers
                 });
             }
 
-            // ✅ Usa AutoMapper - NO mapeo manual
             var viewModel = _mapper.Map<HomeClienteViewModel>(resultado.Datos);
             return View(viewModel);
         }
 
-        // ==================== DETALLES DE PRODUCTOS ====================
+        //  DETALLES DE PRODUCTOS 
 
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
             var usuarioId = ObtenerUsuarioActualId();
 
-            // ✅ Servicio maneja toda la lógica
             var resultado = await _servicioDashboard.ObtenerDetalleCuentaAsync(id, usuarioId);
 
             if (!resultado.Exito)
@@ -124,7 +119,7 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-        // ==================== BENEFICIARIOS ====================
+        //  BENEFICIARIOS 
 
         [HttpGet]
         public async Task<IActionResult> Beneficiarios()
@@ -153,14 +148,12 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarBeneficiario(AgregarBeneficiarioViewModel model)
         {
-            // ⭐ LOGGING PARA DEBUG
             _logger.LogInformation($"=== AGREGANDO BENEFICIARIO ===");
             _logger.LogInformation($"NumeroCuenta: {model.NumeroCuenta}");
             _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -195,7 +188,7 @@ namespace ArtemisBanking.Web.Controllers
             return RedirectToAction(nameof(Beneficiarios));
         }
 
-        // ==================== TRANSACCIONES ====================
+        //  TRANSACCIONES 
 
         [HttpGet]
         public async Task<IActionResult> TransaccionExpress()
@@ -211,7 +204,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransaccionExpress(TransaccionExpressViewModel model)
         {
-            // ⭐ LOGGING PARA DEBUG
             _logger.LogInformation($"=== TRANSACCION EXPRESS ===");
             _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
             _logger.LogInformation($"NumeroCuentaDestino: {model.NumeroCuentaDestino}");
@@ -220,7 +212,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -280,7 +271,7 @@ namespace ArtemisBanking.Web.Controllers
             return resultado.Exito ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(TransaccionExpress));
         }
 
-        // ==================== PAGOS ====================
+        //  PAGOS 
 
         [HttpGet]
         public async Task<IActionResult> PagarTarjeta()
@@ -297,7 +288,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarTarjeta(PagoTarjetaViewModel model)
         {
-            // ⭐ LOGGING PARA DEBUG
             _logger.LogInformation($"=== PAGAR TARJETA ===");
             _logger.LogInformation($"TarjetaId: {model.TarjetaId}");
             _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
@@ -306,7 +296,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -364,7 +353,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PagarPrestamo(PagoPrestamoViewModel model)
         {
-            // ⭐ LOGGING PARA DEBUG
             _logger.LogInformation($"=== PAGAR PRESTAMO ===");
             _logger.LogInformation($"PrestamoId: {model.PrestamoId}");
             _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
@@ -373,7 +361,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -549,7 +536,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TransferirEntreCuentas(TransferenciaEntreCuentasViewModel model)
         {
-            // ⭐ LOGGING PARA DEBUG
             _logger.LogInformation($"=== TRANSFERIR ENTRE CUENTAS ===");
             _logger.LogInformation($"CuentaOrigenId: {model.CuentaOrigenId}");
             _logger.LogInformation($"CuentaDestinoId: {model.CuentaDestinoId}");
@@ -558,7 +544,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -599,7 +584,7 @@ namespace ArtemisBanking.Web.Controllers
             return View(model);
         }
 
-        // ==================== MÉTODOS HELPER ====================
+        //  MÉTODOS HELPER 
 
         private async Task<IEnumerable<SelectListItem>> ObtenerCuentasSelectAsync()
         {

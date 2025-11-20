@@ -1,20 +1,16 @@
 using ArtemisBanking.Application;
-using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Infrastructure;
 using ArtemisBanking.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddControllers();
 
-// ==================== SWAGGER/OpenAPI ====================
+//  SWAGGER/OpenAPI 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -25,7 +21,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API para el sistema de banca en línea Artemis Banking"
     });
 
-    // Configurar autenticación JWT en Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -52,13 +47,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// ==================== APPLICATION & INFRASTRUCTURE SERVICES ====================
-// AgregarInfraestructura configura: DbContext, Identity, Hangfire, Repositorios y Servicios de infraestructura
-// Se pasa configurarCookies: false porque esta es una API con JWT, no Razor Pages
+//  APPLICATION & INFRASTRUCTURE SERVICES 
+
 builder.Services.AgregarAplicacion();
 builder.Services.AgregarInfraestructura(builder.Configuration, configurarCookies: false);
 
-// ==================== JWT AUTHENTICATION ====================
+//  JWT AUTHENTICATION 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurada");
 
@@ -82,7 +76,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ==================== AUTHORIZATION POLICIES ====================
+//  AUTHORIZATION POLICIES 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("SoloAdministrador", policy =>
@@ -95,7 +89,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Administrador", "Comercio"));
 });
 
-// ==================== CORS (si es necesario) ====================
+//  CORS (si es necesario) 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -108,7 +102,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Inicializar la base de datos
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -123,14 +116,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Artemis Banking API v1");
-        c.RoutePrefix = string.Empty; // Swagger en la raíz
+        c.RoutePrefix = string.Empty; 
     });
 }
 

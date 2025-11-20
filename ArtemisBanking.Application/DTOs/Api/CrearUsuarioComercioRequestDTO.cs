@@ -1,39 +1,28 @@
-Ôªø
 using System.ComponentModel.DataAnnotations;
-
 
 namespace ArtemisBanking.Application.DTOs.Api
 {
     public class CrearUsuarioComercioRequestDTO
     {
         [Required(ErrorMessage = "El nombre es requerido")]
-        [MaxLength(100)]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es requerido")]
-        [MaxLength(100)]
         public string Apellido { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La c√©dula es requerida")]
-        [MaxLength(20)]
+        [Required(ErrorMessage = "La cÈdula es requerida")]
+        [StringLength(11, MinimumLength = 11, ErrorMessage = "La cÈdula debe tener 11 dÌgitos")]
         public string Cedula { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El correo es requerido")]
-        [EmailAddress(ErrorMessage = "El correo no es v√°lido")]
-        public string Correo { get; set; } = string.Empty;
+        [EmailAddress(ErrorMessage = "Formato de correo inv·lido")]
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre de usuario es requerido")]
-        [MaxLength(50)]
-        public string Usuario { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La contrase√±a es requerida")]
-        [MinLength(8, ErrorMessage = "La contrase√±a debe tener al menos 8 caracteres")]
+        [Required(ErrorMessage = "La contraseÒa es requerida")]
+        [MinLength(8, ErrorMessage = "La contraseÒa debe tener al menos 8 caracteres")]
         public string Password { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La confirmaci√≥n de contrase√±a es requerida")]
-        [Compare("Password", ErrorMessage = "Las contrase√±as no coinciden")]
-        public string ConfirmPassword { get; set; } = string.Empty;
-
-        public decimal BalanceInicial { get; set; }
     }
 }

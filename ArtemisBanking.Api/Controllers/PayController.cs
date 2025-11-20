@@ -22,11 +22,9 @@ namespace ArtemisBanking.Api.Controllers
             _logger = logger;
         }
 
-        /// <summary>
+    
         /// Obtiene las transacciones de un comercio
-        /// Si el usuario es Comercio, se obtiene su commerceId del token JWT
-        /// Si es Administrador, debe proporcionar el commerceId en la URL
-        /// </summary>
+    
         [HttpGet("get-transactions/{commerceId?}")]
         [ProducesResponseType(typeof(PaginatedResponseDTO<TransaccionComercioDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -38,7 +36,6 @@ namespace ArtemisBanking.Api.Controllers
         {
             try
             {
-                // Obtener el ID del comercio según el rol del usuario
                 int comercioIdFinal = ObtenerComercioId(commerceId);
 
                 if (comercioIdFinal == 0)
@@ -60,11 +57,9 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Procesa un pago desde un comercio
-        /// Si el usuario es Comercio, se obtiene su commerceId del token JWT
-        /// Si es Administrador, debe proporcionar el commerceId en la URL
-        /// </summary>
+    
         [HttpPost("process-payment/{commerceId?}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -81,7 +76,6 @@ namespace ArtemisBanking.Api.Controllers
 
             try
             {
-                // Obtener el ID del comercio según el rol del usuario
                 int comercioIdFinal = ObtenerComercioId(commerceId);
 
                 if (comercioIdFinal == 0)
@@ -105,19 +99,15 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Método auxiliar para obtener el ID del comercio según el rol del usuario autenticado
-        /// </summary>
-        /// <param name="commerceIdFromUrl">ID del comercio proporcionado en la URL (para administradores)</param>
-        /// <returns>ID del comercio a utilizar</returns>
+
         private int ObtenerComercioId(int? commerceIdFromUrl)
         {
-            // Obtener el rol del usuario del token JWT
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userRole == "Comercio")
             {
-                // Si es comercio, obtener el ComercioId del token JWT
                 var comercioIdClaim = User.FindFirst("ComercioId")?.Value;
                 
                 if (int.TryParse(comercioIdClaim, out int comercioId))
@@ -125,15 +115,14 @@ namespace ArtemisBanking.Api.Controllers
                     return comercioId;
                 }
                 
-                return 0; // No tiene comercio asociado
+                return 0; 
             }
             else if (userRole == "Administrador")
             {
-                // Si es administrador, usar el commerceId proporcionado en la URL
                 return commerceIdFromUrl ?? 0;
             }
 
-            return 0; // Rol no autorizado
+            return 0; 
         }
     }
 }

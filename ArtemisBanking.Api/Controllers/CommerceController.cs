@@ -21,9 +21,9 @@ namespace ArtemisBanking.Api.Controllers
             _logger = logger;
         }
 
-        /// <summary>
+    
         /// Obtiene todos los comercios paginados o todos si no se especifican parámetros
-        /// </summary>
+    
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedResponseDTO<ComercioResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(IEnumerable<ComercioResponseDTO>), StatusCodes.Status200OK)]
@@ -33,14 +33,12 @@ namespace ArtemisBanking.Api.Controllers
         {
             try
             {
-                // Si no se especifican parámetros, devolver todos los activos
                 if (!page.HasValue || !pageSize.HasValue)
                 {
                     var comercios = await _servicioComercio.ObtenerComerciosActivosAsync();
                     return Ok(comercios);
                 }
 
-                // Si se especifican, devolver paginados
                 var resultado = await _servicioComercio.ObtenerComerciosPaginadosAsync(page.Value, pageSize.Value);
                 return Ok(resultado);
             }
@@ -51,9 +49,9 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Obtiene un comercio por su ID
-        /// </summary>
+    
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ComercioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -79,9 +77,9 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Crea un nuevo comercio
-        /// </summary>
+    
         [HttpPost]
         [ProducesResponseType(typeof(ComercioResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -110,9 +108,9 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Actualiza un comercio existente
-        /// </summary>
+    
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -148,10 +146,9 @@ namespace ArtemisBanking.Api.Controllers
             }
         }
 
-        /// <summary>
+    
         /// Cambia el estado de un comercio (activa/desactiva)
-        /// Cuando se desactiva un comercio, también se desactivan sus usuarios asociados
-        /// </summary>
+    
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

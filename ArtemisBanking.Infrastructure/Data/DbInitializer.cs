@@ -174,7 +174,7 @@ namespace ArtemisBanking.Infrastructure.Data
                     var comercioUser = new Usuario
                     {
                         UserName = "comerciante",
-                        Email = "comercioX@artemisbanking.com",
+                        Email = "comercio@artemisbanking.com",
                         Nombre = "Billie",
                         Apellido = "Eilish",
                         Cedula = "00000000004",

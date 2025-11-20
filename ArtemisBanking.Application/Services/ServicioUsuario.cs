@@ -1,5 +1,6 @@
 ﻿using ArtemisBanking.Application.Common;
 using ArtemisBanking.Application.DTOs;
+using ArtemisBanking.Application.DTOs.Api;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Domain.Entities;
 using ArtemisBanking.Domain.Interfaces.Repositories;
@@ -28,10 +29,8 @@ namespace ArtemisBanking.Application.Services
             IRepositorioUsuario repositorioUsuario,
             IRepositorioCuentaAhorro repositorioCuenta,
             IRepositorioTransaccion repositorioTransaccion,
-
             IRepositorioPrestamo repositorioPrestamo,
             IRepositorioTarjetaCredito repositorioTarjeta,
-
             IServicioCorreo servicioCorreo,
             IConfiguration configuration,
             IMapper mapper,
@@ -455,7 +454,7 @@ namespace ArtemisBanking.Application.Services
         }
 
 
-        /// Obtiene un usuario por su ID con toda su información
+        /// Obtiene un usuario por su ID with toda su información
       
         public async Task<ResultadoOperacion<UsuarioDTO>> ObtenerUsuarioPorIdAsync(string usuarioId)
         {
@@ -539,6 +538,186 @@ namespace ArtemisBanking.Application.Services
             {
                 _logger.LogError(ex, "Error al obtener usuarios paginados");
                 return ResultadoOperacion<ResultadoPaginadoDTO<UsuarioDTO>>.Fallo("Error al obtener los usuarios");
+            }
+        }
+
+
+        /// Obtiene usuarios paginados con formato para API, excluyendo opcionalmente comercios
+        public async Task<ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>> ObtenerUsuariosPaginadosParaApiAsync(
+            int page,
+            int pageSize,
+            string rol = null,
+            bool excludeComercio = false)
+        {
+            try
+            {
+                var (usuarios, total) = await _repositorioUsuario.ObtenerUsuariosPaginadosAsync(
+                    page,
+                    pageSize,
+                    rol);
+
+                var usuariosDTO = new List<UsuarioApiResponseDTO>();
+
+                foreach (var usuario in usuarios)
+                {
+                    var roles = await _userManager.GetRolesAsync(usuario);
+                    var rolUsuario = roles.FirstOrDefault() ?? "Cliente";
+
+                    if (excludeComercio && rolUsuario == Constantes.RolComercio)
+                        continue;
+
+                    var usuarioDTO = new UsuarioApiResponseDTO
+                    {
+                        Id = usuario.Id,
+                        UserName = usuario.UserName,
+                        Cedula = usuario.Cedula,
+                        Nombre = usuario.Nombre,
+                        Apellido = usuario.Apellido,
+                        NombreCompleto = usuario.NombreCompleto,
+                        Email = usuario.Email,
+                        TipoUsuario = rolUsuario,
+                        EstaActivo = usuario.EstaActivo,
+                        FechaCreacion = usuario.FechaCreacion
+                    };
+
+                    usuariosDTO.Add(usuarioDTO);
+                }
+
+                var response = new PaginatedResponseDTO<UsuarioApiResponseDTO>
+                {
+                    Data = usuariosDTO,
+                    PageNumber = page,
+                    PageSize = pageSize,
+                    TotalRecords = usuariosDTO.Count,
+                    TotalPages = (int)Math.Ceiling(usuariosDTO.Count / (double)pageSize)
+                };
+
+                return ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>.Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuarios paginados para API");
+                return ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>.Fallo("Error al obtener los usuarios");
+            }
+        }
+
+        /// Obtiene solo usuarios con rol Comercio con formato para API
+        public async Task<ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>> ObtenerUsuariosComercioParaApiAsync(
+            int page,
+            int pageSize)
+        {
+            try
+            {
+                return await ObtenerUsuariosPaginadosParaApiAsync(page, pageSize, Constantes.RolComercio, false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuarios comercio para API");
+                return ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>.Fallo("Error al obtener los usuarios comercio");
+            }
+        }
+
+        /// Crea un usuario y retorna el DTO de respuesta de API
+        public async Task<ResultadoOperacion<UsuarioApiResponseDTO>> CrearUsuarioParaApiAsync(CrearUsuarioDTO datos)
+        {
+            try
+            {
+                var resultado = await CrearUsuarioAsync(datos);
+
+                if (!resultado.Exito)
+                {
+                    return ResultadoOperacion<UsuarioApiResponseDTO>.Fallo(resultado.Mensaje);
+                }
+
+                var usuarioApi = new UsuarioApiResponseDTO
+                {
+                    Id = resultado.Datos.Id,
+                    UserName = resultado.Datos.NombreUsuario,
+                    Cedula = resultado.Datos.Cedula,
+                    Nombre = resultado.Datos.Nombre,
+                    Apellido = resultado.Datos.Apellido,
+                    NombreCompleto = resultado.Datos.NombreCompleto,
+                    Email = resultado.Datos.Correo,
+                    TipoUsuario = resultado.Datos.Rol,
+                    EstaActivo = resultado.Datos.EstaActivo,
+                    FechaCreacion = DateTime.Now
+                };
+
+                return ResultadoOperacion<UsuarioApiResponseDTO>.Ok(usuarioApi, resultado.Mensaje);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear usuario para API");
+                return ResultadoOperacion<UsuarioApiResponseDTO>.Fallo("Error al crear el usuario");
+            }
+        }
+
+        /// Crea un usuario de comercio asociado a un comercio específico
+        public async Task<ResultadoOperacion<UsuarioApiResponseDTO>> CrearUsuarioComercioParaApiAsync(
+            int commerceId,
+            string nombre,
+            string apellido,
+            string cedula,
+            string email,
+            string userName,
+            string password)
+        {
+            try
+            {
+
+                var dto = new CrearUsuarioDTO
+                {
+                    Nombre = nombre,
+                    Apellido = apellido,
+                    Cedula = cedula,
+                    Correo = email,
+                    NombreUsuario = userName,
+                    Contrasena = password,
+                    TipoUsuario = Constantes.RolComercio,
+                    MontoInicial = 0
+                };
+
+                return await CrearUsuarioParaApiAsync(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear usuario comercio para API");
+                return ResultadoOperacion<UsuarioApiResponseDTO>.Fallo("Error al crear el usuario comercio");
+            }
+        }
+
+        /// Obtiene un usuario por ID con formato para API
+        public async Task<ResultadoOperacion<UsuarioApiResponseDTO>> ObtenerUsuarioPorIdParaApiAsync(string usuarioId)
+        {
+            try
+            {
+                var resultado = await ObtenerUsuarioPorIdAsync(usuarioId);
+
+                if (!resultado.Exito)
+                {
+                    return ResultadoOperacion<UsuarioApiResponseDTO>.Fallo(resultado.Mensaje);
+                }
+
+                var usuarioApi = new UsuarioApiResponseDTO
+                {
+                    Id = resultado.Datos.Id,
+                    UserName = resultado.Datos.NombreUsuario,
+                    Cedula = resultado.Datos.Cedula,
+                    Nombre = resultado.Datos.Nombre,
+                    Apellido = resultado.Datos.Apellido,
+                    NombreCompleto = resultado.Datos.NombreCompleto,
+                    Email = resultado.Datos.Correo,
+                    TipoUsuario = resultado.Datos.Rol,
+                    EstaActivo = resultado.Datos.EstaActivo,
+                    FechaCreacion = DateTime.Now
+                };
+
+                return ResultadoOperacion<UsuarioApiResponseDTO>.Ok(usuarioApi);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuario para API");
+                return ResultadoOperacion<UsuarioApiResponseDTO>.Fallo("Error al obtener el usuario");
             }
         }
     }

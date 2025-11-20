@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
+
     /// Controlador para el portal del comercio
-    /// Aquí los comercios pueden registrar consumos con tarjetas
-    /// </summary>
+
+
     [Authorize(Policy = "SoloComercio")]
     public class PortalComercioController : Controller
     {
@@ -37,11 +37,9 @@ namespace ArtemisBanking.Web.Controllers
             return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         }
 
-        // ==================== DASHBOARD ====================
-
-        /// <summary>
+    
         /// Dashboard del comercio con estadísticas y consumos recientes
-        /// </summary>
+    
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -56,13 +54,11 @@ namespace ArtemisBanking.Web.Controllers
                     return View(new DashboardComercioViewModel());
                 }
 
-                // Obtener estadísticas del día
                 var consumosHoy = await _repositorioConsumo.ObtenerConsumosPorComercioYFechaAsync(
                     comercio.Id, 
                     DateTime.Today, 
                     DateTime.Today.AddDays(1).AddSeconds(-1));
 
-                // Obtener estadísticas del mes
                 var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var finMes = inicioMes.AddMonths(1).AddSeconds(-1);
                 var consumosMes = await _repositorioConsumo.ObtenerConsumosPorComercioYFechaAsync(
@@ -70,7 +66,6 @@ namespace ArtemisBanking.Web.Controllers
                     inicioMes, 
                     finMes);
 
-                // Obtener consumos recientes (últimos 10)
                 var consumosRecientes = await _repositorioConsumo.ObtenerConsumosRecientesDeComercioAsync(comercio.Id, 10);
 
                 var viewModel = new DashboardComercioViewModel
@@ -99,22 +94,18 @@ namespace ArtemisBanking.Web.Controllers
                 return View(new DashboardComercioViewModel());
             }
         }
-
-        // ==================== REGISTRAR CONSUMO ====================
-
-        /// <summary>
+    
         /// Muestra el formulario para registrar un consumo
-        /// </summary>
+    
         [HttpGet]
         public IActionResult RegistrarConsumo()
         {
             return View(new RegistrarConsumoViewModel());
         }
 
-        /// <summary>
+    
         /// Procesa el registro del consumo
-        /// Valida la tarjeta y muestra confirmación
-        /// </summary>
+    
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarConsumo(RegistrarConsumoViewModel model)
@@ -145,7 +136,6 @@ namespace ArtemisBanking.Web.Controllers
 
             try
             {
-                // Obtener info de la tarjeta
                 var infoTarjeta = await _servicioConsumo.ObtenerInfoTarjetaAsync(model.NumeroTarjeta);
 
                 if (!infoTarjeta.Exito)
@@ -155,7 +145,6 @@ namespace ArtemisBanking.Web.Controllers
                     return View(model);
                 }
 
-                // Crear ViewModel de confirmación
                 var confirmacionVM = new ConfirmarConsumoViewModel
                 {
                     NumeroTarjeta = model.NumeroTarjeta,
@@ -176,10 +165,9 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
         }
-
-        /// <summary>
+            
         /// Confirma y procesa el consumo
-        /// </summary>
+    
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarConsumo(ConfirmarConsumoViewModel model)
@@ -223,11 +211,9 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== HISTORIAL ====================
-
-        /// <summary>
+    
         /// Lista paginada de consumos del comercio
-        /// </summary>
+    
         [HttpGet]
         public async Task<IActionResult> Historial(int pagina = 1, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
@@ -242,7 +228,6 @@ namespace ArtemisBanking.Web.Controllers
                     return View(new ListaConsumosViewModel());
                 }
 
-                // Si no hay filtros de fecha, usar el mes actual
                 if (!fechaInicio.HasValue)
                 {
                     fechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);

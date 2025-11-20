@@ -15,7 +15,6 @@ namespace ArtemisBanking.Web.Controllers
 {
      
     /// Controlador para todas las funcionalidades del Administrador
-    /// Solo accesible para usuarios con rol "Administrador"
      
     [Authorize(Policy = "SoloAdministrador")]
     public class AdminController : Controller
@@ -25,7 +24,6 @@ namespace ArtemisBanking.Web.Controllers
         private readonly IServicioTarjetaCredito _servicioTarjeta;
         private readonly IServicioCuentaAhorro _servicioCuenta;
 
-        // ⭐ AGREGAR ESTOS REPOSITORIOS:
         private readonly IRepositorioPrestamo _repositorioPrestamo;
         private readonly IRepositorioCuotaPrestamo _repositorioCuotaPrestamo;
         private readonly IRepositorioTarjetaCredito _repositorioTarjeta;
@@ -42,7 +40,6 @@ namespace ArtemisBanking.Web.Controllers
             IServicioTarjetaCredito servicioTarjeta,
             IServicioCuentaAhorro servicioCuenta,
 
-            // ⭐ AGREGAR ESTOS EN EL CONSTRUCTOR:
             IRepositorioPrestamo repositorioPrestamo,
             IRepositorioCuotaPrestamo repositorioCuotaPrestamo,
             IRepositorioTarjetaCredito repositorioTarjeta,
@@ -58,7 +55,6 @@ namespace ArtemisBanking.Web.Controllers
             _servicioTarjeta = servicioTarjeta;
             _servicioCuenta = servicioCuenta;
 
-            // ⭐ ASIGNAR LOS REPOSITORIOS:
             _repositorioPrestamo = repositorioPrestamo;
             _repositorioCuotaPrestamo = repositorioCuotaPrestamo;
             _repositorioTarjeta = repositorioTarjeta;
@@ -70,7 +66,7 @@ namespace ArtemisBanking.Web.Controllers
             _logger = logger;
         }
 
-        // ==================== DASHBOARD (HOME) ====================
+        //  DASHBOARD (HOME) 
         public async Task<IActionResult> Index()
         {
             var resultado = await _servicioUsuario.ObtenerDashboardAdminAsync();
@@ -81,7 +77,6 @@ namespace ArtemisBanking.Web.Controllers
                 return View(new DashboardAdminViewModel());
             }
 
-            // Mapeo manual de DTO a ViewModel
             var viewModel = new DashboardAdminViewModel
             {
                 TotalTransacciones = resultado.Datos.TotalTransacciones,
@@ -100,18 +95,14 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
 
-       // ==================== GESTIÓN DE USUARIOS ====================
+       //  GESTIÓN DE USUARIOS 
 
-         
-        /// Lista paginada de usuarios con filtros
-         
+                  
         [HttpGet]
         public async Task<IActionResult> Usuarios(int pagina = 1, string filtroRol = null)
         {
-            // Obtener el ID del usuario actual (para no permitirle editarse a sí mismo)
             var usuarioActualId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            // Llamar al servicio para obtener usuarios paginados
             var resultado = await _servicioUsuario.ObtenerUsuariosPaginadosAsync(
                 pagina,
                 Constantes.TamanoPaginaPorDefecto,
@@ -124,7 +115,6 @@ namespace ArtemisBanking.Web.Controllers
                 return View(new ListaUsuariosViewModel());
             }
 
-            // Mapear a ViewModel
             var viewModel = new ListaUsuariosViewModel
             {
                 Usuarios = resultado.Datos.Datos.Select(u => new UsuarioListaItemViewModel
@@ -136,7 +126,7 @@ namespace ArtemisBanking.Web.Controllers
                     Correo = u.Correo,
                     TipoUsuario = u.Rol,
                     EstaActivo = u.EstaActivo,
-                    PuedeEditar = u.MontoInicial != 0 // Reutilizamos este campo
+                    PuedeEditar = u.MontoInicial != 0 
                 }),
                 PaginaActual = resultado.Datos.PaginaActual,
                 TotalPaginas = resultado.Datos.TotalPaginas,
@@ -147,7 +137,6 @@ namespace ArtemisBanking.Web.Controllers
             return View(viewModel);
         }
          
-        /// Muestra el formulario para crear un nuevo usuario
          
         [HttpGet]
         public IActionResult CrearUsuario()
@@ -167,10 +156,8 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
 
-            // Mapear ViewModel a DTO
             var dto = _mapper.Map<CrearUsuarioDTO>(model);
 
-            // Llamar al servicio
             var resultado = await _servicioUsuario.CrearUsuarioAsync(dto);
 
             if (resultado.Exito)
@@ -179,7 +166,6 @@ namespace ArtemisBanking.Web.Controllers
                 return RedirectToAction(nameof(Usuarios));
             }
 
-            // Si hubo error, mostrar mensaje
             ModelState.AddModelError(string.Empty, resultado.Mensaje);
             return View(model);
         }
@@ -190,7 +176,6 @@ namespace ArtemisBanking.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditarUsuario(string id)
         {
-            // Validar que no sea el usuario actual
             var usuarioActualId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             if (id == usuarioActualId)
@@ -199,7 +184,6 @@ namespace ArtemisBanking.Web.Controllers
                 return RedirectToAction(nameof(Usuarios));
             }
 
-            // Obtener el usuario
             var resultado = await _servicioUsuario.ObtenerUsuarioPorIdAsync(id);
 
             if (!resultado.Exito)
@@ -208,7 +192,6 @@ namespace ArtemisBanking.Web.Controllers
                 return RedirectToAction(nameof(Usuarios));
             }
 
-            // Mapear a ViewModel
             var viewModel = new EditarUsuarioViewModel
             {
                 Id = resultado.Datos.Id,
@@ -236,10 +219,8 @@ namespace ArtemisBanking.Web.Controllers
                 return View(model);
             }
 
-            // Mapear a DTO
             var dto = _mapper.Map<ActualizarUsuarioDTO>(model);
 
-            // Llamar al servicio
             var resultado = await _servicioUsuario.ActualizarUsuarioAsync(dto);
 
             if (resultado.Exito)
@@ -248,7 +229,6 @@ namespace ArtemisBanking.Web.Controllers
                 return RedirectToAction(nameof(Usuarios));
             }
 
-            // Si hubo error
             ModelState.AddModelError(string.Empty, resultado.Mensaje);
             return View(model);
         }
@@ -260,10 +240,8 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstadoUsuario(string id)
         {
-            // Obtener el ID del usuario actual
             var usuarioActualId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            // Llamar al servicio
             var resultado = await _servicioUsuario.CambiarEstadoAsync(id, usuarioActualId);
 
             if (resultado.Exito)
@@ -277,10 +255,7 @@ namespace ArtemisBanking.Web.Controllers
 
             return RedirectToAction(nameof(Usuarios));
         }
-
-        // ==================== MÉTODOS AJAX PARA VALIDACIONES ====================
-
-         
+      
         /// Verifica si un nombre de usuario ya existe (AJAX)
          
         [HttpGet]
@@ -301,21 +276,14 @@ namespace ArtemisBanking.Web.Controllers
         }
 
 
-        // ==================== GESTIÓN DE PRÉSTAMOS (COMPLETA) ====================
-        // Esta sección va DESPUÉS de la gestión de usuarios en tu AdminController
-
-         
-        /// Lista paginada de préstamos con filtros
-        /// Muestra todos los préstamos del sistema ordenados del más reciente al más antiguo
+        //  GESTIÓN DE PRÉSTAMOS (COMPLETA CREO) 
          
         [HttpGet]
         public async Task<IActionResult> Prestamos(int pagina = 1, string cedula = null, bool? estado = null)
         {
             try
             {
-                // Obtenemos los préstamos paginados del repositorio
-                // Si hay cédula, filtramos por ese cliente
-                // Si hay estado, filtramos por activos o completados
+
                 var (prestamos, total) = await _repositorioPrestamo.ObtenerPrestamosPaginadosAsync(
                     pagina,
                     Constantes.TamanoPaginaPorDefecto,
@@ -323,7 +291,6 @@ namespace ArtemisBanking.Web.Controllers
                     estado
                 );
 
-                // Mapeamos cada préstamo a su ViewModel
                 var prestamosVM = prestamos.Select(p => new PrestamoListaItemViewModel
                 {
                     Id = p.Id,
@@ -338,7 +305,6 @@ namespace ArtemisBanking.Web.Controllers
                     EstaAlDia = p.EstaAlDia
                 });
 
-                // Creamos el ViewModel para la vista
                 var viewModel = new ListaPrestamosViewModel
                 {
                     Prestamos = prestamosVM,
@@ -361,14 +327,12 @@ namespace ArtemisBanking.Web.Controllers
 
          
         /// Muestra el detalle de un préstamo (tabla de amortización completa)
-        /// Aquí se ven todas las cuotas: cuáles están pagadas, cuáles no, cuáles atrasadas
          
         [HttpGet]
         public async Task<IActionResult> DetallePrestamo(int id)
         {
             try
             {
-                // Obtenemos el préstamo con todas sus relaciones
                 var prestamo = await _repositorioPrestamo.ObtenerPorIdAsync(id);
 
                 if (prestamo == null)
@@ -377,10 +341,8 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Prestamos));
                 }
 
-                // Obtenemos todas las cuotas de la tabla de amortización
                 var cuotas = await _repositorioCuotaPrestamo.ObtenerCuotasDePrestamoAsync(id);
 
-                // Creamos el ViewModel con toda la información
                 var viewModel = new DetallePrestamoViewModel
                 {
                     Id = prestamo.Id,
@@ -392,7 +354,6 @@ namespace ArtemisBanking.Web.Controllers
                     CuotaMensual = prestamo.CuotaMensual,
                     EstaActivo = prestamo.EstaActivo,
                     FechaCreacion = prestamo.FechaCreacion,
-                    // Mapeamos todas las cuotas de la tabla de amortización
                     TablaAmortizacion = cuotas.Select(c => new CuotaPrestamoViewModel
                     {
                         FechaPago = c.FechaPago,
@@ -414,8 +375,6 @@ namespace ArtemisBanking.Web.Controllers
 
          
         /// Muestra el formulario para editar la tasa de interés de un préstamo
-        /// Solo se pueden editar préstamos activos
-        /// Al cambiar la tasa, se recalculan las cuotas futuras
          
         [HttpGet]
         public async Task<IActionResult> EditarPrestamo(int id)
@@ -442,7 +401,7 @@ namespace ArtemisBanking.Web.Controllers
                     NumeroPrestamo = prestamo.NumeroPrestamo,
                     NombreCliente = $"{prestamo.Cliente.Nombre} {prestamo.Cliente.Apellido}",
                     TasaInteresActual = prestamo.TasaInteresAnual,
-                    NuevaTasaInteres = prestamo.TasaInteresAnual // Pre-llenamos con la tasa actual
+                    NuevaTasaInteres = prestamo.TasaInteresAnual 
                 };
 
                 return View(viewModel);
@@ -457,14 +416,12 @@ namespace ArtemisBanking.Web.Controllers
 
          
         /// Procesa la actualización de la tasa de interés
-        /// Recalcula todas las cuotas futuras (las que no se han pagado)
-        /// Las cuotas ya pagadas NO se modifican
+
          
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPrestamo(EditarPrestamoViewModel model)
         {
-            // ⭐ LOGGING TEMPORAL PARA DEBUG
             _logger.LogInformation($"=== EDITANDO PRESTAMO ===");
             _logger.LogInformation($"Id: {model.Id}");
             _logger.LogInformation($"NuevaTasaInteres: {model.NuevaTasaInteres}");
@@ -472,7 +429,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -485,7 +441,6 @@ namespace ArtemisBanking.Web.Controllers
                     _logger.LogError($"Error en {error.Campo}: {error.Errores}");
                 }
                 
-                // ⭐ AGREGAR MENSAJE VISIBLE AL USUARIO
                 TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 
                 return View(model);
@@ -493,19 +448,12 @@ namespace ArtemisBanking.Web.Controllers
 
             try
             {
-                // Creamos el DTO para el servicio
                 var dto = new ActualizarTasaPrestamoDTO
                 {
                     PrestamoId = model.Id,
                     NuevaTasaInteres = model.NuevaTasaInteres
                 };
 
-                // El servicio se encarga de:
-                // 1. Validar que el préstamo existe y está activo
-                // 2. Obtener las cuotas futuras (no pagadas)
-                // 3. Recalcular el monto de cada cuota con la nueva tasa
-                // 4. Actualizar la cuota mensual del préstamo
-                // 5. Enviar correo al cliente notificando el cambio
                 var resultado = await _servicioPrestamo.ActualizarTasaInteresAsync(dto);
 
                 if (resultado.Exito)
@@ -526,19 +474,13 @@ namespace ArtemisBanking.Web.Controllers
         }
 
 
-        // ==================== GESTIÓN DE TARJETAS DE CRÉDITO (COMPLETA) ====================
-        // Esta sección va DESPUÉS de la gestión de préstamos en tu AdminController
-
-         
-        /// Lista paginada de tarjetas de crédito con filtros
-        /// Muestra todas las tarjetas del sistema ordenadas de la más reciente a la más antigua
-         
+        //  GESTIÓN DE TARJETAS DE CRÉDITO (COMPLETA CREO) 
+       
         [HttpGet]
         public async Task<IActionResult> Tarjetas(int pagina = 1, string cedula = null, bool? estado = null)
         {
             try
             {
-                // Obtenemos las tarjetas paginadas del repositorio
                 var (tarjetas, total) = await _repositorioTarjeta.ObtenerTarjetasPaginadasAsync(
                     pagina,
                     Constantes.TamanoPaginaPorDefecto,
@@ -546,7 +488,6 @@ namespace ArtemisBanking.Web.Controllers
                     estado
                 );
 
-                // Mapeamos cada tarjeta a su ViewModel
                 var tarjetasVM = tarjetas.Select(t => new TarjetaListaItemViewModel
                 {
                     Id = t.Id,
@@ -558,7 +499,6 @@ namespace ArtemisBanking.Web.Controllers
                     EstaActiva = t.EstaActiva
                 });
 
-                // Creamos el ViewModel para la vista
                 var viewModel = new ListaTarjetasViewModel
                 {
                     Tarjetas = tarjetasVM,
@@ -579,10 +519,6 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // Los métodos AsignarTarjeta, ConfigurarTarjeta, etc. ya los tienes implementados
-        // DetalleTarjeta ya está implementado también
-
-         
         /// Muestra el detalle de una tarjeta con todos sus consumos
          
         [HttpGet]
@@ -590,7 +526,6 @@ namespace ArtemisBanking.Web.Controllers
         {
             try
             {
-                // Obtenemos la tarjeta
                 var resultado = await _servicioTarjeta.ObtenerTarjetaPorIdAsync(id);
 
                 if (!resultado.Exito)
@@ -599,10 +534,9 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Tarjetas));
                 }
 
-                // Obtenemos todos los consumos de la tarjeta
                 var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosDeTarjetaAsync(id);
 
-                // Mapeamos a ViewModel
+
                 var viewModel = new DetalleTarjetaViewModel
                 {
                     Id = resultado.Datos.Id,
@@ -614,7 +548,6 @@ namespace ArtemisBanking.Web.Controllers
                     CreditoDisponible = resultado.Datos.CreditoDisponible,
                     FechaExpiracion = resultado.Datos.FechaExpiracion,
                     EstaActiva = resultado.Datos.EstaActiva,
-                    // Mapeamos todos los consumos
                     Consumos = consumos.Select(c => new ConsumoTarjetaViewModel
                     {
                         FechaConsumo = c.FechaConsumo,
@@ -634,24 +567,17 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-
-        // ==================== GESTIÓN DE CUENTAS DE AHORRO (COMPLETA) ====================
-        // Esta sección va DESPUÉS de la gestión de tarjetas en tu AdminController
-
-         
-        /// Lista paginada de cuentas de ahorro con filtros
-        /// Muestra todas las cuentas (principales y secundarias) ordenadas de la más reciente a la más antigua
-         
+        //  GESTIÓN DE CUENTAS DE AHORRO (COMPLETA CREO) 
+      
         [HttpGet]
         public async Task<IActionResult> Cuentas(
             int pagina = 1,
             string cedula = null,
             bool? estado = null,
-            bool? tipo = null) // true = principal, false = secundaria
+            bool? tipo = null) 
         {
             try
             {
-                // Obtenemos las cuentas paginadas del repositorio
                 var (cuentas, total) = await _repositorioCuenta.ObtenerCuentasPaginadasAsync(
                     pagina,
                     Constantes.TamanoPaginaPorDefecto,
@@ -660,7 +586,6 @@ namespace ArtemisBanking.Web.Controllers
                     tipo
                 );
 
-                // Mapeamos cada cuenta a su ViewModel
                 var cuentasVM = cuentas.Select(c => new CuentaListaItemViewModel
                 {
                     Id = c.Id,
@@ -672,7 +597,6 @@ namespace ArtemisBanking.Web.Controllers
                     EsPrincipal = c.EsPrincipal
                 });
 
-                // Creamos el ViewModel para la vista
                 var viewModel = new ListaCuentasViewModel
                 {
                     Cuentas = cuentasVM,
@@ -694,18 +618,14 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // Los métodos AsignarCuenta, ConfigurarCuenta, etc. ya los tienes implementados
-
-         
+        
         /// Muestra el detalle de una cuenta con todas sus transacciones
-        /// Aquí se ven todos los movimientos: depósitos, retiros, transferencias, pagos, etc.
          
         [HttpGet]
         public async Task<IActionResult> DetalleCuenta(int id)
         {
             try
             {
-                // Obtenemos la cuenta
                 var resultado = await _servicioCuenta.ObtenerCuentaPorIdAsync(id);
 
                 if (!resultado.Exito)
@@ -714,10 +634,9 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Cuentas));
                 }
 
-                // Obtenemos todas las transacciones de la cuenta
                 var transacciones = await _repositorioTransaccion.ObtenerTransaccionesDeCuentaAsync(id);
 
-                // Mapeamos a ViewModel
+
                 var viewModel = new DetalleCuentaViewModel
                 {
                     Id = resultado.Datos.Id,
@@ -726,7 +645,6 @@ namespace ArtemisBanking.Web.Controllers
                     Balance = resultado.Datos.Balance,
                     EsPrincipal = resultado.Datos.EsPrincipal,
                     EstaActiva = resultado.Datos.EstaActiva,
-                    // Mapeamos todas las transacciones
                     Transacciones = transacciones.Select(t => new TransaccionViewModel
                     {
                         FechaTransaccion = t.FechaTransaccion,
@@ -748,13 +666,8 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // CancelarCuenta ya lo tienes implementado
-        // ConfirmarCancelacionCuenta ya lo tienes implementado, solo necesita este ajuste:
-
-         
         /// Procesa la cancelación de una cuenta secundaria
-        /// Si tiene fondos, los transfiere a la cuenta principal automáticamente
-        /// Las cuentas principales NO se pueden cancelar
+
          
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -762,11 +675,7 @@ namespace ArtemisBanking.Web.Controllers
         {
             try
             {
-                // El servicio se encarga de:
-                // 1. Validar que la cuenta existe
-                // 2. Validar que NO sea cuenta principal
-                // 3. Si tiene balance, transferirlo a la cuenta principal del cliente
-                // 4. Marcar la cuenta como inactiva
+                
                 var resultado = await _servicioCuenta.CancelarCuentaAsync(id);
 
                 if (resultado.Exito)
@@ -789,17 +698,13 @@ namespace ArtemisBanking.Web.Controllers
         }
 
 
-        // ==================== ASIGNACIÓN DE PRÉSTAMOS (COMPLETO) ====================
-
-         
-        /// Muestra el listado de clientes para asignar préstamo
-         
+        //  ASIGNACIÓN DE PRÉSTAMOS (COMPLETO CREO) 
+       
         [HttpGet]
         public async Task<IActionResult> AsignarPrestamo()
         {
             try
             {
-                // Obtener clientes sin préstamo activo
                 var resultado = await _servicioUsuario.ObtenerClientesSinPrestamoActivoAsync();
 
                 if (!resultado.Exito)
@@ -808,7 +713,6 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Prestamos));
                 }
 
-                // Obtener deuda promedio del sistema
                 var deudaPromedioResult = await _servicioPrestamo.ObtenerDeudaPromedioAsync();
 
                 var viewModel = new SeleccionarClientePrestamoViewModel
@@ -819,7 +723,7 @@ namespace ArtemisBanking.Web.Controllers
                         Cedula = c.Cedula,
                         NombreCompleto = c.NombreCompleto,
                         Correo = c.Correo,
-                        DeudaTotal = c.MontoInicial // Reutilizamos este campo
+                        DeudaTotal = c.MontoInicial 
                     }),
                     DeudaPromedio = deudaPromedioResult.Exito ? deudaPromedioResult.Datos : 0
                 };
@@ -849,7 +753,6 @@ namespace ArtemisBanking.Web.Controllers
 
             try
             {
-                // Obtener datos del cliente
                 var clienteResult = await _servicioUsuario.ObtenerUsuarioPorIdAsync(clienteId);
 
                 if (!clienteResult.Exito)
@@ -905,14 +808,12 @@ namespace ArtemisBanking.Web.Controllers
                     TasaInteresAnual = model.TasaInteresAnual
                 };
 
-                // Validar riesgo del cliente
                 var riesgoResult = await _servicioPrestamo.ValidarRiesgoClienteAsync(
                     model.ClienteId,
                     model.MontoCapital
                 );
 
-                // ⭐ SI ES ALTO RIESGO, mostrar advertencia
-                if (riesgoResult.Datos) // Ahora verificamos el resultado real
+                if (riesgoResult.Datos) 
                 {
                     var deudaActual = await _repositorioPrestamo.CalcularDeudaTotalClienteAsync(model.ClienteId);
                     var deudaPromedio = await _repositorioPrestamo.CalcularDeudaPromedioAsync();
@@ -933,7 +834,6 @@ namespace ArtemisBanking.Web.Controllers
                     return View("AdvertenciaRiesgoPrestamo", advertenciaVM);
                 }
 
-                // ⭐ SI NO ES ALTO RIESGO, asignar directamente
                 var resultado = await _servicioPrestamo.AsignarPrestamoAsync(dto);
 
                 if (resultado.Exito)
@@ -994,10 +894,7 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== ASIGNACIÓN DE TARJETAS ====================
-
-         
-        /// Muestra el listado de clientes para asignar tarjeta
+        //  ASIGNACIÓN DE TARJETAS 
          
         [HttpGet]
         public async Task<IActionResult> AsignarTarjeta()
@@ -1118,7 +1015,7 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== EDITAR TARJETA ====================
+        //  EDITAR TARJETA 
 
         [HttpGet]
         public async Task<IActionResult> EditarTarjeta(int id)
@@ -1157,7 +1054,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarTarjeta(EditarTarjetaViewModel model)
         {
-            // ⭐ LOGGING TEMPORAL PARA DEBUG
             _logger.LogInformation($"=== EDITANDO TARJETA ===");
             _logger.LogInformation($"Id: {model.Id}");
             _logger.LogInformation($"LimiteCredito: {model.LimiteCredito}");
@@ -1165,7 +1061,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ⭐ MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -1178,7 +1073,6 @@ namespace ArtemisBanking.Web.Controllers
                     _logger.LogError($"Error en {error.Campo}: {error.Errores}");
                 }
                 
-                // ⭐ AGREGAR MENSAJE VISIBLE AL USUARIO
                 TempData["ErrorMessage"] = $"Error de validación: {string.Join("; ", errores.Select(e => $"{e.Campo}: {e.Errores}"))}";
                 
                 return View(model);
@@ -1211,7 +1105,7 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== CANCELAR TARJETA ====================
+        //  CANCELAR TARJETA 
 
         [HttpGet]
         public async Task<IActionResult> CancelarTarjeta(int id)
@@ -1271,7 +1165,7 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== ASIGNACIÓN DE CUENTAS DE AHORRO ====================
+        //  ASIGNACIÓN DE CUENTAS DE AHORRO 
 
         [HttpGet]
         public async Task<IActionResult> AsignarCuenta()
@@ -1415,17 +1309,13 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== MÉTODO TEMPORAL PARA VER CUENTAS ====================
-        
-        /// <summary>
-        /// TEMPORAL: Lista todas las cuentas para debugging
-        /// </summary>
+        //  MÉTODO TEMPORAL PARA VER CUENTAS 
+
         [HttpGet]
         public async Task<IActionResult> ListarTodasLasCuentas()
         {
             try
             {
-                // Obtener todas las cuentas activas
                 var (cuentas, _) = await _repositorioCuenta.ObtenerCuentasPaginadasAsync(1, 1000, null, true, null);
                 
                 var cuentasInfo = cuentas.Select(c => new

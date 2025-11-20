@@ -22,11 +22,10 @@
                     <form asp-action="ProcesarAsignacionPrestamo" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="ClienteId" />
-                        <!-- ⭐ AGREGA ESTE CAMPO OCULTO TAMBIÉN -->
                         <input type="hidden" asp-for="NombreCliente" />
 
                         <!-- Mensaje de error general -->
-                        <div asp-validation-summary="All" class="alert alert-artemis-error" role="alert"></div> <!-- <-- CAMBIO AQUÍ DE "ModelOnly" A "All" -->
+                        <div asp-validation-summary="All" class="alert alert-artemis-error" role="alert"></div> 
                         <!-- Info del Cliente -->
                         <h5 class="text-artemis-secondary mb-3">Cliente Seleccionado</h5>
                         <div class="bg-artemis-light p-3 rounded mb-4">

@@ -1,4 +1,4 @@
-using ArtemisBanking.Application;  // ← NUEVO
+using ArtemisBanking.Application;
 using ArtemisBanking.Infrastructure;
 using ArtemisBanking.Infrastructure.Data;
 using Hangfire;
@@ -7,31 +7,23 @@ using DependencyInjection = ArtemisBanking.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Agregar servicios al contenedor
 builder.Services.AddControllersWithViews();
 
-// ⭐ NUEVO: Agregar servicios de la capa de aplicación (lógica de negocio)
 builder.Services.AgregarAplicacion();
 
-// Agregar servicios de la capa de infraestructura (DbContext, Identity, Repositorios)
 builder.Services.AgregarInfraestructura(builder.Configuration);
 
-// Configurar políticas de autorización por roles
 builder.Services.AddAuthorization(options =>
 {
-    // Política para administradores
     options.AddPolicy("SoloAdministrador", policy =>
         policy.RequireRole("Administrador"));
 
-    // Política para cajeros
     options.AddPolicy("SoloCajero", policy =>
         policy.RequireRole("Cajero"));
 
-    // Política para clientes
     options.AddPolicy("SoloCliente", policy =>
         policy.RequireRole("Cliente"));
     
-    // Política para comercios
     options.AddPolicy("SoloComercio", policy =>
         policy.RequireRole("Comercio"));
 });
@@ -69,7 +61,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Activar autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -79,10 +70,8 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
     Authorization = new[] { new HangfireAuthorizationFilter() }
 });
 
-// Configurar los jobs recurrentes de Hangfire
 DependencyInjection.ConfigurarJobsRecurrentes();
 
-// Configurar las rutas de los controladores
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
@@ -96,7 +85,6 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
     {
         var httpContext = context.GetHttpContext();
 
-        // Permitir acceso solo si el usuario está autenticado y es administrador
         return httpContext.User.Identity?.IsAuthenticated == true &&
                httpContext.User.IsInRole("Administrador");
     }

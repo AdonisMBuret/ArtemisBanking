@@ -218,9 +218,10 @@ namespace ArtemisBanking.Application.Services
                 return new PaginatedResponseDTO<TransaccionComercioDTO>
                 {
                     Data = new List<TransaccionComercioDTO>(),
-                    Page = page,
+                    PageNumber = page,
                     PageSize = pageSize,
-                    TotalRecords = 0
+                    TotalRecords = 0,
+                    TotalPages = 0
                 };
             }
 
@@ -230,9 +231,10 @@ namespace ArtemisBanking.Application.Services
                 return new PaginatedResponseDTO<TransaccionComercioDTO>
                 {
                     Data = new List<TransaccionComercioDTO>(),
-                    Page = page,
+                    PageNumber = page,
                     PageSize = pageSize,
-                    TotalRecords = 0
+                    TotalRecords = 0,
+                    TotalPages = 0
                 };
             }
 
@@ -255,9 +257,10 @@ namespace ArtemisBanking.Application.Services
             return new PaginatedResponseDTO<TransaccionComercioDTO>
             {
                 Data = transaccionesDTO,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize,
-                TotalRecords = totalRegistros
+                TotalRecords = totalRegistros,
+                TotalPages = (int)Math.Ceiling(totalRegistros / (double)pageSize)
             };
         }
     }

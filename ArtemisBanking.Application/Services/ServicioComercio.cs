@@ -53,9 +53,10 @@ namespace ArtemisBanking.Application.Services
             return new PaginatedResponseDTO<ComercioResponseDTO>
             {
                 Data = comerciosDTO,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize,
-                TotalRecords = totalRegistros
+                TotalRecords = totalRegistros,
+                TotalPages = (int)Math.Ceiling(totalRegistros / (double)pageSize)
             };
         }
 

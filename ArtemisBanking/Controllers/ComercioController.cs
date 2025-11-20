@@ -1,4 +1,3 @@
-using ArtemisBanking.Application.DTOs;
 using ArtemisBanking.Application.DTOs.Api;
 using ArtemisBanking.Application.Interfaces;
 using ArtemisBanking.Application.ViewModels.Comercio;
@@ -11,10 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArtemisBanking.Web.Controllers
 {
-    /// <summary>
     /// Controlador para gestión de comercios
-    /// Solo accesible por Administradores
-    /// </summary>
+  
     [Authorize(Policy = "SoloAdministrador")]
     public class ComercioController : Controller
     {
@@ -61,7 +58,7 @@ namespace ArtemisBanking.Web.Controllers
                 var viewModel = new ListaComerciosViewModel
                 {
                     Comercios = _mapper.Map<IEnumerable<ComercioItemViewModel>>(resultado.Data),
-                    PaginaActual = resultado.Page,
+                    PaginaActual = resultado.PageNumber,      
                     TotalPaginas = resultado.TotalPages,
                     TotalRegistros = resultado.TotalRecords
                 };
@@ -90,7 +87,6 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Obtener estadísticas de consumos
                 var consumos = await _repositorioConsumoTarjeta.ObtenerConsumosPorComercioAsync(id);
 
                 var viewModel = _mapper.Map<DetalleComercioViewModel>(comercio);
@@ -121,7 +117,6 @@ namespace ArtemisBanking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(CrearComercioViewModel model)
         {
-            // ? LOGGING PARA DEBUG
             _logger.LogInformation($"=== CREANDO COMERCIO ===");
             _logger.LogInformation($"Nombre: {model.Nombre}");
             _logger.LogInformation($"RNC: {model.RNC}");
@@ -129,7 +124,6 @@ namespace ArtemisBanking.Web.Controllers
             
             if (!ModelState.IsValid)
             {
-                // ? MOSTRAR ERRORES DE VALIDACIÓN
                 var errores = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .Select(x => new { 
@@ -261,11 +255,8 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        // ==================== ASIGNAR USUARIO A COMERCIO ====================
-
-        /// <summary>
         /// Muestra el formulario para crear un usuario y asociarlo a un comercio
-        /// </summary>
+
         [HttpGet]
         public async Task<IActionResult> AsignarUsuario(int id)
         {
@@ -279,7 +270,6 @@ namespace ArtemisBanking.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Verificar si ya tiene usuario asignado
                 if (await _servicioComercio.TieneUsuarioAsociadoAsync(id))
                 {
                     TempData["ErrorMessage"] = "Este comercio ya tiene un usuario asignado";
@@ -303,14 +293,13 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
+        
         /// Procesa la creación del usuario y lo asocia al comercio
-        /// </summary>
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AsignarUsuario(AsignarUsuarioComercioViewModel model)
         {
-            // ? LOGGING PARA DEBUG
             _logger.LogInformation($"=== ASIGNANDO USUARIO A COMERCIO ===");
             _logger.LogInformation($"ComercioId: {model.ComercioId}");
             _logger.LogInformation($"Usuario: {model.NombreUsuario}");
@@ -355,7 +344,6 @@ namespace ArtemisBanking.Web.Controllers
                 }
 
                 _logger.LogInformation("Creando usuario de Identity...");
-                // 1. Crear el usuario
                 var nuevoUsuario = new Usuario
                 {
                     UserName = model.NombreUsuario,
@@ -363,9 +351,9 @@ namespace ArtemisBanking.Web.Controllers
                     Nombre = model.Nombre,
                     Apellido = model.Apellido,
                     Cedula = model.Cedula,
-                    EstaActivo = false, // Inactivo hasta que confirme el email
+                    EstaActivo = false, 
                     EmailConfirmed = false,
-                    ComercioId = model.ComercioId, // ? Asociar al comercio
+                    ComercioId = model.ComercioId, 
                     FechaCreacion = DateTime.Now
                 };
 
@@ -381,15 +369,12 @@ namespace ArtemisBanking.Web.Controllers
                 }
 
                 _logger.LogInformation("Usuario creado, asignando rol Comercio...");
-                // 2. Asignar rol Comercio
                 await _userManager.AddToRoleAsync(nuevoUsuario, "Comercio");
 
                 _logger.LogInformation("Generando token de confirmación...");
-                // 3. Generar token de confirmación
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(nuevoUsuario);
 
                 _logger.LogInformation("Enviando correo de confirmación...");
-                // 4. Enviar correo de confirmación
                 var urlBase = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7103";
                 await _servicioCorreo.EnviarCorreoConfirmacionAsync(
                     nuevoUsuario.Email,
@@ -399,7 +384,6 @@ namespace ArtemisBanking.Web.Controllers
                     urlBase);
 
                 _logger.LogInformation("Creando cuenta de ahorro principal...");
-                // 5. Crear cuenta de ahorro principal para el comercio
                 var numeroCuenta = await GenerarNumeroCuentaUnicoAsync();
                 var cuentaPrincipal = new CuentaAhorro
                 {
@@ -414,7 +398,6 @@ namespace ArtemisBanking.Web.Controllers
                 await _repositorioCuenta.AgregarAsync(cuentaPrincipal);
                 await _repositorioCuenta.GuardarCambiosAsync();
 
-                // ? 6. ACTUALIZAR EL COMERCIO CON EL ID DEL USUARIO
                 _logger.LogInformation("Actualizando comercio con el ID del usuario...");
                 var comercioEntity = await _repositorioComercio.ObtenerPorIdAsync(model.ComercioId);
                 if (comercioEntity != null)
@@ -437,9 +420,8 @@ namespace ArtemisBanking.Web.Controllers
             }
         }
 
-        /// <summary>
         /// Genera un número de cuenta único de 9 dígitos
-        /// </summary>
+        
         private async Task<string> GenerarNumeroCuentaUnicoAsync()
         {
             var random = new Random();

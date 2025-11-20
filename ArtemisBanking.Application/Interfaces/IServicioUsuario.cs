@@ -1,10 +1,11 @@
 ﻿using ArtemisBanking.Application.DTOs;
+using ArtemisBanking.Application.DTOs.Api;
 
 namespace ArtemisBanking.Application.Interfaces
 {
     public interface IServicioUsuario
     {
-        // GESTIÓN DE USUARIOS 
+        // GESTIÓN DE USUARIOS (Web MVC)
 
         Task<ResultadoOperacion<UsuarioDTO>> CrearUsuarioAsync(CrearUsuarioDTO datos);
      
@@ -19,6 +20,35 @@ namespace ArtemisBanking.Application.Interfaces
             int tamano,
             string rol = null,
             string usuarioActualId = null);
+
+        // MÉTODOS PARA API REST (retornan DTOs específicos de API)
+
+    
+        Task<ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>> ObtenerUsuariosPaginadosParaApiAsync(
+            int page,
+            int pageSize,
+            string rol = null,
+            bool excludeComercio = false);
+
+
+        Task<ResultadoOperacion<PaginatedResponseDTO<UsuarioApiResponseDTO>>> ObtenerUsuariosComercioParaApiAsync(
+            int page,
+            int pageSize);
+
+ 
+        Task<ResultadoOperacion<UsuarioApiResponseDTO>> CrearUsuarioParaApiAsync(CrearUsuarioDTO datos);
+
+        Task<ResultadoOperacion<UsuarioApiResponseDTO>> CrearUsuarioComercioParaApiAsync(
+            int commerceId,
+            string nombre,
+            string apellido,
+            string cedula,
+            string email,
+            string userName,
+            string password);
+
+   
+        Task<ResultadoOperacion<UsuarioApiResponseDTO>> ObtenerUsuarioPorIdParaApiAsync(string usuarioId);
 
         // DASHBOARDS 
 
